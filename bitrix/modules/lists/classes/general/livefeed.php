@@ -402,7 +402,7 @@ class CListsLiveFeed
 							"PERMISSION" => 'Y',
 						);
 						$startMessageId = CForumMessage::Add($dataFields, false, array("SKIP_INDEXING" => "Y", "SKIP_STATISTIC" => "N"));
-						if (intVal($startMessageId) <= 0)
+						if (intval($startMessageId) <= 0)
 						{
 							CForumTopic::Delete($topicId);
 							$topicId = 0;
@@ -516,7 +516,7 @@ class CListsLiveFeed
 		{
 			if($user != 'SA')
 			{
-				$users[] = substr($user, 1);
+				$users[] = mb_substr($user, 1);
 			}
 		}
 		return $users;
@@ -858,11 +858,11 @@ class CListsLiveFeed
 			$params = unserialize($log["~PARAMS"]);
 			$title = $log["TITLE"]." - ".$params["ELEMENT_NAME"];
 			$entityName = GetMessage("LISTS_LF_COMMENT_MENTION_TITLE", Array("#PROCESS#" => $title));
-			$notifyMessage = GetMessage("LISTS_LF_COMMENT_MENTION" . (strlen($genderSuffix) > 0 ? "_" . $genderSuffix : ""), Array("#title#" => "<a href=\"#url#\" class=\"bx-notifier-item-action\">".$entityName."</a>"));
-			$notifyMessageOut = GetMessage("LISTS_LF_COMMENT_MENTION" . (strlen($genderSuffix) > 0 ? "_" . $genderSuffix : ""), Array("#title#" => $entityName)) . " (" . "#server_name##url#)";
+			$notifyMessage = GetMessage("LISTS_LF_COMMENT_MENTION" . ($genderSuffix <> '' ? "_" . $genderSuffix : ""), Array("#title#" => "<a href=\"#url#\" class=\"bx-notifier-item-action\">".$entityName."</a>"));
+			$notifyMessageOut = GetMessage("LISTS_LF_COMMENT_MENTION" . ($genderSuffix <> '' ? "_" . $genderSuffix : ""), Array("#title#" => $entityName)) . " (" . "#server_name##url#)";
 
 			$strPathToLogEntry = str_replace("#log_id#", $log["ID"], COption::GetOptionString("socialnetwork", "log_entry_page", "/company/personal/log/#log_id#/", SITE_ID));
-			$strPathToLogEntryComment = $strPathToLogEntry . (strpos($strPathToLogEntry, "?") !== false ? "&" : "?") . "commentID=" . $commentFields["ID"] . "#com" . $commentFields["ID"];
+			$strPathToLogEntryComment = $strPathToLogEntry . (mb_strpos($strPathToLogEntry, "?") !== false ? "&" : "?") . "commentID=" . $commentFields["ID"] . "#com" . $commentFields["ID"];
 
 			$return = array(
 				"URL" => $strPathToLogEntryComment,

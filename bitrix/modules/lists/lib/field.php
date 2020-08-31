@@ -167,8 +167,12 @@ class Field
 						$field['CURRENT_VALUE'] = $value['VALUE'];
 						$html .= ' '.self::renderField($field);
 					}
-					$result['customHtml'] .= '<input type="hidden" name="'.
-						$field['FIELD_ID'].'['.$key.'][VALUE]" value="'.HtmlFilter::encode($value['VALUE']).'">';
+					$value['VALUE'] = (!is_array($value['VALUE']) ? [$value['VALUE']] : $value['VALUE']);
+					foreach ($value['VALUE'] as $innerKey => $innerValue)
+					{
+						$result['customHtml'] .= '<input type="hidden" name="'.
+							$field['FIELD_ID'].'[n'.$innerKey.'][VALUE]" value="'.HtmlFilter::encode($innerValue).'">';
+					}
 				}
 			}
 			if($field['READ'] == 'N')
@@ -1104,8 +1108,7 @@ class Field
 				foreach($field['VALUE'] as $key => $value)
 				{
 					$html .= '<textarea '.$disabled.' style="width:auto;height:auto;" name="'.$field['FIELD_ID'].
-						'['.$key.'][VALUE]" rows="'.intval($field["ROW_COUNT"]).'" cols="'.intval(
-							$field["COL_COUNT"]).'">'.HtmlFilter::encode($value["VALUE"]).'</textarea>';
+						'['.$key.'][VALUE]" rows="'.intval($field["ROW_COUNT"]).'" cols="'.intval($field["COL_COUNT"]).'">'.HtmlFilter::encode($value["VALUE"]).'</textarea>';
 					if($field['READ'] == 'Y')
 					{
 						if(empty($value['VALUE'])) continue;
@@ -1496,7 +1499,7 @@ class Field
 		}
 
 		$randomGenerator = new RandomSequence($field['FIELD_ID']);
-		$randString = strtolower($randomGenerator->randString(6));
+		$randString = mb_strtolower($randomGenerator->randString(6));
 
 		$html = '';
 		global $APPLICATION;

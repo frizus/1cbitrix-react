@@ -88,9 +88,8 @@ if ($arResult["CAN_EXPORT"])
 {
 	if ($USER->isAuthorized())
 	{
-		$url = CHTTP::urlAddParams((strpos($APPLICATION->GetCurPageParam(), "?") == false) ?
-			$arResult["EXPORT_EXCEL_URL"] : $arResult["EXPORT_EXCEL_URL"].substr($APPLICATION->GetCurPageParam(),
-				strpos($APPLICATION->GetCurPageParam(), "?")), array("ncc" => "y"));
+		$url = CHTTP::urlAddParams((mb_strpos($APPLICATION->GetCurPageParam(), "?") == false) ?
+			$arResult["EXPORT_EXCEL_URL"] : $arResult["EXPORT_EXCEL_URL"].mb_substr($APPLICATION->GetCurPageParam(), mb_strpos($APPLICATION->GetCurPageParam(), "?")), array("ncc" => "y"));
 		$listAction[] = array(
 			"text" => Loc::getMessage("CT_BLL_EXPORT_IN_EXCEL"),
 			"url" => $url,
@@ -249,22 +248,17 @@ if($shouldStartRebuildSeachableContent):?>
 
 if (Loader::includeModule("socialnetwork"))
 {
-	$helper = new Bitrix\Socialnetwork\Copy\Integration\StepperHelper();
-	$helper->setStepper('Bitrix\Iblock\Copy\Stepper\Iblock');
-	$helper->setModuleId("iblock");
-	$helper->setQueueOption("IblockGroupQueue");
-	$helper->setCheckerOption("IblockGroupChecker_");
-	$helper->setStepperOption("IblockGroupStepper_");
-	$helper->setErrorOption("IblockGroupError_");
-	$helper->setTitle(GetMessage("CT_BLL_GROUP_STEPPER_PROGRESS_TITLE"));
-	$helper->setError(GetMessage("CT_BLL_GROUP_STEPPER_PROGRESS_ERROR"));
-
 	$APPLICATION->includeComponent(
 		"bitrix:socialnetwork.copy.checker",
 		"",
 		[
-			"QUEUE_ID" => $arResult["IBLOCK_ID"],
-			"HELPER" => $helper
+			"moduleId" => "iblock",
+			"queueId" => $arResult["IBLOCK_ID"],
+			"stepperClassName" => "Bitrix\\Iblock\\Copy\\Stepper\\Iblock",
+			"checkerOption" => "IblockGroupChecker_",
+			"errorOption" => "IblockGroupError_",
+			"titleMessage" => GetMessage("CT_BLL_GROUP_STEPPER_PROGRESS_TITLE"),
+			"errorMessage" => GetMessage("CT_BLL_GROUP_STEPPER_PROGRESS_ERROR"),
 		],
 		$component,
 		["HIDE_ICONS" => "Y"]

@@ -7,6 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /**
  * @var StoreCartBlock $classBlock
  */
+$iblockId = $classBlock->get('IBLOCK_ID') ?? '';
+$skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 ?>
 <section class="landing-block g-pt-100 g-pb-100">
 	<div class="container g-font-size-13">
@@ -23,6 +25,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 					'SUM',
 					'DELETE',
 					'DELAY',
+				),
+				'ADDITIONAL_PICT_PROP' => array(
+					$iblockId => 'MORE_PHOTO',
+					$skuIblockId => 'MORE_PHOTO',
 				),
 				'AJAX_MODE' => 'N',
 				'AJAX_OPTION_JUMP' => 'N',

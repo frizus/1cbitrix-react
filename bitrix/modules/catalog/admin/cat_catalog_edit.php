@@ -52,8 +52,8 @@ $tabControl = new CAdminForm("form_catalog_edit_".$IBLOCK_ID, $aTabs);
 if(
 	$_SERVER["REQUEST_METHOD"] == "POST"
 	&& (
-		(isset($_REQUEST["save"]) && strlen($_REQUEST["save"]) > 0)
-		|| (isset($_REQUEST["apply"]) && strlen($_REQUEST["apply"]) > 0)
+		(isset($_REQUEST["save"]) && $_REQUEST["save"] <> '')
+		|| (isset($_REQUEST["apply"]) && $_REQUEST["apply"] <> '')
 	)
 	&& check_bitrix_sessid()
 )
@@ -167,7 +167,7 @@ if(
 		}
 
 		$redirectUrl = $selfFolderUrl."cat_catalog_edit.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&".$tabControl->ActiveTabParam();
-		$adminSidePanelHelper->reloadPage($redirectUrl, (strlen($_REQUEST["apply"]) > 0 ? "apply" : "save"));
+		$adminSidePanelHelper->reloadPage($redirectUrl, ($_REQUEST["apply"] <> '' ? "apply" : "save"));
 		$redirectUrl = $adminSidePanelHelper->setDefaultQueryParams($redirectUrl);
 		LocalRedirect($redirectUrl);
 	}
@@ -205,6 +205,7 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 	?>
 		<tr colspan="2"><td style="text-align: center;">
 			<?
+			echo $editor->getEditorHtml();
 			?>
 			<table class="internal" id="table_SECTION_PROPERTY">
 			<tr class="heading">
@@ -300,7 +301,8 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 					}
 					elseif (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
-						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $arLink['FILTER_HINT'], 255);
+						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
+						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $filterHint, 255);
 					}
 					elseif ($arLink['FILTER_HINT'] <> '')
 					{
@@ -598,7 +600,8 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 					}
 					elseif (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
-						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $arLink['FILTER_HINT'], 255);
+						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
+						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $filterHint, 255);
 					}
 					elseif ($arLink['FILTER_HINT'] <> '')
 					{

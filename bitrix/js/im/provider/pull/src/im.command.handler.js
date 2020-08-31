@@ -10,6 +10,7 @@
 import {PullClient} from "pull.client";
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {EventType} from "im.const";
+import {Logger} from "im.lib.logger";
 
 class ImPullCommandHandler
 {
@@ -60,7 +61,7 @@ class ImPullCommandHandler
 		{
 			if (this.option.skip)
 			{
-				console.info('Pull: command skipped while loading messages', params);
+				Logger.info('Pull: command skipped while loading messages', params);
 				return true;
 			}
 
@@ -119,6 +120,18 @@ class ImPullCommandHandler
 			});
 		}
 
+		this.store.dispatch('recent/update', {
+			id: params.dialogId,
+			fields: {
+				message: {
+					id: params.message.id,
+					text: params.message.text,
+					date: params.message.date
+				},
+				counter: params.counter
+			}
+		});
+
 		if (params.users)
 		{
 			this.store.dispatch('users/set', VuexBuilderModel.convertToArray(params.users));
@@ -129,7 +142,7 @@ class ImPullCommandHandler
 			let files = VuexBuilderModel.convertToArray(params.files);
 			files.forEach(file =>
 			{
-				file = this.controller.prepareFilesBeforeSave(file);
+				file = this.controller.application.prepareFilesBeforeSave(file);
 				if (
 					files.length === 1
 					&& params.message.templateFileId
@@ -142,7 +155,7 @@ class ImPullCommandHandler
 						chatId: params.chatId,
 						fields: file
 					}).then(() => {
-						this.controller.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
+						this.controller.application.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
 					});
 				}
 				else
@@ -183,12 +196,12 @@ class ImPullCommandHandler
 					error: false,
 				}
 			}).then(() => {
-				this.controller.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: params.message.senderId !== this.controller.getUserId()});
+				this.controller.application.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: params.message.senderId !== this.controller.application.getUserId()});
 			});
 		}
-		else if (this.controller.isUnreadMessagesLoaded())
+		else if (this.controller.application.isUnreadMessagesLoaded())
 		{
-			if (this.controller.getChatId() === params.chatId)
+			if (this.controller.application.getChatId() === params.chatId)
 			{
 				this.store.commit('application/increaseDialogExtraCount');
 			}
@@ -200,12 +213,12 @@ class ImPullCommandHandler
 			});
 		}
 
-		this.controller.stopOpponentWriting({
+		this.controller.application.stopOpponentWriting({
 			dialogId: params.dialogId,
 			userId: params.message.senderId
 		});
 
-		if (params.message.senderId === this.controller.getUserId())
+		if (params.message.senderId === this.controller.application.getUserId())
 		{
 			this.store.dispatch('messages/readMessages', {
 				chatId: params.chatId
@@ -244,7 +257,7 @@ class ImPullCommandHandler
 			return false;
 		}
 
-		this.controller.stopOpponentWriting({
+		this.controller.application.stopOpponentWriting({
 			dialogId: params.dialogId,
 			userId: params.senderId
 		});
@@ -259,8 +272,45 @@ class ImPullCommandHandler
 				blink: true
 			}
 		}).then(() => {
-			this.controller.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
+			this.controller.application.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
 		});
+
+		let recentItem = this.store.getters['recent/get'](params.dialogId);
+		if (
+			command === 'messageUpdate' &&
+			recentItem.element &&
+			recentItem.element.message.id === params.id
+		)
+		{
+			this.store.dispatch('recent/update', {
+				id: params.dialogId,
+				fields: {
+					message: {
+						id: params.id,
+						text: params.text,
+						date: recentItem.element.message.date
+					}
+				}
+			});
+		}
+
+		if (
+			command === 'messageDelete' &&
+			recentItem.element &&
+			recentItem.element.message.id === params.id
+		)
+		{
+			this.store.dispatch('recent/update', {
+				id: params.dialogId,
+				fields: {
+					message: {
+						id: params.id,
+						text: 'Message deleted',
+						date: recentItem.element.message.date
+					}
+				}
+			});
+		}
 	}
 
 	handleMessageDeleteComplete(params, extra)
@@ -275,7 +325,7 @@ class ImPullCommandHandler
 			chatId: params.chatId,
 		});
 
-		this.controller.stopOpponentWriting({
+		this.controller.application.stopOpponentWriting({
 			dialogId: params.dialogId,
 			userId: params.senderId,
 			action: false
@@ -323,7 +373,7 @@ class ImPullCommandHandler
 			chatId: params.chatId,
 			fields: {params: params.params}
 		}).then(() => {
-			this.controller.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
+			this.controller.application.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
 		});
 	}
 
@@ -334,7 +384,7 @@ class ImPullCommandHandler
 			return false;
 		}
 
-		this.controller.startOpponentWriting(params);
+		this.controller.application.startOpponentWriting(params);
 	}
 
 	handleReadMessage(params, extra)
@@ -354,6 +404,13 @@ class ImPullCommandHandler
 					counter: params.counter,
 				}
 			});
+		});
+
+		this.store.dispatch('recent/update', {
+			id: params.dialogId,
+			fields: {
+				counter: params.counter
+			}
 		});
 	}
 
@@ -420,11 +477,47 @@ class ImPullCommandHandler
 			return false;
 		}
 
-		this.store.dispatch('files/set', this.controller.prepareFilesBeforeSave(
+		this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(
 			 VuexBuilderModel.convertToArray({file: params.fileParams})
 		)).then(() => {
-			this.controller.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
+			this.controller.application.emit(EventType.dialog.scrollToBottom, {cancelIfScrollChange: true});
 		});
+	}
+
+	handleChatPin(params, extra)
+	{
+		this.store.dispatch('recent/pin', {
+			id: params.dialogId,
+			action: params.active
+		});
+	}
+
+	handleChatHide(params, extra)
+	{
+		this.store.dispatch('recent/delete', {
+			id: params.dialogId
+		});
+	}
+
+	handleReadNotifyList(params, extra)
+	{
+		this.store.dispatch('recent/update', {
+			id: 'notify',
+			fields: {
+				counter: params.counter
+			}
+		});
+	}
+
+	handleUserInvite(params, extra)
+	{
+		if (!params.invited)
+		{
+			this.store.dispatch('users/update', {
+				id: params.userId,
+				fields: params.user
+			});
+		}
 	}
 }
 

@@ -156,7 +156,7 @@ $APPLICATION->SetTitle(htmlspecialcharsbx($arResult["IBLOCK"]["NAME"]));
 $arResult["GRID_ID"] = "lists_list_elements_".$arResult["IBLOCK_ID"];
 $arResult["FILTER_ID"] = "lists_list_elements_".$arResult["IBLOCK_ID"];
 
-$arResult["ANY_SECTION"] = (isset($_REQUEST["list_section_id"]) && strlen($_REQUEST["list_section_id"]) == 0)
+$arResult["ANY_SECTION"] = (isset($_REQUEST["list_section_id"]) && $_REQUEST["list_section_id"] == '')
 	|| (!isset($_REQUEST["list_section_id"]));
 $arResult["SECTION"] = false;
 $arResult["SECTION_ID"] = false;
@@ -401,7 +401,8 @@ $grid_sort = $grid_options->GetSorting(array("sort"=>array("name"=>"asc")));
 if($arResult["IBLOCK"]["BIZPROC"]=="Y" && CModule::IncludeModule('bizproc') && CBPRuntime::isFeatureEnabled())
 {
 	$arDocumentTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(
-		BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"])
+		BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
+		false
 	);
 	$arResult["BIZPROC"] = "Y";
 }
@@ -428,7 +429,7 @@ foreach($listFields as $FIELD_ID => $arField)
 {
 	if(!count($grid_columns) || in_array($FIELD_ID, $grid_columns))
 	{
-		if(substr($FIELD_ID, 0, 9) == "PROPERTY_")
+		if(mb_substr($FIELD_ID, 0, 9) == "PROPERTY_")
 			$arProperties[] = $FIELD_ID;
 		else
 			$arSelect[] = $FIELD_ID;
@@ -569,23 +570,23 @@ foreach($filterData as $key => $value)
 		if (empty($value))
 			continue;
 	}
-	elseif(strlen($value) <= 0)
+	elseif($value == '')
 		continue;
 
-	if(substr($key, -5) == "_from")
+	if(mb_substr($key, -5) == "_from")
 	{
-		$new_key = substr($key, 0, -5);
+		$new_key = mb_substr($key, 0, -5);
 		$op = (!empty($filterData[$new_key."_numsel"]) && $filterData[$new_key."_numsel"] == "more") ? ">" : ">=";
 	}
-	elseif(substr($key, -3) == "_to")
+	elseif(mb_substr($key, -3) == "_to")
 	{
-		$new_key = substr($key, 0, -3);
+		$new_key = mb_substr($key, 0, -3);
 		$op = (!empty($filterData[$new_key."_numsel"]) && $filterData[$new_key."_numsel"] == "less") ? "<" : "<=";
 		if(array_key_exists($new_key, $dateFilter))
 		{
 			$dateFormat = $DB->dateFormatToPHP(Csite::getDateFormat());
 			$dateParse = date_parse_from_format($dateFormat, $value);
-			if(!strlen($dateParse["hour"]) && !strlen($dateParse["minute"]) && !strlen($dateParse["second"]))
+			if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
 			{
 				$timeFormat = $DB->dateFormatToPHP(CSite::getTimeFormat());
 				$value .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
@@ -661,7 +662,7 @@ if (!$arResult["ANY_SECTION"])
 
 $arResult["ELEMENTS_ROWS"] = array();
 $arResult["SHOW_SECTION_GRID"] = CUserOptions::getOption("lists_show_section_grid", $arResult["GRID_ID"], "N");
-if ($arResult["SHOW_SECTION_GRID"] == "Y")
+if ($arResult["SHOW_SECTION_GRID"] == "Y" && !array_key_exists("*SEARCHABLE_CONTENT", $arFilter))
 {
 	foreach($arResult["SECTIONS"] as $section)
 	{
@@ -747,6 +748,15 @@ else
 	$arDocumentStatesForBP = array();
 }
 
+if ($arResult["PROCESSES"])
+{
+	$arResult["USE_COMMENTS"] = (bool) CModule::includeModule("forum");
+	$processesWithComments = ($arResult["PROCESSES"] && $arResult["USE_COMMENTS"]);
+}
+
+$isBizprocActive = $arResult["BIZPROC"] == "Y";
+$userId = $USER->GetID();
+
 $listValues = array();
 while($obElement = $rsElements->GetNextElement())
 {
@@ -755,6 +765,26 @@ while($obElement = $rsElements->GetNextElement())
 	$data = $obElement->GetFields();
 	if(!is_array($data))
 		continue;
+
+	if ($isBizprocActive)
+	{
+		$documentComplexType = BizprocDocument::generateDocumentComplexType($arIBlock["IBLOCK_TYPE_ID"], $arIBlock["ID"]);
+		$documentComplexId = BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]);
+
+		$canStartBizproc = CBPDocument::canUserOperateDocument(
+			CBPCanUserOperateOperation::StartWorkflow,
+			$userId,
+			$documentComplexId,
+			[
+				"IBlockId" => $arIBlock["ID"],
+				"AllUserGroups" => $arUserGroupsForBPTmp,
+				"DocumentStates" => $arDocumentStatesForBP,
+				"WorkflowId" => $arWorkflowTemplate["ID"]
+			]
+		);
+
+		$documentStates = CBPDocument::getDocumentStates($documentComplexType, $documentComplexId);
+	}
 
 	if(!is_array($listValues[$data["ID"]]))
 		$listValues[$data["ID"]] = array();
@@ -792,7 +822,7 @@ while($obElement = $rsElements->GetNextElement())
 		$field["SECTION_ID"] = $iblockSectionId;
 		$field["ELEMENT_ID"] = $data["ID"];
 		$field["FIELD_ID"] = $fieldId;
-		$valueKey = (substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
+		$valueKey = (mb_substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
 		$field["VALUE"] = $listValues[$data["ID"]][$valueKey];
 		$columns[$fieldId] = \Bitrix\Lists\Field::renderField($field);
 	}
@@ -824,20 +854,11 @@ while($obElement = $rsElements->GetNextElement())
 	}
 
 	$arBPStart = array();
-	if ($arResult["BIZPROC"] == "Y")
+	if ($isBizprocActive)
 	{
-		if ($arResult["PROCESSES"])
+		if ($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
 		{
-			$arResult["USE_COMMENTS"] = (bool)CModule::includeModule("forum");
-		}
-
-		$documentStates = CBPDocument::getDocumentStates(
-			BizprocDocument::generateDocumentComplexType($arIBlock["IBLOCK_TYPE_ID"], $arIBlock["ID"]),
-			BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"])
-		);
-		if($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
-		{
-			if(!empty($documentStates))
+			if (!empty($documentStates))
 			{
 				$stateTemporary = current($documentStates);
 				$data["WORKFLOW_ID"] = $stateTemporary["ID"];
@@ -855,13 +876,7 @@ while($obElement = $rsElements->GetNextElement())
 			$arUserGroupsForBPTmp[] = "Author";
 		foreach($arDocumentTemplates as $arWorkflowTemplate)
 		{
-			if (CBPDocument::CanUserOperateDocument(
-				CBPCanUserOperateOperation::StartWorkflow,
-				$USER->GetID(),
-				BizprocDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], intval($data["~ID"])),
-				array("IBlockId" => $arIBlock["ID"], "AllUserGroups" => $arUserGroupsForBPTmp,
-					"DocumentStates" => $arDocumentStatesForBP, "WorkflowId" => $arWorkflowTemplate["ID"])
-			))
+			if ($canStartBizproc)
 			{
 				$url = CHTTP::urlAddParams(str_replace(
 					array("#list_id#", "#section_id#", "#element_id#", "#workflow_template_id#", "#group_id#"),
@@ -869,7 +884,7 @@ while($obElement = $rsElements->GetNextElement())
 						$arWorkflowTemplate["ID"], $arParams["SOCNET_GROUP_ID"]),
 					$arParams["BIZPROC_WORKFLOW_START_URL"]
 				), array("workflow_template_id" => $arWorkflowTemplate["ID"], "back_url" => $backUrl));
-				$url .= ((strpos($url, "?") === false) ? "?" : "&").bitrix_sessid_get();
+				$url .= ((mb_strpos($url, "?") === false) ? "?" : "&").bitrix_sessid_get();
 				$arBPStart[] = array(
 					"TEXT" => $arWorkflowTemplate["NAME"],
 					"ONCLICK" =>"jsUtils.Redirect(arguments, '".CUtil::JSEscape($url)."')",
@@ -880,17 +895,13 @@ while($obElement = $rsElements->GetNextElement())
 		/* Fields BIZPROC and COMMENTS */
 		$ii = 0;
 		$html = "";
-		$proccesses = false;
-		$workflows = array();
-		if($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
-			$proccesses = true;
-
+		$workflows = [];
 		foreach ($documentStates as $kk => $vv)
 		{
 			if(!$vv["ID"])
 				continue;
 
-			if($proccesses && !empty($data["WORKFLOW_ID"]))
+			if($processesWithComments && !empty($data["WORKFLOW_ID"]))
 				$workflows[] = 'WF_'.$vv["ID"];
 
 			$canViewWorkflow = BizprocDocument::canUserOperateDocument(
@@ -907,7 +918,7 @@ while($obElement = $rsElements->GetNextElement())
 			if (!$canViewWorkflow)
 				continue;
 
-			if(strlen($vv["TEMPLATE_NAME"]) > 0)
+			if($vv["TEMPLATE_NAME"] <> '')
 				$html .= "<b>".$vv["TEMPLATE_NAME"]."</b>:<br />";
 			else
 				$html .= "<b>".(++$ii)."</b>:<br />";
@@ -921,11 +932,11 @@ while($obElement = $rsElements->GetNextElement())
 				array("skip_empty" => true, "encode" => true)
 			);
 
-			$html .= "<a href=\"".htmlspecialcharsbx($url)."\">".(strlen($vv["STATE_TITLE"]) > 0 ?
+			$html .= "<a href=\"".htmlspecialcharsbx($url)."\">".($vv["STATE_TITLE"] <> '' ?
 					$vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 		}
 
-		if ($proccesses)
+		if ($processesWithComments)
 		{
 			$workflows = array_unique($workflows);
 			if ($workflows)
@@ -1009,7 +1020,7 @@ while($obElement = $rsElements->GetNextElement())
 		);
 	}
 
-	if ($arResult["BIZPROC"] == "Y")
+	if ($isBizprocActive)
 	{
 		if(count($arBPStart) && !$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CAN_BIZPROC
 				|| CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $data["~ID"], "element_bizproc_start")))
@@ -1035,7 +1046,7 @@ while($obElement = $rsElements->GetNextElement())
 				$canViewWorkflow = CBPDocument::CanUserOperateDocument(
 					CBPCanUserOperateOperation::ViewWorkflow,
 					$GLOBALS["USER"]->GetID(),
-					BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+					$documentComplexId,
 					array(
 						"AllUserGroups" => $currentUserGroups,
 						"DocumentStates" => $documentStates,
@@ -1046,12 +1057,12 @@ while($obElement = $rsElements->GetNextElement())
 					continue;
 
 				/* Stop workflow */
-				if (strlen($documentState["ID"]) && strlen($documentState["WORKFLOW_STATUS"]))
+				if (mb_strlen($documentState["ID"]) && mb_strlen($documentState["WORKFLOW_STATUS"]))
 				{
 					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::StartWorkflow,
 						$GLOBALS["USER"]->GetID(),
-						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+						$documentComplexId,
 						array("UserGroups" => $currentUserGroups))
 					)
 					{
@@ -1063,12 +1074,12 @@ while($obElement = $rsElements->GetNextElement())
 					}
 				}
 				/* Removal workflow */
-				if (strlen($documentState["STATE_NAME"]) && strlen($documentState["ID"]))
+				if (mb_strlen($documentState["STATE_NAME"]) && mb_strlen($documentState["ID"]))
 				{
 					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::CreateWorkflow,
 						$GLOBALS["USER"]->GetID(),
-						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+						$documentComplexId,
 						array("UserGroups" => $currentUserGroups))
 					)
 					{
@@ -1080,7 +1091,7 @@ while($obElement = $rsElements->GetNextElement())
 					}
 				}
 				/* Tasks workflow */
-				if(strlen($documentState["ID"]))
+				if($documentState["ID"] <> '' && $documentState['WORKFLOW_STATUS'])
 				{
 					$tasks = CBPDocument::getUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $documentState["ID"]);
 					if(!empty($tasks))
@@ -1098,7 +1109,7 @@ while($obElement = $rsElements->GetNextElement())
 							);
 							$actionsProcess[] = array(
 								"TEXT" => $task["NAME"],
-								"ONCLICK" =>"jsUtils.Redirect(arguments, '".CUtil::JSEscape($url)."')",
+								"ONCLICK" => "jsUtils.Redirect(arguments, '".CUtil::JSEscape($url)."')",
 							);
 						}
 					}
