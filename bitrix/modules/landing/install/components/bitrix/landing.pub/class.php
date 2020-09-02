@@ -1339,11 +1339,12 @@ class LandingPubComponent extends LandingBaseComponent
 				{
 					Landing::setPreviewMode(true);
 				}
-				self::$landingMain['LANDING_ID'] = $lid;
 				$landing = Landing::createInstance($lid, [
 					'check_permissions' => $this->arParams['CHECK_PERMISSIONS'] == 'Y',
 					'disable_link_preview' => $this->arParams['DRAFT_MODE'] == 'Y'
 				]);
+				self::$landingMain['LANDING_ID'] = $lid;
+				self::$landingMain['LANDING_INSTANCE'] = $landing;
 				$this->arResult['LANDING'] = $landing;
 				$this->arResult['DOMAIN'] = $this->getParentDomain();
 				$this->arResult['COPY_LINK'] = $this->getCopyLinkPath();

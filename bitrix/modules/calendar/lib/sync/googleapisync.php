@@ -19,6 +19,7 @@ final class GoogleApiSync
 {
 	const MAXIMUM_CONNECTIONS_TO_SYNC = 3;
 	const ONE_DAY = 86400; //60*60*24;
+	const CHANNEL_EXPIRATION = 604800; //60*60**24*7
 	const ENABLE_ATTENDEE_DESC = true;
 	const CONNECTION_CHANNEL_TYPE = 'BX_CONNECTION';
 	const SECTION_CHANNEL_TYPE = 'BX_SECTION';
@@ -107,6 +108,7 @@ final class GoogleApiSync
 			'id' => $type.'_'.$this->userId.'_'.md5($inputSecretWord.strtotime('now')),
 			'type' => 'web_hook',
 			'address' => $externalUrl,
+			'expiration' => (time() + self::CHANNEL_EXPIRATION) * 1000,
 		];
 
 		return $requestParams;
@@ -482,7 +484,7 @@ final class GoogleApiSync
 		return $responseFields;
 	}
 
-	public function updateLastResultConnection(string $lastResult)
+	public function updateLastResultConnection(string $lastResult): void
 	{
 		if (Loader::includeModule('dav') && !empty($this->connectionId))
 		{
@@ -496,6 +498,11 @@ final class GoogleApiSync
 		{
 			AddMessage2Log("Bad interaction with Google calendar: ".$lastResult, "calendar");
 		}
+	}
+
+	public function updateSuccessLastResultConnection(): void
+	{
+		$this->updateLastResultConnection("[200] OK");
 	}
 
 	/**

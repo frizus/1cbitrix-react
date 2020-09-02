@@ -225,6 +225,9 @@ class Sender
 			$this->threadStrategy->updateStatus(PostingThreadTable::STATUS_NEW);
 		}
 
+		// update status of posting
+		$status = self::updateActualStatus($this->postingId, $this->isPrevented());
+
 		if ($threadId < $this->threadStrategy->lastThreadId())
 		{
 			$this->resultCode = static::RESULT_CONTINUE;
@@ -254,8 +257,6 @@ class Sender
 				Model\LetterTable::update($this->letterId, ['ERROR_MESSAGE' => $errorMessage]);
 			}
 		}
-		// update status of posting
-		$status = self::updateActualStatus($this->postingId, $this->isPrevented());
 
 		// set result code to continue or end of sending
 		$isContinue       = $status == PostingTable::STATUS_PART;
