@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Fehler bei Verarbeitung der Anfrage.";
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Wird geladen";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "Die E-Mail-Synchronisierung ist in Ihrem Tarif nicht verfügbar. Neue E-Mails werden im BItrix24 nicht angezeigt. Die mit Aufgaben verbundenen E-Mails bleiben erhalten. Andere E-Mails werden gelöscht.<br>
@@ -48,6 +48,7 @@ $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Aufgabe";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Aufgaben";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "Mehr...";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_TITLE"] = "Mehr";
+$MESS["MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK"] = "Kontakte";
 $MESS["MAIL_MESSAGE_LIST_ATTACH_ICON_HINT"] = "Enthält Anhänge";
 $MESS["MAIL_MESSAGE_LIST_BLACKLIST_LINK"] = "Schwarze Liste";
 $MESS["MAIL_MESSAGE_LIST_BTN_DELETE"] = "Löschen";
@@ -70,9 +71,13 @@ $MESS["MAIL_MESSAGE_LIST_COLUMN_FROM"] = "Von";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_SUBJECT"] = "Betreff";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN"] = "Abbrechen";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE"] = "E-Mails werden unwiderruflich gelöscht. <br>Sie können nicht wiederhergestellt werden.";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL"] = "Möchten Sie alle Nachrichten wirklich löschen?<br>Sie werden unwiderruflich gelöscht und können nicht mehr wiederhergestellt werden.";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN"] = "Löschen";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL"] = "Möchten Sie alle Nachrichten wirklich verschieben?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_READ_ALL"] = "Möchten Sie wirklich alle Nachrichten in diesem Ordner als gelesen markieren?";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL"] = "Möchten Sie alle Nachrichten wirklich als Spam markieren?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_TITLE"] = "Aktion bestätigen";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL"] = "Möchten Sie alle Nachrichten wirklich in den Papierkorb verschieben?";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_EMPTY"] = "Es gibt keine Nachrichten, die Ihre Reaktion erfordern";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_TITLE"] = "Nachrichten";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_UNBIND"] = "nicht verarbeitet";
@@ -128,4 +133,3 @@ $MESS["MAIL_MESSAGE_SENT"] = "Gesendet: #DATETIME#";
 $MESS["MAIL_MESSAGE_SPAM_CONFIRM"] = "Möchten Sie diese Nachricht wirklich löschen und den Absender in die Schwarzliste eintragen?";
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Synchronisieren";
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "E-Mail: #SUBJECT#";
-?>

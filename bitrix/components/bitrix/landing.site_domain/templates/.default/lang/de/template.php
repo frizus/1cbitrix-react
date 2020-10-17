@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_AGREE_BY_SUBMIT"] = "Beim Klicken auf die Schaltfläche weiter unten akzeptieren Sie die #LINK1#Nutzungsbedingungen#LINK2#";
 $MESS["LANDING_TPL_BITRIX24_DOMAIN_NAME"] = "Subdomainnamen eingeben:";
 $MESS["LANDING_TPL_BITRIX24_SUBTITLE"] = "Starten Sie sofort Ihre eigene Website mit der Subdomain #POSTFIX#";
@@ -16,6 +16,8 @@ $MESS["LANDING_TPL_DOMAIN_FREE_AVAILABLE_TITLE"] = "Domain ist aktiv";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_LABEL"] = "Bitte warten Sie, bis Ihre Domain <b>#DOMAIN_NAME#</b> aktiviert wird.";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_TEXT"] = "Beachten Sie bitte, dass Ihre Website momentan unter der vorherigen Adresse nicht verfügbar ist. Sie müssen abwarten, bis die neue Domain aktiviert wird.";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_TITLE"] = "Auf Domainaktivierung wird gewartet";
+$MESS["LANDING_TPL_ERROR_DOMAIN_CHECK"] = "Domainname kann nur lateinische Buchstaben, Zahlen und ein Minuszeichen enthalten. Außerdem kann er mit \".#TLD#\" enden (z.B.: \"mysite.#TLD#\").";
+$MESS["LANDING_TPL_ERROR_DOMAIN_CHECK_DASH"] = "Domainname kann nicht mit einem Minuszeichen beginnen oder enden, und kann auch kein doppeltes Minuszeichen enthalten.";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EMPTY"] = "Domainname kann nicht leer sein";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST"] = "Diese Domain existiert bereits";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED"] = "Diese Domain existiert bereits, sie wurde mit einer Website verbunden, die im Papierkorb ist. Trennen Sie diese Verbindung, dann versuchen Sie erneut.";
@@ -47,4 +49,3 @@ $MESS["LANDING_TPL_TITLE_MENU"] = "Website-URL";
 $MESS["LANDING_TPL_TITLE_MENU_BITRIX24"] = "Bitrix24 Subdomain";
 $MESS["LANDING_TPL_TITLE_MENU_FREE"] = "Kostenloser Domainname";
 $MESS["LANDING_TPL_TITLE_MENU_PRIVATE"] = "Eigene Domain";
-?>

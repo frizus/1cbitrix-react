@@ -1,5 +1,4 @@
 <?
-$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "In Ihrem aktuellen Tarif können Sie keine weiteren Wissensbasen erstellen. Sie sollten upgraden, um eine neue Wissensbasis erstellen zu können.";
 $MESS["LANDING_TPL_BUY_RENEW"] = "Sie sollten #LINK1#Ihre Lizenz verlängern#LINK2#";
 $MESS["LANDING_TPL_PREVIEW_URL"] = "Vorschau";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Veröffentlichen";

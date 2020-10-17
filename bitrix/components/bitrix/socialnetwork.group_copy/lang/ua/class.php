@@ -1,6 +1,7 @@
-<?
+<?php
 $MESS["SOCNET_GROUP_COPY_DATE_FORMAT_ERROR"] = "Неправильний формат поля дати";
 $MESS["SOCNET_GROUP_COPY_FEATURE_BLOG"] = "Повідомлення в Живій стрічці";
+$MESS["SOCNET_GROUP_COPY_FEATURE_BLOG2"] = "Повідомлення у стрічці новин";
 $MESS["SOCNET_GROUP_COPY_FEATURE_CHECKLISTS"] = "Чек-листи";
 $MESS["SOCNET_GROUP_COPY_FEATURE_COMMENTS"] = "Коментарі";
 $MESS["SOCNET_GROUP_COPY_FEATURE_DEPARTMENTS"] = "Відділи";
@@ -25,4 +26,3 @@ $MESS["SOCNET_GROUP_COPY_TITLE_BASE_GROUP"] = "Копіювати групу";
 $MESS["SOCNET_GROUP_COPY_TITLE_BASE_PROJECT"] = "Копіювати проєкт";
 $MESS["SOCNET_GROUP_COPY_TITLE_GROUP"] = " групу";
 $MESS["SOCNET_GROUP_COPY_TITLE_PROJECT"] = " проєкт";
-?>

@@ -15,19 +15,19 @@
 
 						<!-- Article Content -->
 						<div class="g-py-40 g-px-35">
-							<h3 class="landing-block-node-leftblock-subtitle landing-semantic-subtitle-small h6 text-uppercase font-weight-bold g-mb-15">
+							<h3 class="landing-block-node-leftblock-subtitle landing-semantic-subtitle-small h6 text-uppercase g-font-weight-700 g-mb-15">
 								In total we collected
 							</h3>
 							<h3 class="landing-block-node-leftblock-title landing-semantic-subtitle-medium d-block g-color-black g-line-height-1_2 g-letter-spacing-minus-2 g-font-size-46">
 								$8 789 576.00
 							</h3>
-							<div class="landing-block-node-leftblock-text landing-semantic-text-medium g-color-black-opacity-0_5 g-mb-35">
+							<div class="landing-block-node-leftblock-text landing-semantic-text-medium g-color-black-opacity-0_5 g-mb-35" data-auto-font-scale>
 								<p>Runc ullamcorper, justo a iaculis
 									elementum,
 									enim orci viverra eros, fringilla porttitor lorem eros vel odio gravida sollicitudin
 									tortor.</p>
 							</div>
-							<a class="landing-block-node-leftblock-button landing-semantic-link-image-medium g-valign-middle btn btn-block text-uppercase u-btn-black g-font-size-11 font-weight-bold g-brd-none rounded-0 g-px-25 g-py-16"
+							<a class="landing-block-node-leftblock-button landing-semantic-link-image-medium g-valign-middle btn text-uppercase g-btn-black rounded-0 g-py-16 g-btn-size-sm g-btn-type-solid g-width-100x"
 							   href="#">
 								Donate Now
 							</a>
@@ -39,11 +39,11 @@
 
 				<div class="landing-block-node-rightblock js-animation fadeInRight col-md-6 col-lg-8 g-py-20">
 					<div class="g-color-white g-mb-45">
-						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary text-uppercase font-weight-bold g-font-size-26 g-color-primary mb-0">
+						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-26 g-color-primary mb-0">
 							We make world better</h4>
-						<h2 class="landing-block-node-title landing-semantic-title-image-medium display-5 text-uppercase g-color-white font-weight-bold g-font-size-46 g-mb-30">
+						<h2 class="landing-block-node-title landing-semantic-title-image-medium display-5 text-uppercase g-color-white g-font-weight-700 g-font-size-46 g-mb-30">
 							Let's do this together</h2>
-						<div class="landing-block-node-text landing-semantic-text-image-medium">
+						<div class="landing-block-node-text landing-semantic-text-image-medium" data-auto-font-scale>
 							<p class="mb-0">Aenean bibendum purus eu nisi pulvinar venenatis vitae non velit. Sed et
 								eleifend mi. Fusce dictum orci libero, congue scelerisque lectus pulvinar eu.
 								Suspendisse pulvinar facilisis ligula vel pharetra. Vestibulum volutpat porttitor ex a
@@ -63,12 +63,12 @@
 								</div>
 
 								<div class="media-body align-self-center">
-									<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small h6 text-uppercase font-weight-bold g-color-white mb-0">
+									<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small h6 text-uppercase g-font-weight-700 g-color-white mb-0">
 										Education</h3>
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5" data-auto-font-scale>
 								<p class="mb-0">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum
 									fringilla velit rhoncus euismod rhoncus turpis. Mauris molestie ullamcorper nisl
 									eget
@@ -87,12 +87,12 @@
 								</div>
 
 								<div class="media-body align-self-center">
-									<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small h6 text-uppercase font-weight-bold g-color-white mb-0">
+									<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small h6 text-uppercase g-font-weight-700 g-color-white mb-0">
 										Health</h3>
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5">
+							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-gray-dark-v5" data-auto-font-scale>
 								<p class="mb-0">Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum
 									viverra justo odio purus a libero luctus. Proin tempor dolor ac dolor feugiat,

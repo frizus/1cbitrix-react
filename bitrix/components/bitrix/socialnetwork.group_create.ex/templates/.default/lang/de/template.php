@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_GCE_TAB_1"] = "Beschreibung";
 $MESS["SONET_GCE_TAB_2"] = "Funktionen";
 $MESS["SONET_GCE_TAB_3"] = "Gruppenmitglieder";
@@ -12,6 +12,10 @@ $MESS["SONET_GCE_T_ADD_OWNER"] = "Projektleiter ändern";
 $MESS["SONET_GCE_T_ADD_USER"] = "Nutzer hinzufügen";
 $MESS["SONET_GCE_T_AJAX_ERROR"] = "Fehler bei Verarbeitung der Formulardaten. Versuchen Sie bitte erneut.";
 $MESS["SONET_GCE_T_BUTTON_TITLE_FURTHER"] = "weiter";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER"] = "Master bestimmen";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER_MORE"] = "Ändern";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER"] = "Owner bestimmen";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER_MORE"] = "Ändern";
 $MESS["SONET_GCE_T_DEST_EXTRANET"] = "Extranet";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_EMAIL_TITLE"] = "E-Mail";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_LAST_NAME_TITLE"] = "Nachname";
@@ -93,6 +97,10 @@ $MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "Dieses Projekt ist für alle si
 $MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Sichtbar";
 $MESS["SONET_GCE_T_PARAMS_VIS_PROJECT"] = "Sichtbar für alle";
 $MESS["SONET_GCE_T_PERMS_SWITCH"] = "Zugriffsrechte";
+$MESS["SONET_GCE_T_SCRUM_MASTER"] = "SCRUM Master";
+$MESS["SONET_GCE_T_SCRUM_OWNER"] = "SCRUM Owner";
+$MESS["SONET_GCE_T_SCRUM_PAGE_TITLE"] = "SCRUM Projekt erstellen";
+$MESS["SONET_GCE_T_SCRUM_SPRINT_DURATION"] = "Sprintlänge";
 $MESS["SONET_GCE_T_SPAM_PERMS"] = "Wer darf Nachrichten an die Gruppenmitglieder senden";
 $MESS["SONET_GCE_T_SUBJECT"] = "Thema der Gruppe";
 $MESS["SONET_GCE_T_SUBJECT_PROJECT"] = "Projektthema";
@@ -114,4 +122,3 @@ $MESS["SONET_GCE_T_UPLOAD_IMAGE"] = "Bild hochladen";
 $MESS["SONET_GCE_T_USER_EXTRANET"] = "Externe Nutzer:";
 $MESS["SONET_GCE_T_USER_INTRANET"] = "Unternehmensmitarbeiter:";
 $MESS["SONET_GCE_UF_HEADER"] = "Nutzerfelder";
-?>

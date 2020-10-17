@@ -37,6 +37,7 @@ $domains = $arResult['DOMAINS'];
 $row = $arResult['SITE'];
 $hooks = $arResult['HOOKS'];
 $request = \bitrix\Main\HttpContext::getCurrent()->getRequest();
+$landingKeys = array_keys($arResult['LANDINGS']);
 
 // title
 Manager::setPageTitle(
@@ -48,6 +49,11 @@ Manager::setPageTitle(
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
 Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js');
 
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+$APPLICATION->SetPageProperty(
+	'BodyClass',
+	($bodyClass ? $bodyClass.' ' : '') . 'landing-slider-frame-popup'
+);
 // view-functions
 include 'template_class.php';
 $template = new Template($arResult);
@@ -80,7 +86,7 @@ else
 	<input type="hidden" name="fields[LANDING_ID_INDEX]" value="<?= $row['LANDING_ID_INDEX']['CURRENT'];?>" />
 	<input type="hidden" name="fields[DOMAIN_ID]" value="<?= $domainName;?>" />
 	<?if (count($arResult['LANDINGS']) == 1):?>
-		<input name="fields[LANDING_ID_INDEX]" type="hidden" value="<?= array_pop(array_keys($arResult['LANDINGS']))?>" />
+		<input name="fields[LANDING_ID_INDEX]" type="hidden" value="<?= array_pop($landingKeys);?>" />
 	<?endif;?>
 	<?= bitrix_sessid_post();?>
 	<input type="hidden" name="fields[TITLE]" value="<?= $row['TITLE']['CURRENT'];?>" />

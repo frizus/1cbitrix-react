@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_C30_COMMENT_SUBMIT"] = "Надіслати";
 $MESS["SONET_C30_COUNTER_TEXT_1"] = "Нових повідомлень:";
 $MESS["SONET_C30_DIALOG_CANCEL_BUTTON"] = "Відміна";
@@ -8,15 +8,15 @@ $MESS["SONET_C30_DIALOG_TRANSPORT_TITLE"] = "Налаштування спові
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_MORE"] = "детальніше";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK"] = "зрозуміло";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC"] = "Тепер завдання не будуть відображатися в Живій стрічці, і ви зможете працювати з ними безпосередньо з розділу &laquo;Завдання&raquo;. Усі повідомлення щодо завданнь, як і раніше, будуть приходити у вигляді нотифікацій у чаті.";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC2"] = "Тепер завдання не будуть відображатися у стрічці новин, і ви зможете працювати з ними безпосередньо з розділу &laquo;Завдання&raquo;. Усі сповіщення щодо завдань, як і раніше, будуть приходити у вигляді нотифікацій у чаті.";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE"] = "Спробуйте нове подання в завданнях за активностю";
 $MESS["SONET_C30_INHERITED"] = "Типово";
 $MESS["SONET_C30_MENU_TITLE_CREATETASK"] = "Створити завдання";
 $MESS["SONET_C30_MENU_TITLE_DELETE"] = "Видалити із Живої стрічки";
+$MESS["SONET_C30_MENU_TITLE_DELETE2"] = "Видалити із стрічки новин";
 $MESS["SONET_C30_MENU_TITLE_DELETE_CONFIRM"] = "Ви впевнені, що хочете видалити запис і всі його коментарі?";
 $MESS["SONET_C30_MENU_TITLE_DELETE_FAILURE"] = "Помилка видалення запису";
 $MESS["SONET_C30_MENU_TITLE_DELETE_SUCCESS"] = "Запис видалено";
-$MESS["SONET_C30_MENU_TITLE_FAVORITES_N"] = "Додати в обране";
-$MESS["SONET_C30_MENU_TITLE_FAVORITES_Y"] = "Прибрати з обраного";
 $MESS["SONET_C30_MENU_TITLE_HREF"] = "Перейти до повідомлення";
 $MESS["SONET_C30_MENU_TITLE_LINK"] = "Посилання на повідомлення";
 $MESS["SONET_C30_MENU_TITLE_LINK2"] = "Скопіювати посилання";
@@ -30,8 +30,7 @@ $MESS["SONET_C30_T_MESSAGE_EXPAND"] = "Розгорнути";
 $MESS["SONET_C30_T_MESSAGE_HIDE"] = "Приховати";
 $MESS["SONET_C30_T_MESSAGE_SHOW"] = "Показати";
 $MESS["SONET_C30_T_MORE_WAIT"] = "Завантажуються повідомлення";
-$MESS["SONET_C30_T_RELOAD_ERROR"] = "Помилка при оновленні живий стрічки";
 $MESS["SONET_C30_T_RELOAD_NEEDED"] = "Оновіть живу стрічку";
+$MESS["SONET_C30_T_RELOAD_NEEDED2"] = "Оновіть стрічку новин";
 $MESS["SONET_C30_T_USER"] = "Користувач";
 $MESS["SONET_ERROR_SESSION"] = "Ваша сесія скінчилася. Будь ласка, спробуйте ще раз.";
-?>

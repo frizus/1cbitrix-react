@@ -6,12 +6,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Help;
 use \Bitrix\Main\Loader;
+use \Bitrix\Main\Application;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Error;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Page\Asset;
+use \Bitrix\Main\Service\GeoIp;
 
 class LandingBaseComponent extends \CBitrixComponent
 {
@@ -106,6 +107,83 @@ class LandingBaseComponent extends \CBitrixComponent
 		$this->initRequest();
 
 		return $init;
+	}
+
+	/**
+	 * Returns current user GEO data.
+	 * @return array
+	 */
+	public function getUserGeoData(): array
+	{
+		$countryName = GeoIp\Manager::getCountryName('', 'ru');
+		if (!$countryName)
+		{
+			$countryName = GeoIp\Manager::getCountryName();
+		}
+
+		$cityName = GeoIp\Manager::getCityName('', 'ru');
+		if (!$cityName)
+		{
+			$cityName = GeoIp\Manager::getCityName();
+		}
+
+		return [
+			'country' => $countryName,
+			'city' => $cityName
+		];
+	}
+
+	/**
+	 * Returns true if current request is ajax.
+	 * @return bool
+	 */
+	public function isAjax(): bool
+	{
+		return Application::getInstance()->getContext()->getRequest()->isAjaxRequest();
+	}
+
+	/**
+	 * Returns feedback parameters.
+	 * @param string $id Feedback code.
+	 * @return array|null
+	 */
+	public function getFeedbackParameters(string $id): ?array
+	{
+		$id = 'landing-feedback-' . $id;
+
+		$data = [
+			'landing-feedback-demo' => [
+				'ID' => 'landing-feedback-demo',
+				'VIEW_TARGET' => null,
+				'FORMS' => [
+					['zones' => ['com.br'], 'id' => '279','lang' => 'br', 'sec' => 'wcqdvn'],
+					['zones' => ['es'], 'id' => '277','lang' => 'la', 'sec' => 'eytrfo'],
+					['zones' => ['de'], 'id' => '281','lang' => 'de', 'sec' => '167ch0'],
+					['zones' => ['ua'], 'id' => '283','lang' => 'ua', 'sec' => 'ggoa61'],
+					['zones' => ['ru', 'by', 'kz'], 'id' => '273','lang' => 'ru', 'sec' => 'z71z93'],
+					['zones' => ['en'], 'id' => '275','lang' => 'en', 'sec' => '5cs6v2']
+				],
+				'PRESETS' => [
+					'from_domain' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME']
+				]
+			],
+			'landing-feedback-developer' => [
+				'ID' => 'landing-feedback-developer',
+				'VIEW_TARGET' => null,
+				'FORMS' => [
+					['zones' => ['en'], 'id' => '946','lang' => 'en', 'sec' => 'b3isk2'],
+					['zones' => ['ru', 'by', 'kz'], 'id' => '891','lang' => 'ru', 'sec' => 'h208n3']
+				],
+				'PRESETS' => [
+					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
+					'tarif' => ($b24 = Loader::includeModule('bitrix24')) ? \CBitrix24::getLicenseType() : '',
+					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : ''
+				],
+				'PORTAL_URI' => 'https://cp.bitrix.ru'
+			]
+		];
+
+		return array_key_exists($id, $data) ? $data[$id] : null;
 	}
 
 	/**
@@ -274,15 +352,6 @@ class LandingBaseComponent extends \CBitrixComponent
 			foreach ($this->errors as $error)
 			{
 				$errors[$error->getCode()] = $error->getMessage();
-			}
-			// replace some codes
-			foreach ($errors as $code => $mess)
-			{
-				$mess = Loc::getMessage('LANDING_ERROR_' . $code);
-				if ($mess)
-				{
-					$errors[$code] = Help::replaceHelpUrl($mess);
-				}
 			}
 			return $errors;
 		}
@@ -756,7 +825,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			{
 				$editPage .= '#'.mb_strtolower($matches[1]);
 				unset($params, $matches);
-				return '<a href="' . $editPage . '">' . Loc::getMessage('LANDING_GOTO_EDIT') . '</a>';
+				return '<br/><br/><a href="' . $editPage . '">' . Loc::getMessage('LANDING_GOTO_EDIT') . '</a>';
 			}
 		}
 		unset($params);
@@ -775,7 +844,8 @@ class LandingBaseComponent extends \CBitrixComponent
 			'PUBLIC_PAGE_REACHED',
 			'PUBLIC_SITE_REACHED',
 			'TOTAL_SITE_REACHED',
-			'PUBLIC_HTML_DISALLOWED'
+			'PUBLIC_HTML_DISALLOWED',
+			'LANDING_PAYMENT_FAILED'
 		];
 
 		foreach ($tariffsCodes as $code)
@@ -823,8 +893,6 @@ class LandingBaseComponent extends \CBitrixComponent
 
 		echo \Bitrix\Main\Web\Json::encode($ajaxResult);
 		\CMain::finalActions();
-		unset($ajaxResult);
-		die();
 	}
 
 	/**
@@ -1007,15 +1075,14 @@ class LandingBaseComponent extends \CBitrixComponent
 				$this->{'action' . $action}($param, $additional)
 			);
 			\CMain::finalActions();
-			die();
 		}
 		else if ($action && is_callable(array($this, 'action' . $action)))
 		{
-			if (
-				check_bitrix_sessid() &&
-				$this->{'action' . $action}($param, $additional)
-				|| !check_bitrix_sessid()
-			)
+			if (!check_bitrix_sessid())
+			{
+				$this->addError('LANDING_ERROR_SESS_EXPIRED');
+			}
+			else if ($this->{'action' . $action}($param, $additional))
 			{
 				\localRedirect($this->arResult['CUR_URI']);
 			}

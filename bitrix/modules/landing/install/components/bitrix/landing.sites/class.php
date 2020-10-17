@@ -10,6 +10,8 @@ use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Transfer;
+use \Bitrix\Landing\Restriction;
+use \Bitrix\Main\Context;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Config\Option;
@@ -30,6 +32,53 @@ class LandingSitesComponent extends LandingBaseComponent
 	protected $rights = [];
 
 	/**
+	 * Gets additional access filter for sites.
+	 * @param string $accessCode Access code for filter.
+	 * @return array
+	 */
+	protected function getAdditionalAccessFilter(string $accessCode)
+	{
+		$filter = ['ID' => [-1]];
+		$accessTypes = Rights::ACCESS_TYPES;
+
+		if (Rights::isAdmin())
+		{
+			return [];
+		}
+		if (!isset($accessTypes[$accessCode]))
+		{
+			return [];
+		}
+
+		// get all sites first
+		$ids = [];
+		$res = Site::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=TYPE' => $this->arParams['TYPE']
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			$ids[] = $row['ID'];
+		}
+
+		// get rights for all sites
+		$this->rights = Rights::getOperationsForSite($ids);
+		foreach ($this->rights as $siteId => $rights)
+		{
+			if (in_array($accessTypes[$accessCode], $rights))
+			{
+				$filter['ID'][] = $siteId;
+			}
+		}
+
+		return $filter;
+	}
+
+	/**
 	 * Returns sites of main module.
 	 * @return array
 	 */
@@ -42,16 +91,13 @@ class LandingSitesComponent extends LandingBaseComponent
 		{
 			return $sites;
 		}
-		if (!Loader::includeModule('extranet'))
-		{
-			return $sites;
-		}
 
 		// prepare filter
-		$disabledSiteIds = [
-			\CExtranet::getExtranetSiteID(),
-			SITE_ID
-		];
+		$disabledSiteIds = [SITE_ID];
+		if (Loader::includeModule('extranet'))
+		{
+			$disabledSiteIds[] = \CExtranet::getExtranetSiteID();
+		}
 		$search = LandingFilterComponent::getFilterRaw(
 			LandingFilterComponent::TYPE_SITE,
 			$this->arParams['TYPE']
@@ -69,6 +115,8 @@ class LandingSitesComponent extends LandingBaseComponent
 		// get data
 		$by = 'lid';
 		$order = 'desc';
+		$request = Context::getCurrent()->getRequest();
+		$protocol = ($request->isHttps() ? 'https://' : 'http://');
 		$res = \CSite::getList($by, $order, $filter);
 		while ($row = $res->fetch())
 		{
@@ -78,12 +126,12 @@ class LandingSitesComponent extends LandingBaseComponent
 			}
 
 			$row['DOMAIN_NAME'] = $defaultServerName;
-			$row['PUBLIC_URL'] = '//' . $defaultServerName;
+			$row['PUBLIC_URL'] = $protocol . $defaultServerName . $row['DIR'];
 
 			if ($row['SERVER_NAME'])
 			{
 				$row['DOMAIN_NAME'] = $row['SERVER_NAME'];
-				$row['PUBLIC_URL'] = '//' . $row['SERVER_NAME'];
+				$row['PUBLIC_URL'] = $protocol . $row['SERVER_NAME'];
 				$row['PUBLIC_URL'] .= $row['DIR'];
 			}
 			elseif ($row['DOMAINS'])
@@ -96,7 +144,7 @@ class LandingSitesComponent extends LandingBaseComponent
 				if ($url)
 				{
 					$row['DOMAIN_NAME'] = $url;
-					$row['PUBLIC_URL'] = '//' . $url;
+					$row['PUBLIC_URL'] = $protocol . $url;
 					$row['PUBLIC_URL'] .= $row['DIR'];
 				}
 			}
@@ -118,7 +166,6 @@ class LandingSitesComponent extends LandingBaseComponent
 		if ($init)
 		{
 			// params
-			$b24 = Manager::isB24();
 			$puny = new \CBXPunycode;
 			$deletedLTdays = Manager::getDeletedLT();
 			$landingNull = Landing::createInstance(0);
@@ -131,6 +178,7 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN_SWITCH', '');
 			$this->checkParam('DRAFT_MODE', 'N');
+			$this->checkParam('ACCESS_CODE', '');
 			$this->checkParam('~AGREEMENT', []);
 
 			\Bitrix\Landing\Hook::setEditMode(true);
@@ -172,7 +220,11 @@ class LandingSitesComponent extends LandingBaseComponent
 			{
 				$filter['=TYPE'] = $this->arParams['TYPE'];
 			}
-			$this->arResult['EXPORT_DISABLED'] = Manager::checkFeature(Manager::FEATURE_ALLOW_EXPORT) ? 'N' : 'Y';
+			if ($this->arParams['ACCESS_CODE'])
+			{
+				$filter[] = $this->getAdditionalAccessFilter($this->arParams['ACCESS_CODE']);
+			}
+			$this->arResult['EXPORT_DISABLED'] = Restriction\Manager::isAllowed('limit_sites_transfer') ? 'N' : 'Y';
 			$this->arResult['SMN_SITES'] = $this->getSmnSites();
 			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $this->getSites([
@@ -182,12 +234,8 @@ class LandingSitesComponent extends LandingBaseComponent
 					'DOMAIN_PROVIDER' => 'DOMAIN.PROVIDER'
 				],
 				'filter' => $filter,
-				'order' => $this->arResult['IS_DELETED']
-					? [
+				'order' => [
 						'DATE_MODIFY' => 'desc'
-					]
-					: [
-						'ID' => 'desc'
 					],
 				'navigation' => $this::COUNT_PER_PAGE
 			]);
@@ -298,6 +346,11 @@ class LandingSitesComponent extends LandingBaseComponent
 				}
 				unset($siteUrls, $item, $ids);
 			}
+		}
+
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		{
+			$this->arResult['LICENSE'] = \CBitrix24::getLicenseType();
 		}
 
 		parent::executeComponent();

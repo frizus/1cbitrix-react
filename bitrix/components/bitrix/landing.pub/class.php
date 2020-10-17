@@ -1105,6 +1105,10 @@ class LandingPubComponent extends LandingBaseComponent
 				{
 					$isUtf = defined('BX_UTF') && BX_UTF === true;
 					$outputContent = $event->getParameter('outputContent');
+					if (strpos($outputContent, '<?') !== false)
+					{
+						return $outputContent;
+					}
 					if (!$isUtf)
 					{
 						[$outputContent, $query] = \Bitrix\Main\Text\Encoding::convertEncoding(
@@ -1258,6 +1262,26 @@ class LandingPubComponent extends LandingBaseComponent
 		return [
 			'status' => 'success'
 		];
+	}
+
+	/**
+	 * Checks if this site is binding to socialnet opened group.
+	 * @param int $siteId Site id.
+	 * @return bool
+	 */
+	protected function isOpenedGroupSite(int $siteId): bool
+	{
+		\CBitrixComponent::includeComponentClass('bitrix:landing.socialnetwork.group_redirect');
+
+		$groupId = \LandingSocialnetworkGroupRedirectComponent::getGroupIdBySiteId(
+			$siteId
+		);
+		if ($groupId && \Bitrix\Main\Loader::includeModule('socialnetwork'))
+		{
+			return \CSocNetGroup::canUserReadGroup(Manager::getUserId(), $groupId);
+		}
+
+		return false;
 	}
 
 	/**
@@ -1503,6 +1527,11 @@ class LandingPubComponent extends LandingBaseComponent
 							'check_permissions' => false,
 							'blocks_limit' => 0
 						]);
+						if ($this->isOpenedGroupSite($this->arResult['REAL_LANDING']->getSiteId()))
+						{
+							$this->executeComponent();
+							return;
+						}
 						if (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 						{
 							$this->setHttpStatusOnce($this::ERROR_STATUS_FORBIDDEN);

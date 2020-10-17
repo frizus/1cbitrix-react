@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACTIONS"] = "Дії";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Нова сторінка";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Копіювати сторінку";
@@ -13,6 +13,7 @@ $MESS["LANDING_TPL_ACTION_GOTO"] = "Перейти на сторінку";
 $MESS["LANDING_TPL_ACTION_MOVE"] = "Перемістити сторінку";
 $MESS["LANDING_TPL_ACTION_MOVE_TITLE"] = "Перемістити сторінку в сайт";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Опублікувати";
+$MESS["LANDING_TPL_ACTION_PUBLIC_CHANGED"] = "Опублікувати зміни";
 $MESS["LANDING_TPL_ACTION_REC_CONFIRM"] = "Перемістити в кошик?";
 $MESS["LANDING_TPL_ACTION_UNDELETE"] = "Відновити сторінку";
 $MESS["LANDING_TPL_ACTION_UNDELETE_FOLDER"] = "Відновити папку";
@@ -39,4 +40,3 @@ $MESS["LANDING_TPL_TITLE_STORE"] = "Магазин";
 $MESS["LANDING_TPL_TTL_DELETE"] = "До остаточного видалення";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "д.";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Не опублікована";
-?>

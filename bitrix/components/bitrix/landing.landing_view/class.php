@@ -311,6 +311,10 @@ class LandingViewComponent extends LandingBaseComponent
 			));
 			foreach ($pages as $page)
 			{
+				if ($page['ACTIVE'] != 'Y')
+				{
+					$page['PUBLIC'] = 'N';
+				}
 				if ($page['PUBLIC'] == 'Y')
 				{
 					continue;
@@ -529,11 +533,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['helps'] = [
 					'DYNAMIC_BLOCKS' => \Bitrix\Landing\Help::getHelpUrl('DYNAMIC_BLOCKS')
 				];
-				$options['features'] = [
-					Manager::FEATURE_DYNAMIC_BLOCK => Manager::checkFeature(
-						Manager::FEATURE_DYNAMIC_BLOCK
-					)
-				];
+				$options['features'] = [];
 				$options['rights'] = Rights::getOperationsForSite(
 					$landing->getSiteId()
 				);

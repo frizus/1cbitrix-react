@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACTIONS"] = "Дії";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Новий сайт";
 $MESS["LANDING_TPL_ACTION_ADDPAGE"] = "Створити сторінку";
@@ -18,7 +18,6 @@ $MESS["LANDING_TPL_ACTION_EXPORT"] = "Експорт";
 $MESS["LANDING_TPL_ACTION_GOTO"] = "Перейти на сайт";
 $MESS["LANDING_TPL_ACTION_GOTO_KNOWLEDGE"] = "Перейти в базу знань";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Опублікувати";
-$MESS["LANDING_TPL_ACTION_TRANSFER"] = "Перенести в Магазини";
 $MESS["LANDING_TPL_ACTION_UNDELETE"] = "Відновити сайт";
 $MESS["LANDING_TPL_ACTION_UNDELETE_KNOWLEDGE"] = "Відновити базу знань";
 $MESS["LANDING_TPL_ACTION_UNPUBLIC"] = "Зняти з публікації";
@@ -30,17 +29,14 @@ $MESS["LANDING_TPL_COL_CREATED"] = "Створено";
 $MESS["LANDING_TPL_COL_MODIFIED"] = "Змінено";
 $MESS["LANDING_TPL_COL_TITLE"] = "Назва";
 $MESS["LANDING_TPL_DELETED"] = "Видалений";
-$MESS["LANDING_TPL_EXPORT_DISABLED"] = "На вашому тарифному плані є обмеження на експорт сайтів. Щоб вивантажити сайт, перейдіть на інший тарифний план.";
+$MESS["LANDING_TPL_DEV_BTN"] = "Замовити";
+$MESS["LANDING_TPL_DEV_HELP"] = "Потрібна допомога в розробці сайту?";
+$MESS["LANDING_TPL_DEV_ORDER"] = "Замовте впровадження в наших партнерів";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Опублікований в домені #LINK#";
 $MESS["LANDING_TPL_TITLE"] = "Сайти";
 $MESS["LANDING_TPL_TITLE_KNOWLEDGE"] = "База знань";
 $MESS["LANDING_TPL_TITLE_PAGE"] = "Сайти";
 $MESS["LANDING_TPL_TITLE_STORE"] = "Магазини";
-$MESS["LANDING_TPL_TRANSFER_HELP_LINK"] = "Детальніше про перенесення Сайту в Магазин";
-$MESS["LANDING_TPL_TRANSFER_NEW_ADDRESS"] = "Нова адреса сайту";
-$MESS["LANDING_TPL_TRANSFER_NEW_ADDRESS_DISABLED"] = "Адреса сайту зайнята, необхідно вказати іншу";
-$MESS["LANDING_TPL_TRANSFER_NOTE"] = "Ви впевнені, що хочете зробити перенесення з розділу Сайти в розділ Магазини? Зворотний перенос буде неможливий.";
 $MESS["LANDING_TPL_TTL_DELETE"] = "До остаточного видалення";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "д.";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Не опублікований";
-?>

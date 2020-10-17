@@ -73,14 +73,14 @@ class CBlogUserOptions
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by);
-			$order = (strtoupper($order) != "ASC" ? "DESC" : "ASK");
+			$by = mb_strtoupper($by);
+			$order = (mb_strtoupper($order) != "ASC" ? "DESC" : "ASK");
 			if (array_key_exists($by, $arFields) && !array_key_exists($by, $arSqlOrder))
 			{
-				if(strtoupper($DB->type)=="ORACLE")
+				if($DB->type == "ORACLE")
 					$order .= ($order == "ASC" ? " NULLS FIRST" : " NULLS LAST");
 
-				if (isset($arFields[$by]["FROM"]) && !empty($arFields[$by]["FROM"]) && strpos($arSql["FROM"], $arFields[$by]["FROM"]) === false)
+				if (isset($arFields[$by]["FROM"]) && !empty($arFields[$by]["FROM"]) && mb_strpos($arSql["FROM"], $arFields[$by]["FROM"]) === false)
 					$arSql["FROM"] .= " ".$arFields[$by]["FROM"];
 				if ($by == "RANK")
 				{

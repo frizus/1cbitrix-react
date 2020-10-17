@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACTIONS"] = "Aktionen";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Neue Seite";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Seite kopieren";
@@ -13,6 +13,7 @@ $MESS["LANDING_TPL_ACTION_GOTO"] = "Seite öffnen";
 $MESS["LANDING_TPL_ACTION_MOVE"] = "Seite verschieben";
 $MESS["LANDING_TPL_ACTION_MOVE_TITLE"] = "Seite auf die Website verschieben";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Veröffentlichen";
+$MESS["LANDING_TPL_ACTION_PUBLIC_CHANGED"] = "Änderungen veröffentlichen";
 $MESS["LANDING_TPL_ACTION_REC_CONFIRM"] = "In den Papierkorb verschieben?";
 $MESS["LANDING_TPL_ACTION_UNDELETE"] = "Seite wiederherstellen";
 $MESS["LANDING_TPL_ACTION_UNDELETE_FOLDER"] = "Ordner wiederherstellen";
@@ -39,4 +40,3 @@ $MESS["LANDING_TPL_TITLE_STORE"] = "Onlineshop";
 $MESS["LANDING_TPL_TTL_DELETE"] = "Tage bis zum endgültigen Löschen";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "Tage";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Nicht veröffentlicht";
-?>

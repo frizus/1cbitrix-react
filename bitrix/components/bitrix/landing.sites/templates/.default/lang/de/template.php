@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACTIONS"] = "Aktionen";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Neue Website";
 $MESS["LANDING_TPL_ACTION_ADDPAGE"] = "Seite erstellen";
@@ -18,7 +18,6 @@ $MESS["LANDING_TPL_ACTION_EXPORT"] = "Export";
 $MESS["LANDING_TPL_ACTION_GOTO"] = "Website öffnen";
 $MESS["LANDING_TPL_ACTION_GOTO_KNOWLEDGE"] = "Wissensbasis öffnen";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Veröffentlichen";
-$MESS["LANDING_TPL_ACTION_TRANSFER"] = "In die Onlineshops migrieren";
 $MESS["LANDING_TPL_ACTION_UNDELETE"] = "Website wiederherstellen";
 $MESS["LANDING_TPL_ACTION_UNDELETE_KNOWLEDGE"] = "Wissensbasis wiederherstellen";
 $MESS["LANDING_TPL_ACTION_UNPUBLIC"] = "Website verbergen";
@@ -30,17 +29,14 @@ $MESS["LANDING_TPL_COL_CREATED"] = "Erstellt am";
 $MESS["LANDING_TPL_COL_MODIFIED"] = "Geändert am";
 $MESS["LANDING_TPL_COL_TITLE"] = "Name";
 $MESS["LANDING_TPL_DELETED"] = "Gelöscht";
-$MESS["LANDING_TPL_EXPORT_DISABLED"] = "Ihr aktueller Tarif enthält keine Funktion zum Website-Export. Sie sollten upgraden, um die Websites exportieren zu können.";
+$MESS["LANDING_TPL_DEV_BTN"] = "Bestellen";
+$MESS["LANDING_TPL_DEV_HELP"] = "Brauchen Sie Hilfe mit Ihrer Website?";
+$MESS["LANDING_TPL_DEV_ORDER"] = "Sie können Entwicklung bei unseren partnern bestellen";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Veröffentlicht in der Domain #LINK#";
 $MESS["LANDING_TPL_TITLE"] = "Websites";
 $MESS["LANDING_TPL_TITLE_KNOWLEDGE"] = "Wissensbasis";
 $MESS["LANDING_TPL_TITLE_PAGE"] = "Websites";
 $MESS["LANDING_TPL_TITLE_STORE"] = "Onlineshops";
-$MESS["LANDING_TPL_TRANSFER_HELP_LINK"] = "Erfahren Sie mehr über die Migration von Sites in die Onlineshops";
-$MESS["LANDING_TPL_TRANSFER_NEW_ADDRESS"] = "Neue Website-Adresse";
-$MESS["LANDING_TPL_TRANSFER_NEW_ADDRESS_DISABLED"] = "Die von Ihnen angegebene Adresse wird bereits genutzt. Geben Sie bitte eine andere Adresse an.";
-$MESS["LANDING_TPL_TRANSFER_NOTE"] = "Möchten Sie die Seiten aus dem Bereich Sites wirklich in den Bereich des Onlineshops migrieren?";
 $MESS["LANDING_TPL_TTL_DELETE"] = "Tage bis zum endgültigen Löschen";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "Tage";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Nicht veröffentlicht";
-?>

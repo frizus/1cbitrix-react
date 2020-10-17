@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_CMP_PAR_DRAFT_MODE"] = "Immer den Entwurfsmodus nutzen";
 $MESS["LANDING_CMP_PAR_EDIT_DONT_LEAVE_FRAME"] = "Frame nicht verlassen";
 $MESS["LANDING_CMP_PAR_EDIT_FULL_PUBLICATION"] = "Alle Website-Seiten standardmäßig im Editor veröffentlichen";
@@ -14,7 +14,9 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Rollen";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Seite der Rollenbearbeitung";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Website-Seite (Liste der Landings)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Websites";
+$MESS["LANDING_CMP_PAR_SM_SITE_COOKIES"] = "Seite der Cookie-Bearbeitung";
 $MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Seite der Bearbeitung der Website-Domain";
+$MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN_SWITCH"] = "Seiten der Domainumschaltung";
 $MESS["LANDING_CMP_PAR_SM_SITE_EDIT"] = "Seite der Websitebearbeitung";
 $MESS["LANDING_CMP_PAR_STRICT_TYPE"] = "Strenge Übereinstimmung";
 $MESS["LANDING_CMP_PAR_TILE_LANDING_MODE"] = "Klick auf Seitenkachel";
@@ -33,4 +35,3 @@ $MESS["LANDING_CMP_PAR_VAR_ROLE_EDIT"] = "Variable der ID der Rolle (bearbeiten)
 $MESS["LANDING_CMP_PAR_VAR_SITE"] = "URL-Parameter für Website-ID (Ansicht)";
 $MESS["LANDING_CMP_PAR_VAR_SITES"] = "URL-Parameter für Website-Seiten";
 $MESS["LANDING_CMP_PAR_VAR_SITE_EDIT"] = "URL-Parameter für Website-ID (Bearbeitung)";
-?>

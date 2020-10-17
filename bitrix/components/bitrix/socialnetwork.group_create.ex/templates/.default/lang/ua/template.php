@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_GCE_TAB_1"] = "Опис";
 $MESS["SONET_GCE_TAB_2"] = "Можливості";
 $MESS["SONET_GCE_TAB_3"] = "Учасники";
@@ -12,6 +12,10 @@ $MESS["SONET_GCE_T_ADD_OWNER"] = "призначити керівника";
 $MESS["SONET_GCE_T_ADD_USER"] = "Додати користувача";
 $MESS["SONET_GCE_T_AJAX_ERROR"] = "Виникла помилка при обробці даних форми. Будь ласка, спробуйте ще раз.";
 $MESS["SONET_GCE_T_BUTTON_TITLE_FURTHER"] = "далі";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER"] = "Призначити майстра";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER_MORE"] = "Змінити";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER"] = "Призначити власника";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER_MORE"] = "Змінити";
 $MESS["SONET_GCE_T_DEST_EXTRANET"] = "Екстранет";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_EMAIL_TITLE"] = "E-mail";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_LAST_NAME_TITLE"] = "Прізвище";
@@ -93,6 +97,10 @@ $MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "Наявність проєкт
 $MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Видимий";
 $MESS["SONET_GCE_T_PARAMS_VIS_PROJECT"] = "Проєкт бачать усі";
 $MESS["SONET_GCE_T_PERMS_SWITCH"] = "Права";
+$MESS["SONET_GCE_T_SCRUM_MASTER"] = "SCRUM майстер";
+$MESS["SONET_GCE_T_SCRUM_OWNER"] = "SCRUM власник";
+$MESS["SONET_GCE_T_SCRUM_PAGE_TITLE"] = "Створити SCRUM проєкт";
+$MESS["SONET_GCE_T_SCRUM_SPRINT_DURATION"] = "Тривалість спринту";
 $MESS["SONET_GCE_T_SPAM_PERMS"] = "Відправляти повідомлення членам групи можуть";
 $MESS["SONET_GCE_T_SUBJECT"] = "Тематика групи";
 $MESS["SONET_GCE_T_SUBJECT_PROJECT"] = "Тематика проєкту";
@@ -114,4 +122,3 @@ $MESS["SONET_GCE_T_UPLOAD_IMAGE"] = "Завантажити зображення
 $MESS["SONET_GCE_T_USER_EXTRANET"] = "Зовнішні користувачі:";
 $MESS["SONET_GCE_T_USER_INTRANET"] = "Співробітники компанії:";
 $MESS["SONET_GCE_UF_HEADER"] = "Поля користувача";
-?>

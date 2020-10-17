@@ -69,6 +69,11 @@ class CBPGetUserActivity
 
 	protected function getActiveUsers(array $users) : array
 	{
+		if (empty($users))
+		{
+			return [];
+		}
+
 		$dbUsers = CUser::GetList(
 			($sortBy = 'id'), ($sortOrder = 'asc'),
 			array(
@@ -163,7 +168,7 @@ class CBPGetUserActivity
 		}
 		if ($this->UserType == "random")
 		{
-			$arUsers = self::GetActiveUsers(
+			$arUsers = $this->getActiveUsers(
 				$this->GetUsersList($this->UserParameter, $skipAbsent, $skipTimeman)
 			);
 

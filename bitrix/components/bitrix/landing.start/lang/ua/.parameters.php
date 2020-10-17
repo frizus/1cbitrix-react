@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_CMP_PAR_DRAFT_MODE"] = "Завжди працювати в режимі чернетки";
 $MESS["LANDING_CMP_PAR_EDIT_DONT_LEAVE_FRAME"] = "Не залишати фрейм, якщо працюємо у фреймі";
 $MESS["LANDING_CMP_PAR_EDIT_FULL_PUBLICATION"] = "У редакторі публікувати за замовчуванням усі сторінки сайту";
@@ -14,7 +14,9 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Список ролей";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Сторінка редагування ролі";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Сторінка сайту (список лендінгів)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Список сайтів";
+$MESS["LANDING_CMP_PAR_SM_SITE_COOKIES"] = "Сторінка редагування Cookies";
 $MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Сторінка редагування домену сайту";
+$MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN_SWITCH"] = "Сторінка передачі домену іншому сайту";
 $MESS["LANDING_CMP_PAR_SM_SITE_EDIT"] = "Сторінка редагування сайту";
 $MESS["LANDING_CMP_PAR_STRICT_TYPE"] = "Сувора відповідність типу";
 $MESS["LANDING_CMP_PAR_TILE_LANDING_MODE"] = "Режим відкриття при клікові на плитку сторінки";
@@ -33,4 +35,3 @@ $MESS["LANDING_CMP_PAR_VAR_ROLE_EDIT"] = "Змінна ID ролі (редагу
 $MESS["LANDING_CMP_PAR_VAR_SITE"] = "Змінна ID сайту (перегляд)";
 $MESS["LANDING_CMP_PAR_VAR_SITES"] = "Ідентифікатор сторінки сайтів";
 $MESS["LANDING_CMP_PAR_VAR_SITE_EDIT"] = "Змінна ID сайту (редагування)";
-?>

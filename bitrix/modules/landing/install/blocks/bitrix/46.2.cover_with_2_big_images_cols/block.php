@@ -16,11 +16,11 @@
 									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Professional<br>Photography
 									</h3>
-									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40">
+									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40" data-auto-font-scale>
 										Yhdte Jit Iurrw Joksmns Iooldf
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
+										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0"
 										   href="#">Learn More</a>
 									</div>
 								</div>
@@ -44,11 +44,11 @@
 									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Work<br>Presentations
 									</h3>
-									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40">
+									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40" data-auto-font-scale>
 										Ut pulvinar tellus jhsed sed elit
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
+										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0"
 										   href="#">Learn More</a>
 									</div>
 								</div>

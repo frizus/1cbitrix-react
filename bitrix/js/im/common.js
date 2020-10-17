@@ -688,7 +688,7 @@
 			textElement = textElement.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function(whole, aInner, text, offset)
 			{
 				if(
-					!text.match(/(\.(jpg|jpeg|png|gif)\?|\.(jpg|jpeg|png|gif)$)/i)
+					!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
 					|| text.toLowerCase().indexOf("/docs/pub/") > 0
 					|| text.toLowerCase().indexOf("logout=yes") > 0
 				)
@@ -852,6 +852,83 @@
 			codeReplacement.push(text);
 			return '####REPLACEMENT_MARK_'+id+'####';
 		});
+
+		textElement = textElement.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function(whole, link, text)
+		{
+			link = BX.util.htmlspecialcharsback(link);
+
+			try
+			{
+				var url = new URL(link, location.origin+location.pathname);
+			}
+			catch(e)
+			{
+				return whole;
+			}
+
+			var allowList = [
+				"http:",
+				"https:",
+				"ftp:",
+				"file:",
+				"tel:",
+				"callto:",
+				"mailto:",
+				"skype:",
+				"viber:",
+			];
+			if (allowList.indexOf(url.protocol) <= -1)
+			{
+				return whole;
+			}
+
+			var tag = document.createElement('a');
+			tag.href = url.href;
+			tag.target = '_blank';
+			tag.text = BX.util.htmlspecialcharsback(text);
+
+			return tag.outerHTML;
+		});
+
+		textElement = textElement.replace(/\[url\]([^\]]+)\[\/url\]/ig, function(whole, link)
+		{
+			link = BX.util.htmlspecialcharsback(link);
+
+			try
+			{
+				var url = new URL(link, location.origin+location.pathname);
+			}
+			catch(e)
+			{
+				return whole;
+			}
+
+			var allowList = [
+				"http:",
+				"https:",
+				"ftp:",
+				"file:",
+				"tel:",
+				"callto:",
+				"mailto:",
+				"skype:",
+				"viber:",
+			];
+			if (allowList.indexOf(url.protocol) <= -1)
+			{
+				return whole;
+			}
+
+			var tag = document.createElement('a');
+			tag.href = url.href;
+			tag.target = '_blank';
+			tag.text = link;
+
+			return tag.outerHTML;
+		});
+
+		textElement = textElement.replace(/\[BR\]/ig, '<br/>');
+		textElement = textElement.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, function(whole, open, inner, close) { return '<'+open+'>'+inner+'<'+close+'>' });
 
 		textElement = textElement.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like" title="'+BX.message('IM_MESSAGE_LIKE')+'"></span>');
 		textElement = textElement.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike" title="'+BX.message('IM_MESSAGE_DISLIKE')+'"></span>');
@@ -4233,10 +4310,22 @@
 					if (category[i].id == 'ol')
 					{
 						if (!this.BXIM.messenger.users[userId].bot)
+						{
 							continue;
+						}
 
-						if (!this.BXIM.messenger.bot[userId] || this.BXIM.messenger.bot[userId].type != 'network' && this.BXIM.messenger.bot[userId].type != 'support24')
+						if (this.BXIM.bitrix24 && this.BXIM.messenger.bot[userId] && this.BXIM.messenger.bot[userId].code == 'network_cloud')
+						{
 							continue;
+						}
+
+						if (
+							!this.BXIM.messenger.bot[userId]
+							|| this.BXIM.messenger.bot[userId].type != 'network' && this.BXIM.messenger.bot[userId].type != 'support24'
+						)
+						{
+							continue;
+						}
 					}
 					else if (category[i].id == 'bot')
 					{
@@ -4931,10 +5020,10 @@
 		if (temp)
 		{
 			messageText = this.decodeBbCode(messageText);
-			messageText = messageText.replace(/(^|[^"'])((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif)(\?[\S]+)?)/ig, function(whole, prelink, link)
+			messageText = messageText.replace(/(^|[^"'])((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?)/ig, function(whole, prelink, link)
 			{
 				if(
-					!link.match(/(\.(jpg|jpeg|png|gif)\?|\.(jpg|jpeg|png|gif)$)/i)
+					!link.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
 					|| link.toLowerCase().indexOf("/docs/pub/") > 0
 					|| link.toLowerCase().indexOf("logout=yes") > 0
 				)
@@ -5319,7 +5408,7 @@
 		{
 			if (messageText.length > 0)
 			{
-				var checkImages = messageText.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1').replace(/<\/?[^>]+>/gi, ' ').replace(/(https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif)(\?[\S]+)?/ig, function(whole) {return '';}).trim();
+				var checkImages = messageText.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1').replace(/<\/?[^>]+>/gi, ' ').replace(/(https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?/ig, function(whole) {return '';}).trim();
 				if (!checkImages)
 				{
 					messageWithoutPadding = true;
@@ -6819,6 +6908,10 @@
 
 					this.BXIM.messenger.message[params.message.templateId] = params.message;
 					this.BXIM.messenger.message[params.message.id] = params.message;
+					if (!this.BXIM.messenger.showMessage[params.dialogId])
+					{
+						this.BXIM.messenger.showMessage[params.dialogId] = [];
+					}
 					this.BXIM.messenger.showMessage[params.dialogId].push(params.message.id.toString());
 					delete this.BXIM.messenger.message[params.message.templateId];
 					this.BXIM.disk.files[params.chatId][params.message.templateFileId] = params.files[params.message.params.FILE_ID[0]];
@@ -8631,11 +8724,6 @@
 		{
 			this.BXIM.messenger.newMessage(send);
 			this.BXIM.messenger.updateMessageCount(send);
-
-			if (send && playSound && userStatus != 'dnd')
-			{
-				this.BXIM.playSound("newMessage2");
-			}
 		}
 	}
 
@@ -10115,7 +10203,13 @@
 			if (this.BXIM.messenger.chat[userId.toString().substr(4)] && this.BXIM.messenger.chat[userId.toString().substr(4)].type == 'call')
 				this.BXIM.messenger.openCallFlag = true;
 			else if (this.BXIM.messenger.chat[userId.toString().substr(4)] && this.BXIM.messenger.chat[userId.toString().substr(4)].type == 'lines')
+			{
+				if (!this.BXIM.bitrixOpenLines)
+				{
+					return false;
+				}
 				this.BXIM.messenger.openLinesFlag = true;
+			}
 		}
 
 		BX.localStorage.set('mct', this.BXIM.messenger.currentTab, 15);
@@ -10229,7 +10323,7 @@
 			}
 			else
 			{
-				messageEmpty = BX.message(this.BXIM.settings.loadLastMessage? "IM_M_NO_MESSAGE_2": "IM_M_NO_MESSAGE");
+				messageEmpty = BX.message("IM_M_NO_MESSAGE");
 			}
 			BX.removeClass(this.BXIM.messenger.popupMessengerBodyWrap, 'bx-messenger-loading');
 			arMessage = [BX.create("div", { props : { className : "bx-messenger-content-empty"}, children : [
@@ -10259,25 +10353,7 @@
 
 		if (this.BXIM.messenger.redrawTab[userId])
 		{
-			if (
-				this.BXIM.settings.loadLastMessage
-				|| userId.toString().substr(0, 2) == 'sg'
-				|| userId.toString().substr(0, 3) == 'crm'
-				|| userId.toString().substr(0, 7) == 'network'
-			)
-			{
-				this.loadLastMessage(userId);
-			}
-			else
-			{
-				if (this.BXIM.messenger.openChatFlag)
-					BX.MessengerCommon.loadChatData(userId.toString().substr(4));
-				else
-					BX.MessengerCommon.loadUserData(userId);
-
-				delete this.BXIM.messenger.redrawTab[userId];
-				this.drawTab(userId, true);
-			}
+			this.loadLastMessage(userId);
 		}
 		else
 		{
@@ -10416,7 +10492,7 @@
 			}
 			else
 			{
-				messageEmpty = BX.message(this.BXIM.settings.loadLastMessage? "IM_M_NO_MESSAGE_2": "IM_M_NO_MESSAGE");
+				messageEmpty = BX.message("IM_M_NO_MESSAGE");
 				messageEmptyButton = BX.create('span', {props : { className : "bx-notifier-content-link-history bx-notifier-content-link-history-empty" }, children: [
 					BX.create('span', {props : { className : "bx-notifier-item-button bx-notifier-item-button-white" }, html: BX.message('IM_M_NO_MESSAGE_LOAD')})
 				], events: {click: BX.delegate(function(){
@@ -11441,7 +11517,7 @@
 				if (buttonConfig[i].DISABLED && buttonConfig[i].DISABLED == 'Y')
 				{
 					buttonValue = '<span class="bx-messenger-keyboard-button-text" data-disabled="Y" style="'+textStyles+'">'+
-						buttonConfig[i].TEXT+
+						BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
 					'</span>';
 				}
 				else
@@ -11449,27 +11525,36 @@
 					if (buttonConfig[i].LINK)
 					{
 						buttonValue = '<a href="'+buttonConfig[i].LINK+'" target="_blank" class="bx-messenger-keyboard-button-text" style="'+textStyles+'">' +
-							buttonConfig[i].TEXT+
+							BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
 						'</a>';
 					}
 					else if (buttonConfig[i].FUNCTION)
 					{
 						var userFunc = buttonConfig[i].FUNCTION.toString().replace('#MESSAGE_ID#', messageId).replace('#DIALOG_ID#', dialogId).replace('#USER_ID#', this.BXIM.userId);
 						buttonValue = '<a href="javascript:void(1);" onclick="'+userFunc+'; BX.PreventDefault(event);" class="bx-messenger-keyboard-button-text" style="'+textStyles+'">' +
-							buttonConfig[i].TEXT+
+							BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
+						'</a>';
+					}
+					else if (
+						buttonConfig[i].ACTION
+						&& buttonConfig[i].ACTION_VALUE.toString()
+					)
+					{
+						buttonValue = '<a href="javascript:void(1);" onclick="BX.MessengerCommon.executeParamsButton(\'KEYBOARD\', '+messageId+', '+i+', event);" class="bx-messenger-keyboard-button-text" style="'+textStyles+'">' +
+							BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
 						'</a>';
 					}
 					else if (buttonConfig[i].APP_ID)
 					{
 						buttonConfig[i].APP_PARAMS = buttonConfig[i].APP_PARAMS? buttonConfig[i].APP_PARAMS: '';
 						buttonValue = '<a href="javascript:void(1);" onclick="BXIM.messenger.textareaIconDialogClick('+parseInt(buttonConfig[i].APP_ID)+', '+messageId+', \''+(BX.util.htmlspecialchars(buttonConfig[i].APP_PARAMS))+'\'); BX.PreventDefault(event);" class="bx-messenger-keyboard-button-text" style="'+textStyles+'">' +
-							buttonConfig[i].TEXT+
+							BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
 						'</a>';
 					}
 					else
 					{
 						buttonValue = '<span class="bx-messenger-keyboard-button-text" data-dialogId="'+dialogId+'" data-messageId="'+messageId+'" data-blockAfterClick="'+buttonConfig[i].BLOCK+'" data-command="'+BX.util.htmlspecialchars(buttonConfig[i].COMMAND)+'" data-commandParams="'+BX.util.htmlspecialchars(buttonConfig[i].COMMAND_PARAMS)+'" data-botId="'+buttonConfig[i].BOT_ID+'" style="'+textStyles+'">'+
-							buttonConfig[i].TEXT+
+							BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
 						'</span>';
 					}
 				}
@@ -11492,6 +11577,69 @@
 		}
 
 		return keyboardNode;
+	}
+
+	MessengerCommon.prototype.executeParamsButton = function(type, messageId, index)
+	{
+		if (
+			!this.BXIM.messenger.message[messageId]
+			|| !this.BXIM.messenger.message[messageId].params[type]
+			|| !this.BXIM.messenger.message[messageId].params[type][index]
+		)
+		{
+			return false;
+		}
+
+		var button = this.BXIM.messenger.message[messageId].params[type][index];
+		if (button.ACTION)
+		{
+			if (button.ACTION === 'SEND')
+			{
+				this.BXIM.sendMessage(this.BXIM.messenger.currentTab, button.ACTION_VALUE);
+			}
+			else if (button.ACTION === 'PUT')
+			{
+				this.BXIM.putMessage(button.ACTION_VALUE);
+			}
+			else if (button.ACTION === 'CALL')
+			{
+				this.BXIM.phoneTo(button.ACTION_VALUE);
+			}
+			else if (button.ACTION === 'COPY')
+			{
+				if (this.isMobile())
+				{
+					app.exec("copyToClipboard", {text: button.ACTION_VALUE});
+
+					(new BXMobileApp.UI.NotificationBar({
+						message: BX.message("IM_COPIED"),
+						color: "#af000000",
+						textColor: "#ffffff",
+						groupId: "clipboard",
+						maxLines: 1,
+						align: "center",
+						isGlobal: true,
+						useCloseButton: true,
+						autoHideTimeout: 1500,
+						hideOnTap: true
+					}, "copy")).show();
+				}
+				else
+				{
+					BX.UI.Notification.Center.notify({
+						content: BX.message('IM_COPIED'),
+						autoHideDelay: 2000
+					});
+					BX.MessengerCommon.clipboardCopy(button.ACTION_VALUE);
+				}
+			}
+			else if (button.ACTION === 'DIALOG')
+			{
+				this.BXIM.openMessenger(button.ACTION_VALUE);
+			}
+		}
+
+		return false;
 	}
 
 	MessengerCommon.prototype.clickButtonKeyboard = function()
@@ -11645,7 +11793,7 @@
 						var linkTitle = null;
 						if (attach.USER[i].NETWORK_ID)
 						{
-							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax"}, attrs: {'data-entity': 'network', 'data-networkId': attach.USER[i].NETWORK_ID}, html: attach.USER[i].NAME});
+							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax"}, attrs: {'data-entity': 'network', 'data-networkId': attach.USER[i].NETWORK_ID}, text: attach.USER[i].NAME});
 						}
 						else if (attach.USER[i].BOT_ID)
 						{
@@ -11659,11 +11807,11 @@
 								attach.USER[i].AVATAR = '';
 							}
 
-							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax"}, attrs: {'data-entity': 'user', 'data-userId': attach.USER[i].BOT_ID}, html: attach.USER[i].NAME});
+							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax"}, attrs: {'data-entity': 'user', 'data-userId': attach.USER[i].BOT_ID}, text: attach.USER[i].NAME});
 						}
 						else if (attach.USER[i].USER_ID)
 						{
-							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax "+(attach.USER[i].USER_ID == this.BXIM.userId? 'bx-messenger-ajax-self': '')}, attrs: {'data-entity': 'user', 'data-userId': attach.USER[i].USER_ID}, html: attach.USER[i].NAME});
+							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax "+(attach.USER[i].USER_ID == this.BXIM.userId? 'bx-messenger-ajax-self': '')}, attrs: {'data-entity': 'user', 'data-userId': attach.USER[i].USER_ID}, text: attach.USER[i].NAME});
 							if (this.BXIM.messenger.users[attach.USER[i].USER_ID])
 							{
 								attach.USER[i].AVATAR = this.BXIM.messenger.users[attach.USER[i].USER_ID].avatar;
@@ -11671,15 +11819,15 @@
 						}
 						else if (attach.USER[i].CHAT_ID)
 						{
-							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax"}, attrs: {'data-entity': 'chat', 'data-chatId': attach.USER[i].CHAT_ID}, html: attach.USER[i].NAME});
+							linkTitle = BX.create("span", {props : { className: "bx-messenger-attach-user-name bx-messenger-ajax"}, attrs: {'data-entity': 'chat', 'data-chatId': attach.USER[i].CHAT_ID}, text: attach.USER[i].NAME});
 						}
 						else if (attach.USER[i].LINK)
 						{
-							linkTitle = BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.USER[i].LINK), 'target': '_blank'}, props : { className: "bx-messenger-attach-user-name"}, html: attach.USER[i].NAME});
+							linkTitle = BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.USER[i].LINK), 'target': '_blank'}, props : { className: "bx-messenger-attach-user-name"}, text: attach.USER[i].NAME});
 						}
 						else
 						{
-							linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-user-name"}, html: attach.USER[i].NAME})
+							linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-user-name"}, text: attach.USER[i].NAME})
 						}
 
 						var avatarType = 'user';
@@ -11709,7 +11857,7 @@
 					var linkNodes = [];
 					for (var i = 0; i < attach.LINK.length; i++)
 					{
-						var linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-link-name"}, html: attach.LINK[i].NAME? attach.LINK[i].NAME: attach.LINK[i].LINK});
+						var linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-link-name"}, text: attach.LINK[i].NAME? attach.LINK[i].NAME: attach.LINK[i].LINK});
 						if (attach.LINK[i].NETWORK_ID)
 						{
 							linkTitle = BX.create("span", {props : { className: "bx-messenger-ajax "}, attrs: {'data-entity': 'network', 'data-networkId': attach.LINK[i].NETWORK_ID}, children: [linkTitle]});
@@ -11725,14 +11873,14 @@
 						else
 						{
 							linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-link-name"}, children: [
-								BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.LINK[i].LINK), 'target': '_blank'}, html: attach.LINK[i].NAME? attach.LINK[i].NAME: attach.LINK[i].LINK})
+								BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.LINK[i].LINK), 'target': '_blank'}, text: attach.LINK[i].NAME? attach.LINK[i].NAME: attach.LINK[i].LINK})
 							]});
 						}
 
 						var linkDesc = null;
 						if (attach.LINK[i].DESC)
 						{
-							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-link-desc"}, html: attach.LINK[i].DESC});
+							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-link-desc"}, text: attach.LINK[i].DESC});
 						}
 
 						var linkPreview = null;
@@ -11770,7 +11918,7 @@
 					{
 						var linkSource = null;
 
-						var linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-name"}, html: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK});
+						var linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-name"}, text: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK});
 						if (attach.RICH_LINK[i].NETWORK_ID)
 						{
 							linkTitle = BX.create("span", {props : { className: "bx-messenger-ajax "}, attrs: {'data-entity': 'network', 'data-networkId': attach.RICH_LINK[i].NETWORK_ID}, children: [linkTitle]});
@@ -11788,7 +11936,7 @@
 							if (attach.RICH_LINK[i].HTML)
 							{
 								linkTitle = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-name"}, children: [
-									BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK), 'target': '_blank'}, html: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK})
+									BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK), 'target': '_blank'}, text: attach.RICH_LINK[i].NAME? attach.RICH_LINK[i].NAME: attach.RICH_LINK[i].LINK})
 								]});
 							}
 							linkSource = BX.create("div", { props : { className: "bx-messenger-attach-rich-link-source"}, html: BX.create("a", {attrs: {'href': BX.util.htmlspecialcharsback(attach.RICH_LINK[i].LINK)}}).hostname});
@@ -11797,7 +11945,7 @@
 						var linkDesc = null;
 						if (attach.RICH_LINK[i].DESC)
 						{
-							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-desc"}, html: attach.RICH_LINK[i].DESC});
+							linkDesc = BX.create("span", { props : { className: "bx-messenger-attach-rich-link-desc"}, text: attach.RICH_LINK[i].DESC});
 						}
 
 						var linkPreview = null;
@@ -11828,7 +11976,7 @@
 				}
 				else if(attach.MESSAGE && attach.MESSAGE.length > 0)
 				{
-					blockNode = BX.create("span", { props : { className: "bx-messenger-attach-message"}, html: this.decodeBbCode(attach.MESSAGE)});
+					blockNode = BX.create("span", { props : { className: "bx-messenger-attach-message"}, html: this.decodeBbCode(BX.util.htmlspecialchars(attach.MESSAGE))});
 				}
 				else if(attach.HTML && attach.HTML.length > 0)
 				{
@@ -11839,7 +11987,7 @@
 					var gridNodes = [];
 					for (var i = 0; i < attach.GRID.length; i++)
 					{
-						var gridValue = this.decodeBbCode(attach.GRID[i].VALUE);
+						var gridValue = this.decodeBbCode(BX.util.htmlspecialchars(attach.GRID[i].VALUE));
 						if (attach.GRID[i].USER_ID)
 						{
 							gridValue = '<span class="bx-messenger-ajax '+(attach.GRID[i].USER_ID == this.BXIM.userId? 'bx-messenger-ajax-self': '')+'" data-entity="user" data-userId="'+attach.GRID[i].USER_ID+'">'+gridValue+'</span>';
@@ -11876,7 +12024,7 @@
 						{
 							gridNode = BX.create("span", { props : { className: "bx-messenger-attach-block bx-messenger-attach-block-"+(attach.GRID[i].DISPLAY.toLowerCase())+" bx-messenger-attach-block-spoiler"}, attrs: { style: attach.GRID[i].DISPLAY == 'LINE' || attach.GRID[i].DISPLAY == 'CARD'? width: ''}, children: [
 								BX.create("div", { props : { className: "bx-messenger-attach-block-name"}, attrs: { style: attach.GRID[i].DISPLAY == 'ROW'? width: ''}, children: [
-									BX.create("span", {props : { className: "bx-messenger-attach-block-spoiler-name"}, html: attach.GRID[i].NAME}),
+									BX.create("span", {props : { className: "bx-messenger-attach-block-spoiler-name"}, text: attach.GRID[i].NAME}),
 									BX.create("span", {props : { className: "bx-messenger-attach-block-spoiler-icon"}})
 								]}),
 								BX.create("div", { props : { className: "bx-messenger-attach-block-value"}, attrs: { style: height+(attach.GRID[i].COLOR? 'color: '+attach.GRID[i].COLOR: ''), 'data-min-height': attach.GRID[i].HEIGHT, 'data-max-height': maxHeight}, children: [
@@ -11895,7 +12043,7 @@
 								blockType = 'BLOCK';
 							}
 							gridNode = BX.create("span", { props : { className: "bx-messenger-attach-block bx-messenger-attach-block-"+blockType.toLowerCase()}, attrs: { style: blockType == 'LINE' || blockType == 'CARD'? width: ''}, children: [
-								!attach.GRID[i].NAME? null: BX.create("div", { props : { className: "bx-messenger-attach-block-name"}, attrs: { style: blockType == 'ROW'? width: ''}, html: attach.GRID[i].NAME}),
+								!attach.GRID[i].NAME? null: BX.create("div", { props : { className: "bx-messenger-attach-block-name"}, attrs: { style: blockType == 'ROW'? width: ''}, text: attach.GRID[i].NAME}),
 								!attach.GRID[i].VALUE? null: BX.create("div", { props : { className: "bx-messenger-attach-block-value"}, attrs: { style: (attach.GRID[i].COLOR? 'color: '+attach.GRID[i].COLOR: '')}, html: gridValue})
 							]});
 						}
@@ -11963,7 +12111,7 @@
 							}
 						}
 						fileName = BX.create("span", { attrs: {'title': attach.FILE[i].NAME}, props : { className: "bx-messenger-file-title"}, children: [
-							BX.create("span", { props : { className: "bx-messenger-file-title-name"}, html: fileName})
+							BX.create("span", { props : { className: "bx-messenger-file-title-name"}, text: fileName})
 						]});
 						var fileNode = BX.create("div", { props : { className: "bx-messenger-file"}, children: [
 							BX.create("div", { props : { className: "bx-messenger-file-attrs"}, children: [
@@ -14045,7 +14193,7 @@
 		var currentChat = this.BXIM.messenger.chat[chatId];
 
 		var crmData = currentChat.entity_data_1.toString().split('|');
-		if(crmData.length < 3 || crmData[0] !== 'Y')
+		if(crmData.length < 3 || crmData[0] !== 'Y' || !this.BXIM.path.crm[crmData[1]])
 		{
 			return {crm: false};
 		}
@@ -15087,9 +15235,6 @@
 			return false;
 
 		if (this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].entity_type != 'LINES')
-			return false;
-
-		if (!BX.MessengerCommon.userInChat(chatId))
 			return false;
 
 		this.BXIM.messenger.blockJoinChat[chatId] = true;

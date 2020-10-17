@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_AGREE_BY_SUBMIT"] = "Натискаючи кнопку, я погоджуюсь з умовами #LINK1# використання безкоштовного домену #LINK2#";
 $MESS["LANDING_TPL_BITRIX24_DOMAIN_NAME"] = "Укажіть піддомен";
 $MESS["LANDING_TPL_BITRIX24_SUBTITLE"] = "Запустіть свій сайт, використовуючи піддомен #POSTFIX#";
@@ -16,6 +16,8 @@ $MESS["LANDING_TPL_DOMAIN_FREE_AVAILABLE_TITLE"] = "Домен активний"
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_LABEL"] = "Необхідно дочекатися активації домену <b>#DOMAIN_NAME#</b>.";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_TEXT"] = "Зверніть увагу, ваш сайт зараз недоступний за старою адресою, потрібно дочекатися включення нового домену.";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_TITLE"] = "Очікування активації домену";
+$MESS["LANDING_TPL_ERROR_DOMAIN_CHECK"] = "Доменне ім'я може складатися тільки з латинських букв, цифр і тире. А також закінчуватися на \".#TLD#\" (наприклад, \"mysite.#TLD#\")";
+$MESS["LANDING_TPL_ERROR_DOMAIN_CHECK_DASH"] = "У імені домена не може бути два тире поспіль, а також тире на початку або наприкінці імені домена.";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EMPTY"] = "Доменне ім'я не може бути пустим";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST"] = "Такий домен вже існує";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED"] = "Домен вже існує та прив'язаний до сайту, який знаходиться в кошику. Відв'яжіть сайт від домену та спробуйте ще раз.";
@@ -47,4 +49,3 @@ $MESS["LANDING_TPL_TITLE_MENU"] = "Адреса сайту";
 $MESS["LANDING_TPL_TITLE_MENU_BITRIX24"] = "Піддомен Бітрікс24";
 $MESS["LANDING_TPL_TITLE_MENU_FREE"] = "Домен в подарунок";
 $MESS["LANDING_TPL_TITLE_MENU_PRIVATE"] = "Свій домен";
-?>

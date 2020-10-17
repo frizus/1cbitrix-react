@@ -264,7 +264,7 @@ class Sender
 
 		if ($this->resultCode == static::RESULT_SENT)
 		{
-			$this->threadStrategy->finalize();
+			$this->resultCode = !$this->threadStrategy->finalize() ? static::RESULT_CONTINUE : static::RESULT_SENT;
 		}
 	}
 

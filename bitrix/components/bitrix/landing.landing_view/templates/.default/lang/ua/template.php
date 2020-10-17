@@ -1,5 +1,4 @@
 <?
-$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "На вашому тарифному плані є обмеження за кількістю створених баз знань. Щоб працювати з великим числом баз знань, перейдіть на інший тарифний план.";
 $MESS["LANDING_TPL_BUY_RENEW"] = "Будь ласка, #LINK1#продовжіть ліцензію#LINK2#";
 $MESS["LANDING_TPL_PREVIEW_URL"] = "Попередній";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Опублікувати";

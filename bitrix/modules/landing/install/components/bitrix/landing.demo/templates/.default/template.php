@@ -4,11 +4,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var array $arResult */
+/** @var array $arParams */
+/** @var \LandingBaseComponent $component */
+/** @var \CMain $APPLICATION */
+
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
-\Bitrix\Main\UI\Extension::load("ui.fonts.opensans");
+
+\Bitrix\Main\UI\Extension::load(['ui.fonts.opensans', 'sidepanel']);
 Loc::loadMessages(__FILE__);
 
 $context = \Bitrix\Main\Application::getInstance()->getContext();
@@ -73,7 +79,7 @@ if ($arResult['FATAL'])
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty(
 	'BodyClass',
-	($bodyClass ? $bodyClass.' ' : '') . 'no-all-paddings no-background'
+	($bodyClass ? $bodyClass.' ' : '') . 'no-all-paddings no-background landing-slider-frame-popup'
 );
 \Bitrix\Landing\Manager::setPageTitle(
 	Loc::getMessage('LANDING_TPL_TITLE')
@@ -84,6 +90,14 @@ $APPLICATION->SetPageProperty(
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.sites/templates/.default/style.css');
 Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.sites/templates/.default/script.js');
 ?>
+
+<div style="display: none">
+	<?$APPLICATION->includeComponent(
+		'bitrix:ui.feedback.form',
+		'',
+		$component->getFeedbackParameters('demo')
+	);?>
+</div>
 
 <div class="grid-tile-wrap" id="grid-tile-wrap">
 	<div class="grid-tile-inner" id="grid-tile-inner">
@@ -190,6 +204,18 @@ foreach ($arResult['DEMO'] as $item):
 	<?else:?>
 	</span>
 	<?endif;?>
+	<?if ($item['ID'] == 'empty' && $arParams['TYPE'] == 'PAGE'):?>
+	<span class="landing-item landing-item-contact" onclick="BX.fireEvent(BX('landing-feedback-demo-button'), 'click');">
+		<span class="landing-item-inner">
+			<span class="landing-item-contact-title"><?= Loc::getMessage('LANDING_TPL_FEEDBACK_TITLE');?></span>
+			<span class="landing-item-contact-icon"></span>
+			<span class="landing-item-contact-desc"><?= Loc::getMessage('LANDING_TPL_FEEDBACK_MESSAGE');?></span>
+			<span class="ui-btn ui-btn-sm ui-btn-round landing-item-contact-btn">
+				<?= Loc::getMessage('LANDING_TPL_FEEDBACK_SEND');?>
+			</span>
+		</span>
+	</span>
+	<?endif;?>
 <?endforeach;?>
 
 	</div>
@@ -199,7 +225,7 @@ foreach ($arResult['DEMO'] as $item):
 	<div class="<?= (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '' : 'landing-navigation';?>">
 		<?$APPLICATION->IncludeComponent(
 			'bitrix:main.pagenavigation',
-			'',//grid
+			'',
 			array(
 				'NAV_OBJECT' => $arResult['NAVIGATION'],
 				'SEF_MODE' => 'N',
@@ -226,16 +252,21 @@ foreach ($arResult['DEMO'] as $item):
 	BX.ready(function ()
 	{
 		<?if ($arResult['LIMIT_REACHED']):?>
-		if (typeof BX.Landing.PaymentAlert !== 'undefined')
+		var nodes = BX('grid-tile-wrap').querySelectorAll('.landing-item-payment');
+		if (nodes.length)
 		{
-			BX.Landing.PaymentAlert({
-				nodes: BX('grid-tile-wrap').querySelectorAll('.landing-item-payment'),
-				title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_LIMIT_REACHED_TITLE'));?>',
-				message: '<?= ($arParams['SITE_ID'] > 0)
-					? \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PAGE_LIMIT_REACHED_TEXT'))
-					: \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SITE_LIMIT_REACHED_TEXT'));
-					?>'
-			});
+			for (var i = 0, c = nodes.length; i < c; i++)
+			{
+				BX.bind(nodes[i], 'click', function(e)
+				{
+					<?
+					echo \Bitrix\Landing\Restriction\Manager::getActionCode(
+						($arParams['TYPE'] == 'STORE') ? 'limit_shop_number' : 'limit_sites_number'
+					);
+					?>
+					BX.PreventDefault(e);
+				});
+			}
 		}
 		<?endif;?>
 

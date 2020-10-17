@@ -1,5 +1,4 @@
 <?
-$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "In Ihrem aktuellen Tarif können Sie keine weiteren Wissensbasen erstellen. Sie sollten upgraden, um eine neue Wissensbasis erstellen zu können.";
 $MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Senden Sie eine Anfrage wegen des Lesezugriffs für diese Wissensbasis an einen der Nutzer.";
 $MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "Das ist eine private Wissensbasis";
 $MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Wegen Zugriff anfragen";

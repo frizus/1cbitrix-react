@@ -59,6 +59,8 @@
 		onUserScreenState: 'onUserScreenState',
 		onUserVoiceStarted: 'onUserVoiceStarted',
 		onUserVoiceStopped: 'onUserVoiceStopped',
+		onUserFloorRequest: 'onUserFloorRequest', // request for a permission to speak
+		onUserEmotion: 'onUserEmotion',
 		onLocalMediaReceived: 'onLocalMediaReceived',
 		onLocalMediaStopped: 'onLocalMediaStopped',
 		onDeviceListUpdated: 'onDeviceListUpdated',
@@ -667,19 +669,19 @@
 
 	BX.Call.Engine.prototype.getAllowedVideoQuality = function(participantsCount)
 	{
-		if(participantsCount < 4)
+		if(participantsCount < 5)
 		{
 			return BX.Call.Quality.VeryHigh
 		}
-		else if(participantsCount < 7)
+		else if(participantsCount < 10)
 		{
 			return BX.Call.Quality.High
 		}
-		else if(participantsCount < 11)
+		else if(participantsCount < 16)
 		{
 			return BX.Call.Quality.Medium
 		}
-		else if(participantsCount < 24)
+		else if(participantsCount < 32)
 		{
 			return BX.Call.Quality.Low
 		}

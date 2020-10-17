@@ -9,9 +9,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 /** @var \CMain $APPLICATION */
-/** @var LandingEditComponent $component */
+/** @var \LandingEditComponent $component */
 
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
@@ -94,6 +95,12 @@ Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.site_edit/templat
 
 $this->getComponent()->initAPIKeys();
 
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+$APPLICATION->SetPageProperty(
+	'BodyClass',
+	($bodyClass ? $bodyClass.' ' : '') . 'landing-slider-frame-popup'
+);
+
 // view-functions
 include Manager::getDocRoot() . '/bitrix/components/bitrix/landing.site_edit/templates/.default/template_class.php';
 $template = new Template($arResult);
@@ -160,7 +167,9 @@ if ($arParams['SUCCESS_SAVE'])
 								{
 									if ($siteCurrent)
 									{
-										echo Manager::getPublicationPath(trim($siteCurrent['CODE'], '/'));
+										echo \htmlspecialcharsbx(
+											Manager::getPublicationPath(trim($siteCurrent['CODE'], '/'))
+										);
 									}
 									else
 									{
@@ -171,10 +180,10 @@ if ($arParams['SUCCESS_SAVE'])
 								{
 									if ($siteCurrent && $siteCurrent['TYPE'] == 'SMN')
 									{
-										echo Manager::getPublicationPath(
+										echo \htmlspecialcharsbx(Manager::getPublicationPath(
 											null,
 											$siteCurrent['SMN_SITE_ID']
-										);
+										));
 									}
 									else
 									{
@@ -183,14 +192,14 @@ if ($arParams['SUCCESS_SAVE'])
 								}
 								else
 								{
-									echo Manager::getPublicationPath(
+									echo \htmlspecialcharsbx(Manager::getPublicationPath(
 										null,
 										$request->get('site')
-									);
+									));
 								}
 								if ($arResult['FOLDER'])
 								{
-									echo $arResult['FOLDER']['CODE'] . '/';
+									echo \htmlspecialcharsbx($arResult['FOLDER']['CODE']) . '/';
 								}
 								?>
 							</span>
@@ -319,7 +328,7 @@ if ($arParams['SUCCESS_SAVE'])
 					</td>
 				</tr>
 				<?endif;?>
-				
+
 				<?if (isset($hooks['THEME'])):
 					$pageFields = $hooks['THEME']->getPageFields();
 					if (isset($pageFields['THEME_CODE'])): ?>
@@ -332,7 +341,7 @@ if ($arParams['SUCCESS_SAVE'])
 									$selectParams['id'] = randString(5);
 									$selectParams['options'] = $pageFields['THEME_CODE']->getOptions();
 									$selectParams['value'] = $pageFields['THEME_CODE']->getValue();
-									
+
 									// set color and border for DEFAULT
 									$selectParams['options']['']['class'] = 'select-color-popup-menu-item--underline';
 									$siteFields = $hooksSite['THEME']->getPageFields();
@@ -348,14 +357,14 @@ if ($arParams['SUCCESS_SAVE'])
 										$selectParams['options']['']['color'] = $lastOption['color'];
 									}
 									?>
-										
+
 									<input
 										id="<?=$selectParams['id']?>_select_color"
 										type="hidden"
 										name="<?= $pageFields['THEME_CODE']->getName('fields[ADDITIONAL_FIELDS][#field_code#]');?>"
 										value="<?= \htmlspecialcharsbx($selectParams['value']);?>"
 									/>
-									
+
 									<div class="ui-select select-color-wrap"
 										 id="<?= $selectParams['id'];?>_select_color_wrap">
 									</div>
@@ -380,7 +389,7 @@ if ($arParams['SUCCESS_SAVE'])
 						</td>
 					</tr>
 				<?php endif;?>
-				
+
 				<tr>
 					<td class="ui-form-right-cell ui-form-collapse" colspan="2">
 						<div class="ui-form-collapse-block landing-form-collapse-block-js">
@@ -613,7 +622,7 @@ if ($arParams['SUCCESS_SAVE'])
 					</td>
 				</tr>
 				<?endif;?>
-				
+
 				<?if (isset($hooks['VIEW'])):
 					$pageFields = $hooks['VIEW']->getPageFields();
 					?>
@@ -827,26 +836,15 @@ if ($arParams['SUCCESS_SAVE'])
 									<label class="ui-checkbox-label" for="checkbox-headblock-use">
 										<?= $pageFields['HEADBLOCK_USE']->getLabel();?>
 									</label>
-									<?if ($hooks['HEADBLOCK']->isLocked()):?>
-										<span class="landing-icon-lock"></span>
-										<script type="text/javascript">
-											BX.ready(function()
-											{
-												if (typeof BX.Landing.PaymentAlert !== 'undefined')
-												{
-													BX.Landing.PaymentAlert({
-														<?if ($pageFields['HEADBLOCK_USE']->isEmptyValue()):?>
-														nodes: [BX('checkbox-headblock-use'), BX('textarea-headblock-code')],
-														<?else:?>
-														nodes: [BX('textarea-headblock-code')],
-														<?endif;?>
-														title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
-														message: '<?= \CUtil::jsEscape($hooks['HEADBLOCK']->getLockedMessage());?>'
-													});
-												}
-											});
-										</script>
-									<?endif;?>
+									<?
+									if ($hooks['HEADBLOCK']->isLocked())
+									{
+										echo Restriction\Manager::getLockIcon(
+											Restriction\Hook::getRestrictionCodeByHookCode('HEADBLOCK'),
+											['checkbox-headblock-use']
+										);
+									}
+									?>
 								<?endif;?>
 								<?if (isset($pageFields['HEADBLOCK_CODE'])):?>
 								<div class="ui-control-wrap">

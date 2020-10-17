@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Помилка при обробці запиту";
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Завантаження...";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "На вашому тарифі синхронізація пошти недоступна (нові листи не потраплятимуть у Бітрікс24).
@@ -49,6 +49,7 @@ $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Завдання";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Завдання";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "Ще";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_TITLE"] = "Додатково";
+$MESS["MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK"] = "Адресна книга";
 $MESS["MAIL_MESSAGE_LIST_ATTACH_ICON_HINT"] = "Лист із вкладеннями";
 $MESS["MAIL_MESSAGE_LIST_BLACKLIST_LINK"] = "Чорний список";
 $MESS["MAIL_MESSAGE_LIST_BTN_DELETE"] = "Видалити";
@@ -71,9 +72,13 @@ $MESS["MAIL_MESSAGE_LIST_COLUMN_FROM"] = "Від кого";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_SUBJECT"] = "Тема";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN"] = "Скасувати";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE"] = "Листи будуть безповоротно видалені. <br>Ви ніяк не зможете їх відновити.";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL"] = "Ви дійсно хочете видалити всі листи? <br>Вони будуть безповоротно видалені. Ви ніяк не зможете їх відновити.";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN"] = "Видалити";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL"] = "Ви дійсно хочете перемістити всі листи?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_READ_ALL"] = "Ви дійсно хочете відзначити як прочитані всі листи в папці?";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL"] = "Ви дійсно хочете відзначити всі листи як спам?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_TITLE"] = "Підтвердіть дію";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL"] = "Ви дійсно хочете перемістити всі листи в кошик?";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_EMPTY"] = "Немає листів, що потребують реакції";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_TITLE"] = "Листи";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_UNBIND"] = "не оброблено";
@@ -130,4 +135,3 @@ $MESS["MAIL_MESSAGE_SENT"] = "відправлено #DATETIME#";
 $MESS["MAIL_MESSAGE_SPAM_CONFIRM"] = "Ви дійсно хочете видалити цей лист і додати відправника в чорний список?";
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Синхронізація";
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "Лист: #SUBJECT#";
-?>

@@ -335,6 +335,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$this->arParams['TYPE']
 			);
 			$filter['SITE_ID'] = $this->arParams['SITE_ID'];
+		//	$filter['==AREAS.ID'] = null;
 			if ($request->offsetExists($this->arParams['ACTION_FOLDER']))
 			{
 				$filter[] = array(
@@ -469,6 +470,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$item['IS_AREA'] = false;
 				$item['AREA_CODE'] = '';
 				$item['PUBLIC_URL'] = '';
+				$item['WAS_MODIFIED'] = $item['DATE_MODIFY_UNIX'] > $item['DATE_PUBLIC_UNIX'] ? 'Y' : 'N';
 				$item['PREVIEW'] = $pictureFromCloud ? '' : $landing->getPreview($item['ID'], true);
 				if ($item['FOLDER'] == 'Y')
 				{

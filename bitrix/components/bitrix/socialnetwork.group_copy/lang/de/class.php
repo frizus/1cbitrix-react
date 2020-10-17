@@ -1,6 +1,7 @@
-<?
+<?php
 $MESS["SOCNET_GROUP_COPY_DATE_FORMAT_ERROR"] = "Feldformat des Datums ist inkorrekt";
 $MESS["SOCNET_GROUP_COPY_FEATURE_BLOG"] = "Nachrichten aus Activity Stream";
+$MESS["SOCNET_GROUP_COPY_FEATURE_BLOG2"] = "Nachrichten im Feed";
 $MESS["SOCNET_GROUP_COPY_FEATURE_CHECKLISTS"] = "Checklisten";
 $MESS["SOCNET_GROUP_COPY_FEATURE_COMMENTS"] = "Kommentare";
 $MESS["SOCNET_GROUP_COPY_FEATURE_DEPARTMENTS"] = "Abteilungen";
@@ -25,4 +26,3 @@ $MESS["SOCNET_GROUP_COPY_TITLE_BASE_GROUP"] = "Projektgruppe kopieren";
 $MESS["SOCNET_GROUP_COPY_TITLE_BASE_PROJECT"] = "Projekt kopieren";
 $MESS["SOCNET_GROUP_COPY_TITLE_GROUP"] = "Gruppe";
 $MESS["SOCNET_GROUP_COPY_TITLE_PROJECT"] = "Projekt";
-?>
