@@ -1,2 +1,41 @@
 @import "./bootstrap/scss/bootstrap";
 @import "~Ripple.js/dist/ripple.min";
+.btn-noshadow:focus,
+.btn-noshadow.focus {
+  box-shadow: none;
+}
+
+.Header1Line {
+  box-sizing: content-box;
+  display: inline-block;
+  margin: 0 0.5rem;
+  padding: 10px 0;
+}
+
+@include media-breakpoint-down(sm) {
+  .Header1Line3 {
+    display: none;
+  }
+}
+
+.logo, .search-wrapper, .media-wrapper {
+  height: 175px;
+  position: relative;
+  top: 50%;
+}
+
+@include media-breakpoint-down(md) {
+  .logo, .search-wrapper, .media-wrapper {
+    height: 125px;
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .logo, .search-wrapper, .media-wrapper {
+    height: 72px;
+  }
+}
+
+.logo img, .logo svg, .search > *, .media-wrapper > * {
+  transform: translateY(-50%);
+}
