@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import Header1Line from "./Header1Line.js";
+import PlaceholderLine from "./PlaceholderLine.js";
 
 export default class Header1 extends Component {
 	renderHelp(help) {
@@ -147,26 +147,28 @@ export default class Header1 extends Component {
 
 		return (
 			<nav className="navbar navbar-light bg-light d-none d-sm-flex">
-				<span className="navbar-text pb-0 pt-0">
-					{$.isEmptyObject(this.props.site)
-						? <Header1Line className="Header1Line Header1Line1"/>
-						: phone
-					}
-					{$.isEmptyObject(this.props.site)
-						? <Header1Line className="Header1Line Header1Line2"/>
-						: email
-					}
-				</span>
-				<span className="navbar-text pb-0 pt-0">
-					{$.isEmptyObject(this.props.site)
-						? <Header1Line className="Header1Line Header1Line3"/>
-						: user1
-					}
-					{$.isEmptyObject(this.props.site)
-						? <Header1Line className="Header1Line Header1Line4"/>
-						: user2
-					}
-				</span>
+				<div className="container">
+					<span className="navbar-text pb-0 pt-0">
+						{$.isEmptyObject(this.props.site)
+							? <PlaceholderLine className="placeholder-line placeholder-header1-line1"/>
+							: phone
+						}
+							{$.isEmptyObject(this.props.site)
+								? <PlaceholderLine className="placeholder-line placeholder-header1-line2"/>
+								: email
+							}
+					</span>
+					<span className="navbar-text pb-0 pt-0">
+						{$.isEmptyObject(this.props.site)
+							? <PlaceholderLine className="placeholder-line placeholder-header1-line3"/>
+							: user1
+						}
+							{$.isEmptyObject(this.props.site)
+								? <PlaceholderLine className="placeholder-line placeholder-header1-line4"/>
+								: user2
+							}
+					</span>
+				</div>
 			</nav>
 		);
 	}

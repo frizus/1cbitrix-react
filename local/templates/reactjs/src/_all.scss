@@ -5,7 +5,7 @@
   box-shadow: none;
 }
 
-.Header1Line {
+.placeholder-line {
   box-sizing: content-box;
   display: inline-block;
   margin: 0 0.5rem;
@@ -13,7 +13,7 @@
 }
 
 @include media-breakpoint-down(sm) {
-  .Header1Line3 {
+  .placeholder-header1-line3 {
     display: none;
   }
 }
@@ -38,4 +38,17 @@
 
 .logo img, .logo svg, .search > *, .media-wrapper > * {
   transform: translateY(-50%);
+}
+
+.header3 {
+  border-top: solid 1px #f2f2f2;
+  box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+}
+
+.header3, .header3-col1, .header3-col2 {
+  height: 60px;
+}
+
+.header3 .list-group-item:last-child {
+  padding-right: 0;
 }

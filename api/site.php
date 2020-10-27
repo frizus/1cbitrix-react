@@ -22,6 +22,24 @@ $data = [
 	],
 	'userIsAuthorized' => $userIsAuthorized,
 	'logo' => CFile::GetPath(COption::GetOptionString('frizus.reactjs', 'logo')),
+	'topMenu2' => [
+		[
+			'href' => '/',
+			'text' => 'Главная',
+		],
+		[
+			'href' => '/actions/',
+			'text' => 'Акции',
+		],
+		[
+			'href' => '/brands/',
+			'text' => 'Бренды',
+		],
+		[
+			'href' => '/contact/',
+			'text' => 'Контакты',
+		],
+	],
 ];
 if ($userIsAuthorized) {
 	$data['userLogin'] = $GLOBALS['USER']->GetLogin();
