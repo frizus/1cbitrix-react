@@ -6,6 +6,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\Engine\Access;
 
 if(!defined('REST_MP_CATEGORIES_CACHE_TTL'))
 {
@@ -66,6 +67,13 @@ class Client
 		);
 	}
 
+	public static function getImmuneApp()
+	{
+		return Transport::instance()->call(
+			Transport::METHOD_GET_IMMUNE
+		);
+	}
+
 	public static function getUpdates($codeList)
 	{
 		$updatesList = Transport::instance()->call(
@@ -113,7 +121,7 @@ class Client
 	public static function getAvailableUpdate($code = false)
 	{
 		$updates = Option::get("rest", "mp_updates", "");
-		$updates = $updates == "" ? array() : unserialize($updates);
+		$updates = $updates == "" ? array() : unserialize($updates, ['allowed_classes' => false]);
 
 		if($code !== false)
 		{
@@ -486,4 +494,13 @@ class Client
 		return $result;
 	}
 
+	public static function isSubscriptionAccess()
+	{
+		return Loader::includeModule('bitrix24') && \CBitrix24::getLicensePrefix() === 'ru';
+	}
+
+	public static function canBuySubscription()
+	{
+		return static::isSubscriptionAccess() && Access::isFeatureEnabled() && \CBitrix24::getLicenseFamily() !== "demo";
+	}
 }

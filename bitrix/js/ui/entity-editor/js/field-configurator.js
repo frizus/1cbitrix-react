@@ -530,7 +530,8 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		{
 			params["field"] = this._field;
 			params["mandatory"] = this._isRequiredCheckBox
-				? this._isRequiredCheckBox.checked : this._field.isRequired();
+				? this._isRequiredCheckBox.checked
+				: (this._field.isRequired() || this._field.isRequiredByAttribute());
 		}
 		else
 		{
@@ -541,6 +542,13 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		}
 
 		params["showAlways"] = this._showAlwaysCheckBox.checked;
+		params['settings'] = (params['settings'] || []);
+
+		if (this._useTimezoneCheckBox)
+		{
+			params['settings']['USE_TIMEZONE'] = (this._useTimezoneCheckBox.checked ? 'Y' : 'N');
+		}
+
 		return params;
 	};
 	BX.UI.EntityEditorFieldConfigurator.prototype.onCancelButtonClick = function(e)

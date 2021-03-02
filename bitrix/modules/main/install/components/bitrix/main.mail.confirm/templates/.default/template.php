@@ -44,7 +44,7 @@
 										style="vertical-align: middle; ">
 									<?=getMessage('MAIN_MAIL_CONFIRM_PUBLIC') ?>
 									<span class="new-from-email-dialog-hint-icon"
-										title="<?=getMessage('MAIN_MAIL_CONFIRM_PUBLIC_HINT') ?>">?</span>
+										title="<?=getMessage('MAIN_MAIL_CONFIRM_PUBLIC_HINT1') ?>">?</span>
 								</label>
 							</div>
 						</div>
@@ -171,7 +171,8 @@
 	{
 		BXMainMailConfirm.init({
 			mailboxes: <?=Bitrix\Main\Web\Json::encode($arParams['MAILBOXES']) ?>,
-			canCheckSmtp: <?=(!empty($arParams['IS_SMTP_AVAILABLE']) && \Bitrix\Main\Mail\Smtp\Config::canCheck() ? 'true' : 'false') ?>
+			canCheckSmtp: <?=(!empty($arParams['IS_SMTP_AVAILABLE']) && \Bitrix\Main\Mail\Smtp\Config::canCheck() ? 'true' : 'false') ?>,
+			action:  '<?=\CUtil::jsEscape($arParams['ACTION_URL'])?>'
 		});
 	});
 

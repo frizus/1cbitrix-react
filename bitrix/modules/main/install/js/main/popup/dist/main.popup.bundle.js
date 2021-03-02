@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_core) {
+(function (exports,main_core_zIndexManager,main_core_events,main_core) {
 	'use strict';
 
 	/**
@@ -139,7 +139,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div \n\t\t\t\tclass=\"", "\" \n\t\t\t\tid=\"", "\"\n\t\t\t\tstyle=\"display: none; position: absolute; left: 0; top: 0; z-index: ", "\"\n\t\t\t>", "</div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div \n\t\t\t\tclass=\"", "\" \n\t\t\t\tid=\"", "\"\n\t\t\t\tstyle=\"display: none; position: absolute; left: 0; top: 0;\"\n\t\t\t>", "</div>"]);
 
 	  _templateObject4 = function _templateObject4() {
 	    return data;
@@ -342,6 +342,7 @@ this.BX = this.BX || {};
 	    _this.isAutoHideBinded = false;
 	    _this.closeByEsc = params.closeByEsc === true;
 	    _this.isCloseByEscBinded = false;
+	    _this.toFrontOnShow = true;
 	    _this.cacheable = true;
 	    _this.destroyed = false;
 	    _this.width = null;
@@ -417,10 +418,11 @@ this.BX = this.BX || {};
 	     * @private
 	     */
 
-	    _this.popupContainer = main_core.Tag.render(_templateObject4(), popupClassName, popupId, _this.getZindex(), [_this.titleBar, _this.contentContainer, _this.closeIcon]);
+	    _this.popupContainer = main_core.Tag.render(_templateObject4(), popupClassName, popupId, [_this.titleBar, _this.contentContainer, _this.closeIcon]);
 
 	    _this.appendContainer.appendChild(_this.popupContainer);
 
+	    _this.zIndexComponent = main_core_zIndexManager.ZIndexManager.register(_this.popupContainer, params.zIndexOptions);
 	    _this.buttonsContainer = null;
 
 	    if (params.angle) {
@@ -465,7 +467,9 @@ this.BX = this.BX || {};
 
 	    _this.setAnimation(params.animation);
 
-	    _this.setCacheable(params.cacheable); // Compatibility
+	    _this.setCacheable(params.cacheable);
+
+	    _this.setToFrontOnShow(params.toFrontOnShow); // Compatibility
 
 
 	    if (params.contentNoPaddings) {
@@ -921,6 +925,16 @@ this.BX = this.BX || {};
 	      return this.cacheable;
 	    }
 	  }, {
+	    key: "setToFrontOnShow",
+	    value: function setToFrontOnShow(flag) {
+	      this.toFrontOnShow = flag !== false;
+	    }
+	  }, {
+	    key: "shouldFrontOnShow",
+	    value: function shouldFrontOnShow() {
+	      return this.toFrontOnShow;
+	    }
+	  }, {
 	    key: "setResizeMode",
 	    value: function setResizeMode(mode) {
 	      if (mode === true || main_core.Type.isPlainObject(mode)) {
@@ -1243,9 +1257,9 @@ this.BX = this.BX || {};
 	        this.overlay = {
 	          element: main_core.Tag.render(_templateObject8(), this.getId())
 	        };
-	        this.adjustOverlayZindex();
 	        this.resizeOverlay();
 	        this.appendContainer.appendChild(this.overlay.element);
+	        this.getZIndexComponent().setOverlay(this.overlay.element);
 	      }
 
 	      if (params && main_core.Type.isNumber(params.opacity) && params.opacity >= 0 && params.opacity <= 100) {
@@ -1261,6 +1275,7 @@ this.BX = this.BX || {};
 	    value: function removeOverlay() {
 	      if (this.overlay !== null && this.overlay.element !== null) {
 	        main_core.Dom.remove(this.overlay.element);
+	        this.getZIndexComponent().setOverlay(null);
 	      }
 
 	      if (this.overlayTimeout) {
@@ -1311,22 +1326,12 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getZindex",
 	    value: function getZindex() {
-	      if (this.overlay !== null) {
-	        return this.params.zIndexAbsolute > 0 ? this.params.zIndexAbsolute : Popup.getOption('popupOverlayZindex') + this.params.zIndex;
-	      } else {
-	        return this.params.zIndexAbsolute > 0 ? this.params.zIndexAbsolute : Popup.getOption('popupZindex') + this.params.zIndex;
-	      }
+	      return this.getZIndexComponent().getZIndex();
 	    }
-	    /**
-	     * @private
-	     */
-
 	  }, {
-	    key: "adjustOverlayZindex",
-	    value: function adjustOverlayZindex() {
-	      if (this.overlay !== null && this.overlay.element !== null) {
-	        this.overlay.element.style.zIndex = parseInt(this.getPopupContainer().style.zIndex) - 1;
-	      }
+	    key: "getZIndexComponent",
+	    value: function getZIndexComponent() {
+	      return this.zIndexComponent;
 	    }
 	  }, {
 	    key: "show",
@@ -1349,6 +1354,11 @@ this.BX = this.BX || {};
 	      }));
 	      this.showOverlay();
 	      this.getPopupContainer().style.display = 'block';
+
+	      if (this.shouldFrontOnShow()) {
+	        this.bringToFront();
+	      }
+
 	      this.adjustPosition();
 	      this.animateOpening(function () {
 	        if (_this4.isDestroyed()) {
@@ -1416,6 +1426,13 @@ this.BX = this.BX || {};
 	          _this5.destroy();
 	        }
 	      });
+	    }
+	  }, {
+	    key: "bringToFront",
+	    value: function bringToFront() {
+	      if (this.isShown()) {
+	        main_core_zIndexManager.ZIndexManager.bringToFront(this.getPopupContainer());
+	      }
 	    }
 	  }, {
 	    key: "toggle",
@@ -1534,8 +1551,10 @@ this.BX = this.BX || {};
 	      main_core.Event.unbind(document, 'mousemove', this.handleDocumentMouseMove);
 	      main_core.Event.unbind(document, 'mouseup', this.handleDocumentMouseUp);
 	      main_core.Event.unbind(window, 'resize', this.handleResizeWindow);
-	      main_core.Dom.remove(this.popupContainer);
 	      this.removeOverlay();
+	      main_core_zIndexManager.ZIndexManager.unregister(this.popupContainer);
+	      this.zIndexComponent = null;
+	      main_core.Dom.remove(this.popupContainer);
 	      this.popupContainer = null;
 	      this.contentContainer = null;
 	      this.closeIcon = null;
@@ -1643,11 +1662,9 @@ this.BX = this.BX || {};
 	      main_core.Dom.adjust(this.popupContainer, {
 	        style: {
 	          top: top + 'px',
-	          left: left + 'px',
-	          zIndex: this.getZindex()
+	          left: left + 'px'
 	        }
 	      });
-	      this.adjustOverlayZindex();
 	    }
 	  }, {
 	    key: "enterFullScreen",
@@ -1833,6 +1850,11 @@ this.BX = this.BX || {};
 	      document.body.style.cursor = this.dragOptions.cursor;
 	      document.body.style.MozUserSelect = 'none';
 	      this.popupContainer.style.MozUserSelect = 'none';
+
+	      if (this.shouldFrontOnShow()) {
+	        this.bringToFront();
+	      }
+
 	      event.preventDefault();
 	    }
 	    /**
@@ -2064,12 +2086,15 @@ this.BX = this.BX || {};
 	    key: "getMaxZIndex",
 	    value: function getMaxZIndex() {
 	      var zIndex = 0;
-
-	      for (var i = 0; i < this._popups.length; i++) {
-	        zIndex = Math.max(zIndex, this._popups[i].params.zIndex);
-	      }
-
+	      this.getPopups().forEach(function (popup) {
+	        zIndex = Math.max(zIndex, popup.getZindex());
+	      });
 	      return zIndex;
+	    }
+	  }, {
+	    key: "getPopups",
+	    value: function getPopups() {
+	      return this._popups;
 	    }
 	  }]);
 	  return PopupManager;
@@ -2102,6 +2127,25 @@ this.BX = this.BX || {};
 	    eventName: 'SubMenu:onClose'
 	  }
 	};
+	var reEscape = /[<>'"]/g;
+	var escapeEntities = {
+	  '&': '&amp;',
+	  '<': '&lt;',
+	  '>': '&gt;',
+	  "'": '&#39;',
+	  '"': '&quot;'
+	};
+
+	function encodeSafe(value) {
+	  if (main_core.Type.isString(value)) {
+	    return value.replace(reEscape, function (item) {
+	      return escapeEntities[item];
+	    });
+	  }
+
+	  return value;
+	}
+
 	main_core_events.EventEmitter.registerAliases(aliases$1);
 
 	var MenuItem = /*#__PURE__*/function (_EventEmitter) {
@@ -2118,7 +2162,19 @@ this.BX = this.BX || {};
 	    options = options || {};
 	    _this.options = options;
 	    _this.id = options.id || main_core.Text.getRandom();
-	    _this.text = main_core.Type.isStringFilled(options.text) ? options.text : '';
+	    _this.text = '';
+	    _this.allowHtml = true;
+
+	    if (main_core.Type.isStringFilled(options.html)) {
+	      _this.text = options.html;
+	    } else if (main_core.Type.isStringFilled(options.text)) {
+	      _this.text = options.text;
+
+	      if (_this.text.match(/<[^>]+>/)) {
+	        console.warn('BX.Main.MenuItem: use "html" option for the html item content.', _this.getText());
+	      }
+	    }
+
 	    _this.title = main_core.Type.isStringFilled(options.title) ? options.title : '';
 	    _this.delimiter = options.delimiter === true;
 	    _this.href = main_core.Type.isStringFilled(options.href) ? options.href : null;
@@ -2186,7 +2242,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (this.delimiter) {
-	        if (main_core.Type.isStringFilled(this.text)) {
+	        if (main_core.Type.isStringFilled(this.getText())) {
 	          this.layout.item = main_core.Dom.create('span', {
 	            props: {
 	              className: 'popup-window-delimiter-section'
@@ -2195,7 +2251,7 @@ this.BX = this.BX || {};
 	              props: {
 	                className: 'popup-window-delimiter-text'
 	              },
-	              html: this.text
+	              html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
 	            })]
 	          });
 	        } else {
@@ -2224,7 +2280,7 @@ this.BX = this.BX || {};
 	            props: {
 	              className: 'menu-popup-item-text'
 	            },
-	            html: this.text
+	            html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
 	          })]
 	        });
 
@@ -2302,13 +2358,11 @@ this.BX = this.BX || {};
 	      options.autoHide = false;
 	      options.menuShowDelay = this.menuShowDelay;
 	      options.cacheable = this.isCacheable();
-	      options.zIndexAbsolute = this.getMenuWindow().getPopupWindow().getZindex() + 2;
 	      options.bindOptions = {
 	        forceTop: true,
 	        forceLeft: true,
 	        forceBindPosition: true
 	      };
-	      delete options.zIndex;
 	      delete options.events;
 	      delete options.angle;
 	      delete options.overlay;
@@ -2848,7 +2902,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "addMenuItemInternal",
 	    value: function addMenuItemInternal(menuItemJson, targetItemId) {
-	      if (!menuItemJson || !menuItemJson.delimiter && !main_core.Type.isStringFilled(menuItemJson.text) || menuItemJson.id && this.getMenuItem(menuItemJson.id) !== null) {
+	      if (!menuItemJson || !menuItemJson.delimiter && !main_core.Type.isStringFilled(menuItemJson.text) && !main_core.Type.isStringFilled(menuItemJson.html) || menuItemJson.id && this.getMenuItem(menuItemJson.id) !== null) {
 	        return null;
 	      }
 
@@ -3487,5 +3541,5 @@ this.BX = this.BX || {};
 	exports.PopupWindowButtonLink = PopupWindowButtonLink;
 	exports.PopupWindowCustomButton = PopupWindowCustomButton;
 
-}((this.BX.Main = this.BX.Main || {}),BX.Event,BX));
+}((this.BX.Main = this.BX.Main || {}),BX,BX.Event,BX));
 //# sourceMappingURL=main.popup.bundle.js.map

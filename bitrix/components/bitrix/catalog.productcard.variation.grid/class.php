@@ -63,6 +63,8 @@ class CatalogProductVariationGridComponent
 		$params['IBLOCK_ID'] = (int)($params['IBLOCK_ID'] ?? 0);
 		$params['PRODUCT_ID'] = (int)($params['PRODUCT_ID'] ?? 0);
 
+		$params['VARIATION_ID_LIST'] = $params['VARIATION_ID_LIST'] ?? null;
+
 		$params['PATH_TO'] = $params['PATH_TO'] ?? [];
 
 		$params['EXTERNAL_FIELDS'] = $params['EXTERNAL_FIELDS'] ?? [];
@@ -122,11 +124,11 @@ class CatalogProductVariationGridComponent
 								{
 									if ($property->isFileType())
 									{
-										$propertyValues[$property->getIndex()] = [];
+										$propertyValues[$property->getId()] = [];
 									}
 									else
 									{
-										$propertyValues[$property->getIndex()] = $property->getPropertyValueCollection()->toArray();
+										$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
 									}
 								}
 								$sku->getPropertyCollection()->setValues($propertyValues);
@@ -432,10 +434,14 @@ class CatalogProductVariationGridComponent
 
 		foreach ($this->getProduct()->getSkuCollection() as $sku)
 		{
+			if ($this->arParams['VARIATION_ID_LIST'] && !in_array($sku->getId(), $this->arParams['VARIATION_ID_LIST'], true))
+			{
+				continue;
+			}
 			$skuRowForm = new GridVariationForm($sku);
 
-			$item = $skuRowForm->getValues();
-			$columns = $skuRowForm->getColumnValues();
+			$item = $skuRowForm->getValues($sku->isNew());
+			$columns = $skuRowForm->getColumnValues($sku->isNew());
 
 			$actions = [];
 
@@ -476,7 +482,7 @@ class CatalogProductVariationGridComponent
 		$defaultForm = $this->getDefaultVariationRowForm();
 		if ($defaultForm)
 		{
-			$editData['template_0'] = $defaultForm->getValues();
+			$editData['template_0'] = $defaultForm->getValues(false);
 		}
 
 		$isSimpleProduct = $this->getProduct()->isSimple();

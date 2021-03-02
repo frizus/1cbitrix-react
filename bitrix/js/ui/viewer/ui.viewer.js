@@ -16,7 +16,6 @@
 
 		this.setItems(options.items || []);
 
-		this.zIndex = options.zIndex || 999999;
 		this.isBodyPaddingAdded = null;
 		this.cycleMode = options.hasOwnProperty('cycleMode')? options.cycleMode : true;
 		this.preload = options.hasOwnProperty('preload')? options.preload : 3;
@@ -44,7 +43,6 @@
 			darkMode: true,
 			floatMode: false,
 			autoHide: false,
-			zIndex: this.zIndex,
 			showTotalSelectedBlock: false,
 			showResetAllBlock: false,
 			alignItems: 'center',
@@ -52,6 +50,8 @@
 				return this.getPanelWrapper();
 			}.bind(this)
 		});
+
+		this.eventsAlreadyBinded = false;
 
 		this.init();
 	};
@@ -180,6 +180,13 @@
 
 		bindEvents: function ()
 		{
+			if (this.eventsAlreadyBinded)
+			{
+				return;
+			}
+
+			this.eventsAlreadyBinded = true;
+
 			this.handlers.keyPress = this.handleKeyPress.bind(this);
 			this.handlers.touchStart = this.handleTouchStart.bind(this);
 			this.handlers.touchEnd = this.handleTouchEnd.bind(this);
@@ -188,8 +195,6 @@
 			this.handlers.showPrev = this.showPrev.bind(this);
 			this.handlers.close = this.close.bind(this);
 			this.handlers.handleClickOnItemContainer = this.handleClickOnItemContainer.bind(this);
-			this.handlers.handleSliderOpen = this.handleSliderOpen.bind(this);
-			this.handlers.handleSliderCloseComplete = this.handleSliderCloseComplete.bind(this);
 			this.handlers.handleSliderCloseByEsc = this.handleSliderCloseByEsc.bind(this);
 
 			BX.bind(document, 'keydown', this.handlers.keyPress);
@@ -202,8 +207,6 @@
 			BX.bind(this.getPrevButton(), 'click', this.handlers.showPrev);
 			BX.bind(this.getCloseButton(), 'click', this.handlers.close);
 
-			BX.addCustomEvent('SidePanel.Slider:onOpen', this.handlers.handleSliderOpen);
-			BX.addCustomEvent('SidePanel.Slider:onCloseComplete', this.handlers.handleSliderCloseComplete);
 			BX.addCustomEvent('SidePanel.Slider:onCloseByEsc', this.handlers.handleSliderCloseByEsc);
 		},
 
@@ -289,39 +292,6 @@
 			}
 		},
 
-		/**
-		 * @param {BX.SidePanel.Event} event
-		 */
-		handleSliderCloseComplete: function(event)
-		{
-			var slider = BX.SidePanel.Instance.getTopSlider();
-			if (slider)
-			{
-				console.log('set zIndex above top slider after closing another slider', slider.getZindex());
-				this.setZindex(slider.getZindex() + 1);
-			}
-			else
-			{
-				console.log('reset zIndex by originalZIndex', this.originalZIndex);
-				this.setZindex(this.originalZIndex);
-				this.originalZIndex = null;
-			}
-		},
-
-		/**
-		 * @param {BX.SidePanel.Event} event
-		 */
-		handleSliderOpen: function (event)
-		{
-			if (!this.originalZIndex)
-			{
-				this.originalZIndex = this.getZindex();
-			}
-			console.log('SidePanel.Slider:onOpen', this.originalZIndex, event.getSlider().getZindex() - 1);
-
-			this.setZindex(event.getSlider().getZindex() - 1);
-		},
-
 		adjustViewport: function ()
 		{
 			var viewportNode = document.querySelector('[name="viewport"]');
@@ -344,30 +314,10 @@
 			viewportNode.setAttribute('content', this._viewportContent);
 		},
 
-		adjustZindex: function ()
-		{
-			if (!BX.getClass('BX.SidePanel.Instance'))
-			{
-				return;
-			}
-
-			if (!BX.SidePanel.Instance.isOpen())
-			{
-				this.setZindex(this.originalZIndex || this.zIndex);
-				this.originalZIndex = null;
-
-				return;
-			}
-
-			//we have to show viewer over sidepanel
-			var slider = BX.SidePanel.Instance.getTopSlider();
-			this.originalZIndex = this.zIndex;
-
-			this.setZindex(slider.getZindex() + 1);
-		},
-
 		unbindEvents: function()
 		{
+			this.eventsAlreadyBinded = false;
+
 			BX.unbind(document, 'keydown', this.handlers.keyPress);
 			BX.unbind(window, 'resize', this.handlers.resize);
 			BX.unbind(this.getItemContainer(), 'touchstart', this.handlers.touchStart);
@@ -377,9 +327,6 @@
 			BX.unbind(this.getNextButton(), 'click', this.handlers.showNext);
 			BX.unbind(this.getPrevButton(), 'click', this.handlers.showPrev);
 			BX.unbind(this.getCloseButton(), 'click', this.handlers.close);
-
-			BX.removeCustomEvent('SidePanel.Slider:onOpen', this.handlers.handleSliderOpen);
-			BX.removeCustomEvent('SidePanel.Slider:onCloseComplete', this.handlers.handleSliderCloseComplete);
 		},
 
 		init: function ()
@@ -430,25 +377,14 @@
 			actionToRun.action.call(this, item, additionalParams);
 		},
 
+		/**
+		 * @deprecated
+		 * Needs to be removed
+		 * @returns {number}
+		 */
 		getZindex: function ()
 		{
-			return this.zIndex;
-		},
-
-		setZindex: function (zIndex)
-		{
-			console.log('setZindex', zIndex);
-			this.zIndex = zIndex;
-			this.getViewerContainer().style.zIndex = zIndex;
-			this.setActionPanelZindex(zIndex);
-		},
-
-		setActionPanelZindex: function (zIndex)
-		{
-			if (this.actionPanel)
-			{
-				this.actionPanel.layout.container.style.zIndex = zIndex;
-			}
+			return 1000;
 		},
 
 		/**
@@ -1143,15 +1079,28 @@
 		open: function(index)
 		{
 			this.adjustViewport();
-			this.adjustZindex();
 			this.addBodyPadding();
-			this.baseContainer.appendChild(this.getViewerContainer());
-			BX.focus(this.getViewerContainer());
+
+			var container = this.getViewerContainer();
+			this.baseContainer.appendChild(container);
+			BX.focus(container);
+
+			this.showPanel();
+
+			var component = BX.ZIndexManager.getComponent(container);
+			if (!component)
+			{
+				BX.ZIndexManager.register(container, {
+					overlay: this.actionPanel.getPanelContainer(),
+					overlayGap: 1
+				});
+			}
+
+			BX.ZIndexManager.bringToFront(container);
 
 			this.show(index, {
 				asFirstToShow: true
 			});
-			this.showPanel();
 
 			this.bindEvents();
 
@@ -1174,7 +1123,6 @@
 
 		showPanel: function()
 		{
-			this.setActionPanelZindex(this.getZindex());
 			this.actionPanel.layout.container.style.background = 'none';
 
 			this.actionPanel.draw();
@@ -1325,6 +1273,7 @@
 
 			BX.bind(this.layout.container, 'transitionend', function()
 			{
+				BX.ZIndexManager.unregister(this.layout.container);
 				BX.remove(this.layout.container);
 				BX.removeClass(this.layout.container, 'ui-viewer-hide');
 				BX.unbindAll(this.layout.container);
@@ -1392,7 +1341,6 @@
 						tabIndex: 22081990
 					},
 					style: {
-						zIndex: this.zIndex,
 						height: window.clientHeight + 'px'
 					},
 					children: [
@@ -1739,6 +1687,10 @@
 			var nodes = BX.findChildren(container, filter, true);
 			var indexToShow = 0;
 			var targetNode = BX.getEventTarget(event);
+			if (targetNode.tagName !== 'A' && targetNode.closest('a[target="_blank"]'))
+			{
+				return false;
+			}
 
 			var items = nodes.map(function(node, index) {
 				if (node === targetNode)

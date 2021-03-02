@@ -8,7 +8,7 @@
 
 use Bitrix\Main\DB\SqlExpression;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/database.php");
+require_once __DIR__."/../general/database.php";
 
 /********************************************************************
 *	MySQL database classes
@@ -84,7 +84,7 @@ abstract class CDatabaseMysql extends CAllDatabase
 
 	function Query($strSql, $bIgnoreErrors=false, $error_position="", $arOptions=array())
 	{
-		global $DB, $USER;
+		global $DB;
 
 		$this->DoConnect();
 		$this->db_Error="";
@@ -180,28 +180,38 @@ abstract class CDatabaseMysql extends CAllDatabase
 			$this->db_ErrorSQL = $strSql;
 			if(!$bIgnoreErrors)
 			{
-				$ex = new \Bitrix\Main\DB\SqlQueryException('Mysql query error', $this->db_Error, $strSql);
-				\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog($ex);
+				$application = \Bitrix\Main\Application::getInstance();
 
-				if ($this->DebugToFile)
+				$ex = new \Bitrix\Main\DB\SqlQueryException('Mysql query error', $this->db_Error, $strSql);
+				$application->getExceptionHandler()->writeToLog($ex);
+
+				$application->getContext()->getResponse()
+					->setStatus('500 Internal Server Error')
+					->writeHeaders();
+
+        		if ($this->DebugToFile)
 				{
 					$this->startSqlTracker()->writeFileLog("ERROR: ".$this->db_Error, 0, "CONN: ".$this->getThreadId());
 				}
 
-				if($this->debug || (($USER instanceof CUser) && $USER->IsAdmin()))
+				if($this->debug)
+				{
 					echo $error_position."<br><font color=#ff0000>MySQL Query Error: ".htmlspecialcharsbx($strSql)."</font>[".htmlspecialcharsbx($this->db_Error)."]<br>";
+				}
 
-				$error_position = preg_replace("#<br[^>]*>#i","\n",$error_position);
+				$error_position = preg_replace("#<br[^>]*>#i","\n", $error_position);
 				SendError($error_position."\nMySQL Query Error:\n".$strSql." \n [".$this->db_Error."]\n---------------\n\n");
 
 				if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbquery_error.php"))
+				{
 					include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbquery_error.php");
-				elseif(file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/dbquery_error.php"))
-					include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/dbquery_error.php");
+					die();
+				}
 				else
+				{
 					die("MySQL Query Error!");
+				}
 
-				die();
 			}
 			return false;
 		}
@@ -1003,9 +1013,9 @@ abstract class CDBResultMysql extends CAllDBResult
 
 if(defined("BX_USE_MYSQLI") && BX_USE_MYSQLI === true)
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database_mysqli.php");
+	require_once __DIR__."/database_mysqli.php";
 }
 else
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database_mysql.php");
+	require_once __DIR__."/database_mysql.php";
 }

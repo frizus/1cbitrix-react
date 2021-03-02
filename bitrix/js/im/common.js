@@ -137,7 +137,7 @@
 			vInitedCall: BX.localStorage.get('vInitedCall') ? 'Y' : 'N',
 			desktopStatus: this.BXIM.desktopStatus ? 'Y' : 'N',
 			hasActiveCall: BX.MessengerCalls.hasActiveCall() ? 'Y' : 'N',
-			hasActiveCallTab: this.BXIM.callController.hasActiveCall() ? 'Y' : 'N',
+			hasActiveCallTab: this.BXIM.callController && this.BXIM.callController.hasActiveCall() ? 'Y' : 'N',
 			appVersion: navigator.appVersion
 		}
 	}
@@ -358,21 +358,29 @@
 			return false;
 
 		scroll = scroll !== false;
-		max = 400;//parseInt(max);
+		max = 400;
+
+		if (!(scroll && this.isScrollMax(element, max)))
+		{
+			return false;
+		}
 
 		var lastUnreadMessage = this.BXIM.messenger.unreadMessage[this.BXIM.messenger.currentTab] && this.BXIM.messenger.unreadMessage[this.BXIM.messenger.currentTab][0]? BX('im-message-'+this.BXIM.messenger.unreadMessage[this.BXIM.messenger.currentTab][0]): null;
 		if (lastUnreadMessage)
 		{
 			var visibleNode = lastUnreadMessage.parentNode.parentNode.parentNode.parentNode.parentNode.previousElementSibling? lastUnreadMessage.parentNode.parentNode.parentNode.parentNode.parentNode.previousElementSibling: lastUnreadMessage.parentNode.parentNode.parentNode.parentNode.parentNode;
 			var scrollResult = this.isElementVisibleOnScreen(visibleNode, element, true);
-			if (!scrollResult.top)
+			if (
+				!scrollResult.top
+				|| (scrollResult.coords.top > 0 && scrollResult.coords.top < 150)
+				|| (scrollResult.coords.top < 0)
+			)
 			{
-				this.scrollToNode(lastUnreadMessage.parentNode.parentNode.parentNode.parentNode.parentNode);
 				return false;
 			}
 		}
 
-		return (scroll && this.isScrollMax(element, max));
+		return true;
 	};
 
 	MessengerCommon.prototype.preventDefault = function(event)
@@ -1182,11 +1190,14 @@
 	{
 		target = target || '_blank';
 
-		var dom = BX.create('a', {attrs: {href: link, style: 'display:none', target: target}});
-		document.body.appendChild(dom);
-		dom.click();
-		document.body.removeChild(dom);
+		window.open(link, target, '', true);
 
+		return true;
+
+		// var dom = BX.create('a', {attrs: {href: link, style: 'display:none', target: target}});
+		// document.body.appendChild(dom);
+		// dom.click();
+		// document.body.removeChild(dom);
 		return true;
 	}
 
@@ -2056,7 +2067,6 @@
 		{
 			params.viewOffline = true;
 			params.viewOnlyIntranet = true;
-			params.viewOnlyBusiness = true;
 			params.viewChat = false;
 			params.viewOfflineWithPhones = false;
 		}
@@ -2066,7 +2076,6 @@
 			'groupOpen': true,
 			'viewSelf': name == 'contactList',
 			'viewOffline': true,
-			'viewOnlyBusiness': false,
 			'viewGroup': true,
 			'viewChat': true,
 			'viewBot': true,
@@ -2163,12 +2172,11 @@
 		else
 		{
 			this.BXIM.messenger.openMessenger(BX.proxy_context.getAttribute('data-userId'));
-			if (this.BXIM.callController.hasActiveCall())
+			if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 			{
 				this.BXIM.callController.fold();
 			}
 		}
-		return BX.PreventDefault(e);
 	}
 
 	MessengerCommon.prototype.contactListGetFromServer = function(onSuccess)
@@ -2437,7 +2445,7 @@
 				if (this.BXIM.messenger.contactListSearchText <= 0 && !this.BXIM.messenger.chatList)
 				{
 					this.BXIM.messenger.popupContactListSearchInput.value = "";
-					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && !this.BXIM.callController.hasActiveCall())
+					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && this.BXIM.callController && !this.BXIM.callController.hasActiveCall())
 					{
 						this.BXIM.messenger.popupMessenger.destroy();
 						return true;
@@ -2540,6 +2548,11 @@
 	/* Section: Recent list */
 	MessengerCommon.prototype.recentListRedraw = function(params)
 	{
+		if (this.debug())
+		{
+			console.warn('---------------')
+			console.time('recentList draw');
+		}
 		clearTimeout(this.BXIM.messenger.redrawRecentListTimeout);
 		if (this.MobileActionNotEqual('RECENT'))
 			return false;
@@ -2590,10 +2603,18 @@
 				BX.removeClass(this.BXIM.messenger.popupContactListElementsWrap, 'bx-messenger-recent-lines-wrap');
 				this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.recentListPrepare(params));
 			}
+			if (this.debug())
+			{
+				console.log('recentList update', 'done');
+			}
 
 			if (this.BXIM.messenger.recentListExternal)
 			{
 				this.BXIM.messenger.recentListExternal.innerHTML = this.BXIM.messenger.popupContactListElementsWrap.innerHTML;
+				if (this.debug())
+				{
+					console.log('recentList update (external)', 'done');
+				}
 			}
 
 			if (this.isMobile())
@@ -2605,8 +2626,27 @@
 		{
 			this.BXIM.messenger.recentListExternal.innerHTML = '';
 			this.BXIM.messenger.recentListExternal.appendChild(this.recentListPrepare(params));
+			if (this.debug())
+			{
+				console.log('recentList update (external)', 'done');
+			}
+		}
+
+		if (this.debug())
+		{
+			console.timeEnd('recentList draw');
 		}
 	};
+
+	MessengerCommon.prototype.debug = function(active)
+	{
+		if (typeof active === 'undefined')
+		{
+			return BX.localStorage.get('im-debug') == 1;
+		}
+
+		BX.localStorage.set('im-debug', active? 1: 0, 86400);
+	}
 
 	MessengerCommon.prototype.recentListPrepare = function(params)
 	{
@@ -4086,7 +4126,6 @@
 		var searchStructureId = activeSearch && searchText.substr(0,9) == 'structure'? searchText.substr(9): 0;
 		var searchWaitBackend = this.BXIM.messenger.realSearch && !this.BXIM.messenger.realSearchFound;
 		var viewOnlyIntranet =  typeof(params.viewOnlyIntranet) != 'undefined'? params.viewOnlyIntranet: false;
-		var viewOnlyBusiness =  typeof(params.viewOnlyBusiness) != 'undefined'? params.viewOnlyBusiness: false;
 		var extraEnable =  typeof(params.extra) != 'undefined'? params.extra: true;
 		var viewOffline =  typeof(params.viewOffline) != 'undefined'? params.viewOffline: activeSearch || !this.BXIM.settings? true: this.BXIM.settings.viewOffline;
 		var viewOfflineWithPhones =  typeof(params.viewOfflineWithPhones) != 'undefined'? params.viewOfflineWithPhones: false;
@@ -4257,9 +4296,6 @@
 					}
 
 					if (typeof(this.BXIM.messenger.users[userId].active) != 'undefined' && !this.BXIM.messenger.users[userId].active)
-						continue;
-
-					if (viewOnlyBusiness && this.BXIM.messenger.businessUsers && !this.BXIM.messenger.users[userId].bot && this.BXIM.messenger.businessUsers.indexOf(userId.toString()) == -1)
 						continue;
 
 					if (!viewOffline)
@@ -6371,6 +6407,25 @@
 		return true;
 	}
 
+	MessengerCommon.prototype.reloadDialogOL = function()
+	{
+		for (var chatId in this.BXIM.messenger.chat)
+		{
+			if(this.BXIM.messenger.chat.hasOwnProperty(chatId))
+			{
+				if(
+					typeof(chatId) != "undefined" &&
+					this.BXIM.messenger.chat[chatId].type === "lines"
+				)
+				{
+					delete this.BXIM.messenger.userInChat[chatId];
+					delete this.BXIM.messenger.unreadMessage['chat'+chatId];
+					delete this.BXIM.messenger.showMessage['chat'+chatId];
+				}
+			}
+		}
+	}
+
 	MessengerCommon.prototype.dialogCloseCurrent = function(close)
 	{
 		if (this.closeSlider())
@@ -7850,7 +7905,8 @@
 					this.leaveFromChat(params.chatId, false);
 
 					if (
-						this.BXIM.callController.hasActiveCall()
+						this.BXIM.callController
+						&& this.BXIM.callController.hasActiveCall()
 						&& this.BXIM.callController.currentCall.associatedEntity.id == 'chat'+params.chatId
 					)
 					{
@@ -8812,42 +8868,50 @@
 			return false;
 		}
 
-		skipCheck = skipCheck == true || this.isMobile();
-		if (!skipCheck && (!this.BXIM.messenger.unreadMessage[userId] || this.BXIM.messenger.unreadMessage[userId].length <= 0))
-		{
-			return false;
-		}
-
-		if (this.BXIM.callController.hasActiveCall() && this.BXIM.callController.hasVisibleCall())
-		{
-			return false;
-		}
-
-		if (userId.toString().substring(0, 4) == 'chat')
-		{
-			var chatId = userId.toString().substring(4);
-			if (this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].type == 'lines' && this.BXIM.messenger.chat[chatId].owner == 0)
-			{
-				return false;
-			}
-		}
-
-		if (
-			BX.SidePanel
-			&& BX.SidePanel.Instance.isOpen()
-			&& BX.SidePanel.Instance.isOnTop()
-			&& this.BXIM.messenger.popupMessenger
-		)
-		{
-			var topSlider = BX.SidePanel.Instance.getTopSlider();
-			if (!(topSlider.url === '/desktop_app/' || topSlider.url.startsWith('im:slider')))
-			{
-				return false;
-			}
-		}
-
 		send = send != false;
 		sendAjax = sendAjax !== false;
+
+		if (sendAjax)
+		{
+			skipCheck = skipCheck == true || this.isMobile();
+			if (!skipCheck && (!this.BXIM.messenger.unreadMessage[userId] || this.BXIM.messenger.unreadMessage[userId].length <= 0))
+			{
+				return false;
+			}
+
+			if (
+				this.BXIM.callController
+				&& this.BXIM.callController.hasActiveCall()
+				&& this.BXIM.callController.hasVisibleCall()
+			)
+			{
+				return false;
+			}
+
+			if (userId.toString().substring(0, 4) == 'chat')
+			{
+				var chatId = userId.toString().substring(4);
+				if (this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].type == 'lines' && this.BXIM.messenger.chat[chatId].owner == 0)
+				{
+					return false;
+				}
+			}
+
+			if (
+				BX.SidePanel
+				&& BX.SidePanel.Instance.isOpen()
+				&& BX.SidePanel.Instance.isOnTop()
+				&& this.BXIM.messenger.popupMessenger
+			)
+			{
+				var topSlider = BX.SidePanel.Instance.getTopSlider();
+				if (!(topSlider.url === '/desktop_app/' || topSlider.url.startsWith('im:slider')))
+				{
+					return false;
+				}
+			}
+
+		}
 
 		var userWithMessage = {};
 		for (var i in this.BXIM.messenger.unreadMessage)
@@ -10339,7 +10403,7 @@
 		if (extraClose)
 			this.BXIM.messenger.extraClose();
 
-		if (callToggle && this.BXIM.callController.hasActiveCall())
+		if (callToggle && this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 			this.BXIM.callController.showChat();
 
 		if (this.isMobile())
@@ -11516,7 +11580,7 @@
 
 				if (buttonConfig[i].DISABLED && buttonConfig[i].DISABLED == 'Y')
 				{
-					buttonValue = '<span class="bx-messenger-keyboard-button-text" data-disabled="Y" style="'+textStyles+'">'+
+					buttonValue = '<span class="bx-messenger-keyboard-button-text bx-messenger-keyboard-button-disabled" data-disabled="Y" style="'+textStyles+'">'+
 						BX.util.htmlspecialchars(buttonConfig[i].TEXT)+
 					'</span>';
 				}
@@ -12484,7 +12548,7 @@
 			'date': new Date(),
 			'type': file.isImage? 'image': 'file',
 			'preview': file.isImage? file.canvas: '',
-			'name': file.name,
+			'name': BX.util.htmlspecialchars(file.name),
 			'size': file.file.size,
 			'status': 'upload',
 			'progress': -1,
@@ -12999,7 +13063,7 @@
 				if(!this.BXIM.webrtc.phoneSupport())
 					return false;
 
-				if (this.BXIM.callController.hasActiveCall())
+				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 				{
 					// todo: set and proceed busy status in b_voximplant_queue
 					/*BX.MessengerCommon.phoneCommand('busy', {'CALL_ID' : params.callId});*/
@@ -13430,7 +13494,7 @@
 				if (this.isMobile())
 					return false;
 
-				if (this.BXIM.callController.hasActiveCall())
+				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 					return false;
 
 				if ( BX.localStorage.get('viInitedCall') || BX.localStorage.get('viExternalCard'))
@@ -15219,9 +15283,20 @@
 			dataType: 'json',
 			timeout: 60,
 			data: {'COMMAND': 'pinMode', 'ACTIVATE': flag, 'CHAT_ID' : chatId, 'IM_OPEN_LINES' : 'Y', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-			onsuccess: BX.delegate(function(){
+			onsuccess: BX.delegate(function(data){
 				this.BXIM.messenger.blockJoinChat[chatId] = false;
-				BX.MessengerCommon.linesSetSession(chatId, {'pin': flag});
+				if(typeof(data.CODE) != "undefined")
+				{
+					if(data.CODE === 'ERROR_USER_NOT_OPERATOR')
+					{
+						BX.MessengerCommon.reloadDialogOL();
+						BXIM.openMessenger('chat'+chatId);
+					}
+				}
+				else
+				{
+					BX.MessengerCommon.linesSetSession(chatId, {'pin': flag});
+				}
 			}, this),
 			onfailure: BX.delegate(function(){
 				this.BXIM.messenger.blockJoinChat[chatId] = false;
@@ -15229,8 +15304,13 @@
 		});
 	};
 
-	MessengerCommon.prototype.linesCloseDialog = function(chatId)
+	MessengerCommon.prototype.linesCloseDialog = function(chatId, permissionOtherClose)
 	{
+		if(permissionOtherClose === undefined)
+		{
+			permissionOtherClose = false;
+		}
+
 		if (this.BXIM.messenger.blockJoinChat[chatId])
 			return false;
 
@@ -15241,6 +15321,12 @@
 
 		BX.MessengerCommon.dialogCloseCurrent();
 
+		var command = 'closeDialog';
+		if(permissionOtherClose !== false)
+		{
+			command = 'closeDialogOtherOperator';
+		}
+
 		BX.ajax({
 			url: this.BXIM.pathToAjax+'?LINES_CLOSE_DIALOG&V='+this.BXIM.revision+'&logTag='+BX.MessengerCommon.getLogTrackingParams({
 				name: 'imopenlines.operator.finish',
@@ -15249,11 +15335,16 @@
 			method: 'POST',
 			dataType: 'json',
 			timeout: 60,
-			data: {'COMMAND': 'closeDialog', 'CHAT_ID' : chatId, 'IM_OPEN_LINES' : 'Y', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-			onsuccess: BX.delegate(function(){
+			data: {'COMMAND': command, 'CHAT_ID' : chatId, 'IM_OPEN_LINES' : 'Y', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
+			onsuccess: BX.delegate(function(data){
 				this.BXIM.messenger.blockJoinChat[chatId] = false;
 				BX.MessengerCommon.linesSetSession(chatId, {'wait': 'Y'});
 				this.BXIM.messenger.redrawChatHeader({userRedraw: false});
+
+				if(typeof(data.CODE) != "undefined" && data.CODE === 'ERROR_USER_NOT_OPERATOR')
+				{
+					BX.MessengerCommon.reloadDialogOL();
+				}
 			}, this),
 			onfailure: BX.delegate(function(){
 				this.BXIM.messenger.blockJoinChat[chatId] = false;
@@ -15352,8 +15443,14 @@
 			dataType: 'json',
 			timeout: 60,
 			data: {'COMMAND': 'createLead', 'CHAT_ID' : chatId, 'IM_OPEN_LINES' : 'Y', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-			onsuccess: BX.delegate(function(){
+			onsuccess: BX.delegate(function(data){
 				this.BXIM.messenger.blockJoinChat[chatId] = false;
+
+				if(typeof(data.CODE) != "undefined" && data.CODE === 'ERROR_USER_NOT_OPERATOR')
+				{
+					BX.MessengerCommon.reloadDialogOL();
+					BXIM.openMessenger('chat'+chatId);
+				}
 			}, this),
 			onfailure: BX.delegate(function(){
 				this.BXIM.messenger.blockJoinChat[chatId] = false;

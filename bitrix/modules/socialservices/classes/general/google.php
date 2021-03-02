@@ -206,7 +206,19 @@ class CSocServGoogleOAuth extends CSocServAuth
 		if(!$short && isset($arGoogleUser['picture']) && static::CheckPhotoURI($arGoogleUser['picture']))
 		{
 			$arGoogleUser['picture'] = preg_replace("/\?.*$/", '', $arGoogleUser['picture']);
-			$arPic = CFile::MakeFileArray($arGoogleUser['picture']);
+			$arPic = false;
+			if ($arGoogleUser['picture'])
+			{
+				$temp_path =  CFile::GetTempName('', sha1($arGoogleUser['picture']));
+
+				$http = new \Bitrix\Main\Web\HttpClient();
+				$http->setPrivateIp(false);
+				if($http->download($arGoogleUser['picture'], $temp_path))
+				{
+					$arPic = CFile::MakeFileArray($temp_path);
+				}
+			}
+
 			if($arPic)
 			{
 				$arFields["PERSONAL_PHOTO"] = $arPic;
@@ -431,9 +443,9 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 	protected function checkSavedScope()
 	{
 		$savedScope = \Bitrix\Main\Config\Option::get('socialservices', 'saved_scope_'.static::SERVICE_ID, '');
-		if($savedScope <> '' && CheckSerializedData($savedScope))
+		if($savedScope)
 		{
-			$savedScope = unserialize($savedScope);
+			$savedScope = unserialize($savedScope, ['allowed_classes' => false]);
 			if(is_array($savedScope))
 			{
 				$this->scope = array_merge($this->scope, $savedScope);

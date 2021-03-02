@@ -216,6 +216,7 @@ $arAllOptions = array(
 		Array("event_log_logout", GetMessage("MAIN_EVENT_LOG_LOGOUT"), "N", Array("checkbox", "Y")),
 		Array("event_log_login_success", GetMessage("MAIN_EVENT_LOG_LOGIN_SUCCESS"), "N", Array("checkbox", "Y")),
 		Array("event_log_login_fail", GetMessage("MAIN_EVENT_LOG_LOGIN_FAIL"), "N", Array("checkbox", "Y")),
+		Array("event_log_permissions_fail", GetMessage("MAIN_EVENT_LOG_PERM_FAIL"), "N", Array("checkbox", "Y")),
 		Array("event_log_block_user", GetMessage("MAIN_OPT_EVENT_LOG_BLOCK"), "N", Array("checkbox", "Y")),
 		Array("event_log_register", GetMessage("MAIN_EVENT_LOG_REGISTER"), "N", Array("checkbox", "Y")),
 		Array("event_log_register_fail", GetMessage("MAIN_EVENT_LOG_REGISTER_FAIL"), "N", Array("checkbox", "Y")),
@@ -296,24 +297,24 @@ $addAllowedHost = "
     <script>
         var whiteListValues = ".CUtil::phpToJsObject($allowedHostsList).";
         var firstWhiteListInputs = [].slice.call(document.querySelectorAll('input[name=\'imageeditor_proxy_white_list\']'));
-        
+
         if (firstWhiteListInputs.length)
         {
             firstWhiteListInputs.forEach(function(item, index) {
             	item.setAttribute('placeholder', '".htmlspecialcharsbx($allowedWhiteListPlaceholder)."');
             	item.name = 'imageeditor_proxy_white_list[]';
             	item.setAttribute('value', whiteListValues[index]);
-            	
+
             	var allowedHostRemoveButton = '<a href=\"javascript:void(0);\" onclick=\"removeAllowedHost(this)\" class=\"access-delete\"></a>';
                 item.parentElement.innerHTML += allowedHostRemoveButton;
             });
         }
-        
+
         function removeAllowedHost(button)
         {
         	var row = button.parentElement.parentElement;
         	var inputs = [].slice.call(document.querySelectorAll('input[name*=\'imageeditor_proxy_white_list\']'));
-        	
+
         	if (inputs.length > 1)
             {
             	if (row.firstElementChild.innerHTML)
@@ -324,22 +325,22 @@ $addAllowedHost = "
         	        button.parentElement.parentElement
         	    );
             }
-            else 
+            else
             {
                 var input = row.querySelector('input[type=\'text\']');
                 input.removeAttribute('value');
                 input.value = '';
             }
-        	
+
         }
-        
+
         function addProxyAllowedHost(button)
         {
         	var row = button
         	    .parentElement
         	    .parentElement
         	    .previousElementSibling;
-        	
+
         	if (row)
             {
                 var clonedRow = row.cloneNode(true);
@@ -348,7 +349,7 @@ $addAllowedHost = "
                 clonedInput.removeAttribute('value');
                 clonedInput.value = '';
                 row.parentElement.insertBefore(clonedRow, row.nextElementSibling);
-                
+
                 if (!clonedInput.parentElement.querySelector('.access-delete'))
                 {
                     var allowedHostRemoveButton = '<a href=\"javascript:void(0);\" onclick=\"removeAllowedHost(this)\" class=\"access-delete\"></a>';
@@ -356,37 +357,37 @@ $addAllowedHost = "
                 }
             }
         }
-        
+
         var proxyEnabled = document.querySelector('[name=\'imageeditor_proxy_enabled\']');
         if (proxyEnabled)
         {
             proxyEnabled.addEventListener('change', onProxyEnabledChange);
-            
+
             requestAnimationFrame(function() {
                onProxyEnabledChange({currentTarget: proxyEnabled});
             });
         }
-        
+
         function onProxyEnabledChange(event)
         {
             var inputs = [].slice.call(document.querySelectorAll('input[name*=\'imageeditor_proxy_white_list\']'));
-            
+
             inputs.forEach(function(item) {
                 item.disabled = event.currentTarget.value !== 'YWL';
             });
-            
+
             var button = document.querySelector('.adm-add-allowed-host');
-            
+
             if (event.currentTarget.value !== 'YWL')
             {
                 button.style.pointerEvents = 'none';
                 button.style.opacity = .4;
             }
-            else 
+            else
             {
             	button.removeAttribute('style');
             }
-        
+
         }
     </script>
 ";
@@ -529,6 +530,7 @@ $arAllOptions["auth"][] = array("new_user_agreement", GetMessage("MAIN_REGISTER_
 
 $arAllOptions["auth"][] = GetMessage("main_options_restrictions");
 $arAllOptions["auth"][] = Array("inactive_users_block_days", GetMessage("main_options_block_inactive"), "0", Array("text", 5));
+$arAllOptions["auth"][] = Array("secure_logout", GetMessage("main_options_secure_logout"), "N", Array("checkbox", "Y"));
 
 $arAllOptions["auth"][] = GetMessage("MAIN_OPTION_SESS");
 $arAllOptions["auth"][] = Array("session_expand", GetMessage("MAIN_OPTION_SESS_EXPAND"), "Y", Array("checkbox", "Y"));
@@ -653,20 +655,19 @@ $tabControl->BeginNextTab();
 
 ShowParamsHTMLByArray($arAllOptions["auth"]);
 
-$tabControl->BeginNextTab();
-ShowParamsHTMLByArray($arAllOptions["event_log"]);
-?>
-
-<?if(COption::GetOptionString("main", "controller_member", "N")=="Y"):?>
+if(COption::GetOptionString("main", "controller_member", "N")=="Y")
+{
+	?>
 	<tr class="heading">
 		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CTRL_REM")?></b></td>
 	</tr>
 	<?
 	ShowParamsHTMLByArray($arAllOptions["controller_auth"]);
-	?>
-<?endif?>
+}
 
-<?
+$tabControl->BeginNextTab();
+ShowParamsHTMLByArray($arAllOptions["event_log"]);
+
 $tabControl->BeginNextTab();
 ?>
 	<tr>

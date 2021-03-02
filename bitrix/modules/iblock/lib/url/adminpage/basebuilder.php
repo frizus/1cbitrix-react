@@ -12,16 +12,16 @@ abstract class BaseBuilder
 	protected const TYPE_WEIGHT = null;
 	protected const PATH_PREFIX = '';
 
-	protected const PAGE_ELEMENT_LIST = 'elementList';
-	protected const PAGE_ELEMENT_DETAIL = 'elementDetail';
-	protected const PAGE_ELEMENT_COPY = 'elementCopy';
-	protected const PAGE_ELEMENT_SAVE = 'elementSave';
-	protected const PAGE_ELEMENT_SEARCH = 'elementSearch';
-	protected const PAGE_SECTION_LIST = 'sectionList';
-	protected const PAGE_SECTION_DETAIL = 'sectionDetail';
-	protected const PAGE_SECTION_COPY = 'sectionCopy';
-	protected const PAGE_SECTION_SAVE = 'sectionSave';
-	protected const PAGE_SECTION_SEARCH = 'sectionSearch';
+	public const PAGE_ELEMENT_LIST = 'elementList';
+	public const PAGE_ELEMENT_DETAIL = 'elementDetail';
+	public const PAGE_ELEMENT_COPY = 'elementCopy';
+	public const PAGE_ELEMENT_SAVE = 'elementSave';
+	public const PAGE_ELEMENT_SEARCH = 'elementSearch';
+	public const PAGE_SECTION_LIST = 'sectionList';
+	public const PAGE_SECTION_DETAIL = 'sectionDetail';
+	public const PAGE_SECTION_COPY = 'sectionCopy';
+	public const PAGE_SECTION_SAVE = 'sectionSave';
+	public const PAGE_SECTION_SEARCH = 'sectionSearch';
 
 	protected $id = null;
 
@@ -85,21 +85,24 @@ abstract class BaseBuilder
 
 	public function setIblockId(int $iblockId): void
 	{
-		$this->resetIblock();
-		if ($iblockId > 0)
+		if ($this->iblockId !== $iblockId)
 		{
-			$iblock = \CIBlock::GetArrayByID($iblockId);
-			if (!empty($iblock) && is_array($iblock))
+			$this->resetIblock();
+			if ($iblockId > 0)
 			{
-				$this->iblockId = $iblockId;
-				$this->iblock = $iblock;
+				$iblock = \CIBlock::GetArrayByID($iblockId);
+				if (!empty($iblock) && is_array($iblock))
+				{
+					$this->iblockId = $iblockId;
+					$this->iblock = $iblock;
+				}
+				unset($iblock);
 			}
-			unset($iblock);
+			$this->initIblockListMode();
+			$this->initUrlTemplates();
+			$this->setTemplateVariable('#IBLOCK_ID#', (string)$this->iblockId);
+			$this->setTemplateVariable('#BASE_PARAMS#', $this->getBaseParams());
 		}
-		$this->initIblockListMode();
-		$this->initUrlTemplates();
-		$this->setTemplateVariable('#IBLOCK_ID#', (string)$this->iblockId);
-		$this->setTemplateVariable('#BASE_PARAMS#', $this->getBaseParams());
 	}
 
 	public function setPrefix(string $prefix): void
@@ -139,7 +142,7 @@ abstract class BaseBuilder
 	{
 		return $this->fillUrlTemplate(
 			$this->getUrlTemplate(self::PAGE_SECTION_DETAIL),
-			$this->getDetailVariables(self::PAGE_SECTION_DETAIL, (int)$entityId, $options, $additional)
+			$this->getDetailVariables(self::PAGE_SECTION_DETAIL, $entityId, $options, $additional)
 		);
 	}
 
@@ -147,7 +150,7 @@ abstract class BaseBuilder
 	{
 		return $this->fillUrlTemplate(
 			$this->getUrlTemplate(self::PAGE_SECTION_SAVE),
-			$this->getDetailVariables(self::PAGE_SECTION_SAVE, (int)$entityId, $options, $additional)
+			$this->getDetailVariables(self::PAGE_SECTION_SAVE, $entityId, $options, $additional)
 		);
 	}
 
@@ -171,7 +174,7 @@ abstract class BaseBuilder
 	{
 		return $this->fillUrlTemplate(
 			$this->getUrlTemplate(self::PAGE_ELEMENT_DETAIL),
-			$this->getDetailVariables(self::PAGE_ELEMENT_DETAIL, (int)$entityId, $options, $additional)
+			$this->getDetailVariables(self::PAGE_ELEMENT_DETAIL, $entityId, $options, $additional)
 		);
 	}
 
@@ -179,7 +182,7 @@ abstract class BaseBuilder
 	{
 		return $this->fillUrlTemplate(
 			$this->getUrlTemplate(self::PAGE_ELEMENT_COPY),
-			$this->getDetailVariables(self::PAGE_ELEMENT_COPY, (int)$entityId, $options, $additional)
+			$this->getDetailVariables(self::PAGE_ELEMENT_COPY, $entityId, $options, $additional)
 		);
 	}
 
@@ -187,7 +190,7 @@ abstract class BaseBuilder
 	{
 		return $this->fillUrlTemplate(
 			$this->getUrlTemplate(self::PAGE_ELEMENT_SAVE),
-			$this->getDetailVariables(self::PAGE_ELEMENT_SAVE, (int)$entityId, $options, $additional)
+			$this->getDetailVariables(self::PAGE_ELEMENT_SAVE, $entityId, $options, $additional)
 		);
 	}
 
@@ -199,11 +202,21 @@ abstract class BaseBuilder
 		);
 	}
 
+	public function getContextMenuItems(string $pageType, array $items = [], array $options = []): ?array
+	{
+		return null;
+	}
+
 	public function getBaseParams(): string
 	{
 		return 'IBLOCK_ID='.$this->iblockId
 			.'&type='.urlencode($this->iblock['IBLOCK_TYPE_ID'])
 			.'&lang='.urlencode($this->languageId);
+	}
+
+	public function getUrlParams(array $options = [], string $additional = ''): string
+	{
+		return $this->getBaseParams().$this->extendUrl($options, $additional);
 	}
 
 	public function getLanguageParam(): string
@@ -319,6 +332,19 @@ abstract class BaseBuilder
 		return $result;
 	}
 
+	protected function getEntityFilter(?int $entityId): string
+	{
+		$result = '';
+		if ($entityId !== null && $entityId >= 0)
+		{
+			$result = $this->compileUrlParams([
+				'ID' => $entityId,
+			]);
+		}
+
+		return $result;
+	}
+
 	protected function extendUrl(array $options = [], string $additional = ''): string
 	{
 		$result = $this->compiledUrlParams;
@@ -364,6 +390,11 @@ abstract class BaseBuilder
 		$this->templateVariables[$name] = $value;
 	}
 
+	protected function getTemplateVariables(): array
+	{
+		return $this->templateVariables;
+	}
+
 	protected function getExtendedVariables(array $options = [], string $additional = ''): array
 	{
 		$replaces = $this->templateVariables;
@@ -379,10 +410,11 @@ abstract class BaseBuilder
 		return $replaces;
 	}
 
-	protected function getDetailVariables(string $page, int $entityId, array $options = [], string $additional = ''): array
+	protected function getDetailVariables(string $page, ?int $entityId, array $options = [], string $additional = ''): array
 	{
 		$replaces = $this->getExtendedVariables($options, $additional);
 		$replaces['#ENTITY_ID#'] = (string)$entityId;
+		$replaces['#ENTITY_FILTER#'] = $this->getEntityFilter($entityId);
 		return $replaces;
 	}
 

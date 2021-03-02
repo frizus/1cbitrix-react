@@ -32,6 +32,13 @@ $server = $context->getServer();
 $lang = $context->getLanguage();
 $documentRoot = Application::getDocumentRoot();
 
+$isCloud = Loader::includeModule("bitrix24");
+$zone = '';
+if (!$isCloud && Loader::includeModule('intranet'))
+{
+	$zone = \CIntranetUtils::getPortalZone();
+}
+
 \Bitrix\Sale\Cashbox\Cashbox::init();
 
 $id = (int)$request->get('ID');
@@ -301,10 +308,26 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 					if ($handler === '\Bitrix\Sale\Cashbox\Cashbox1C' && $cashbox['ID'] != Cashbox\Cashbox1C::getId())
 						continue;
 
-					if (class_exists($handler))
+					$restHandlers = [];
+					$isRestHandler = $handler === '\Bitrix\Sale\Cashbox\CashboxRest';
+					if ($isRestHandler)
+					{
+						$restHandlers = Cashbox\Manager::getRestHandlersList();
+						foreach ($restHandlers as $restHandlerCode => $restHandlerConfig)
+						{
+							$selected = ($restHandlerCode === $cashbox['SETTINGS']['REST']['REST_CODE']) ? 'selected' : '';
+							echo '<option data-rest-code="'.htmlspecialcharsbx($restHandlerCode).'" value="'.htmlspecialcharsbx($handler).'" '.$selected.'>'.htmlspecialcharsbx($restHandlerConfig['NAME']).'</option>';
+						}
+					}
+					elseif (class_exists($handler))
 					{
 						$selected = ($handler === $cashbox['HANDLER']) ? 'selected' : '';
-						echo '<option value="'.$handler.'" '.$selected.'>'.$handler::getName().'</option>';
+						$handlerName = $handler::getName();
+						if ($handler === '\Bitrix\Sale\Cashbox\CashboxCheckbox' && (!$isCloud && $zone !== 'ua'))
+						{
+							$handlerName .= ' ' . Loc::getMessage('SALE_CASHBOX_FOR_UA');
+						}
+						echo '<option value="'.$handler.'" '.$selected.'>'.$handlerName.'</option>';
 					}
 				}
 				?>
@@ -312,6 +335,16 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 			<?if ($cashboxObject instanceof Cashbox\ITestConnection):?>
 				<input type="button" id="TEST_BUTTON" value="<?=Loc::getMessage('SALE_CASHBOX_CONNECTION')?>" onclick="BX.Sale.Cashbox.testConnection(<?=$id?>)">
 			<?endif;?>
+			<?php if (!$isCloud && $zone !== 'ua'): ?>
+			<span id="hint_cashbox_ua_wrapper">
+				<span id="hint_CASHBOX_UA"></span>
+				<?php if ($cashbox['HANDLER'] === '\Bitrix\Sale\Cashbox\CashboxCheckbox'): ?>
+				<script>
+				BX.hint_replace(BX('hint_CASHBOX_UA'), '<?=Loc::getMessage('SALE_CASHBOX_UA_HINT');?>');
+				</script>
+				<?php endif; ?>
+			</span>
+			<?php endif; ?>
 		</td>
 	</tr>
 <?
@@ -486,7 +519,8 @@ $tabControl->Show();
 		CASHBOX_CHECK_CONNECTION_TITLE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE")?>',
 		CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE")?>',
 		SALE_RDL_RESTRICTION: '<?=Loc::getMessage("SALE_CASHBOX_RDL_RESTRICTION")?>',
-		SALE_RDL_SAVE: '<?=Loc::getMessage("SALE_CASHBOX_RDL_SAVE")?>'
+		SALE_RDL_SAVE: '<?=Loc::getMessage("SALE_CASHBOX_RDL_SAVE")?>',
+		SALE_CASHBOX_UA_HINT: '<?=Loc::getMessage("SALE_CASHBOX_UA_HINT")?>'
 	});
 </script>
 <?

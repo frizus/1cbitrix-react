@@ -340,6 +340,7 @@ create table if not exists b_sale_pay_system_rest_handlers
 	CODE varchar(50) NULL,
 	SORT int not null default '100',
 	SETTINGS text null,
+	APP_ID varchar(128) null,
 	unique IX_SALE_PS_HANDLER_CODE(CODE),
 	primary key (ID)
 );
@@ -1347,7 +1348,7 @@ create table if not exists b_sale_store_barcode (
 	ID INT NOT NULL AUTO_INCREMENT,
 	BASKET_ID INT NOT NULL,
 	BARCODE VARCHAR(100) NULL,
-	MARKING_CODE VARCHAR(100) NULL,
+	MARKING_CODE VARCHAR(200) NULL,
 	STORE_ID INT NULL,
 	QUANTITY DOUBLE NOT NULL,
 	DATE_CREATE DATETIME NULL,
@@ -1785,10 +1786,10 @@ create table if not exists b_sale_cashbox_check (
 	DATE_CREATE datetime NOT NULL,
 	DATE_PRINT_START datetime NULL,
 	DATE_PRINT_END datetime NULL,
-	SUM decimal(18, 4) NULL,
+	`SUM` decimal(18, 4) NULL,
 	CURRENCY char(3) NULL,
 	STATUS char(1) not null default 'N',
-	TYPE varchar(255) not null,
+	`TYPE` varchar(255) not null,
 	ENTITY_REGISTRY_TYPE varchar(255) not null,
 	LINK_PARAMS text NULL,
 	PRIMARY KEY (ID),
@@ -1796,6 +1797,18 @@ create table if not exists b_sale_cashbox_check (
 	INDEX IX_SALE_CHECK_PAYMENT_ID (PAYMENT_ID),
 	INDEX IX_SALE_CHECK_SHIPMENT_ID (SHIPMENT_ID),
 	INDEX IX_SALE_CHECK_STATUS (STATUS)
+);
+
+create table if not exists b_sale_cashbox_check_correction (
+	ID int(11) unsigned not null auto_increment,
+	CHECK_ID int(11) not null,
+	CORRECTION_TYPE varchar(50) not null,
+	DOCUMENT_NUMBER varchar(35) not null,
+	DOCUMENT_DATE date not null,
+	DESCRIPTION varchar(255) default '',
+	CORRECTION_PAYMENT text default '',
+	CORRECTION_VAT text default '',
+	PRIMARY KEY (ID)
 );
 
 create table if not exists b_sale_check2cashbox(
@@ -1889,6 +1902,7 @@ create table if not exists b_sale_exchange_log (
 	MESSAGE LONGTEXT NULL,
 	DATE_INSERT DATETIME NULL DEFAULT NULL,
 	DIRECTION VARCHAR(1) NOT NULL,
+	PROVIDER VARCHAR(50) NOT NULL,
 	PRIMARY KEY (ID),
 	INDEX IX_EXCHANGE_LOG1 (ENTITY_ID, ENTITY_TYPE_ID),
 	INDEX IX_EXCHANGE_LOG2 (ENTITY_DATE_UPDATE),
@@ -1923,7 +1937,7 @@ create table if not exists b_sale_usergroup_restr(
 create table if not exists b_sale_documentgenerator_callback_registry(
 	ID INT NOT NULL AUTO_INCREMENT,
 	DATE_INSERT datetime not null,
-	MODULE_ID INT NOT NULL,
+	MODULE_ID VARCHAR(50) NOT NULL,
 	DOCUMENT_ID INT NOT NULL,
 	CALLBACK_CLASS VARCHAR(100) NOT NULL,
 	CALLBACK_METHOD VARCHAR(100) NOT NULL,
@@ -1994,8 +2008,35 @@ create table if not exists b_sale_delivery_rest_handler
 	DESCRIPTION text null,
 	SETTINGS text not null,
 	PROFILES text not null,
+	APP_ID varchar(128) null,
 	unique IX_SALE_DELIVERY_HANDLER_CODE(CODE),
 	primary key (ID)
+);
+
+create table if not exists b_sale_b24integration_stat_provider(
+	ID INT(11) NOT NULL AUTO_INCREMENT,
+	NAME VARCHAR(255) NOT NULL DEFAULT '',
+	EXTERNAL_SERVER_HOST VARCHAR(255) NOT NULL DEFAULT '',
+	XML_ID VARCHAR(255) NOT NULL DEFAULT '',
+	TIMESTAMP_X TIMESTAMP NOT NULL,
+	SETTINGS TEXT NULL DEFAULT NULL,
+	PRIMARY KEY (ID),
+	UNIQUE INDEX IX_BICS_XML_ID (XML_ID)
+);
+
+create table if not exists b_sale_b24integration_stat(
+	ID BIGINT(20) NOT NULL AUTO_INCREMENT,
+	ENTITY_TYPE_ID INT(11) NOT NULL,
+	ENTITY_ID INT(11) NOT NULL,
+	DATE_UPDATE DATETIME NOT NULL,
+	PROVIDER_ID INT(11) NOT NULL,
+	CURRENCY CHAR(3) NOT NULL,
+	STATUS CHAR(1) NOT NULL,
+	XML_ID VARCHAR(255) NOT NULL DEFAULT '',
+	AMOUNT DECIMAL(18,4) NOT NULL,
+	TIMESTAMP_X DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (ID),
+	UNIQUE INDEX IX_BSIS_ID_TYPE_ID (ENTITY_ID, ENTITY_TYPE_ID, PROVIDER_ID)
 );
 
 create table if not exists b_sale_local_delivery_requests
@@ -2006,4 +2047,15 @@ create table if not exists b_sale_local_delivery_requests
 	DELIVERY_SERVICE_ID INT NOT NULL,
 	EXTERNAL_ID VARCHAR(255) NOT NULL,
 	UNIQUE INDEX `IX_SERVICE_SHIPMENT_EXTERNAL_ID` (DELIVERY_SERVICE_ID, SHIPMENT_ID, EXTERNAL_ID)
+);
+
+create table if not exists b_sale_cashbox_rest_handler
+(
+    ID int not null auto_increment,
+    NAME varchar(255) not null,
+    CODE varchar(50) not null,
+    SORT int not null default '100',
+    SETTINGS text not null,
+    unique IX_CASHBOX_HANDLER_CODE(CODE),
+    primary key (ID)
 );

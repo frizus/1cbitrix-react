@@ -10,6 +10,6 @@ $MESS["MAIL_CLIENT_CONFIG_DIRS_OUTCOME_SAVE"] = "Gesendete E-Mails speichern im 
 $MESS["MAIL_CLIENT_CONFIG_DIRS_SPAM_SAVE"] = "Spam verschieben in Ordner:";
 $MESS["MAIL_CLIENT_CONFIG_DIRS_SYNC"] = "Ordner synchronisieren";
 $MESS["MAIL_CLIENT_CONFIG_DIRS_TITLE"] = "Ordner konfigurieren";
-$MESS["MAIL_CLIENT_CONFIG_DIRS_TRASH_SAVE"] = "Gel?schte E-Mails verschieben in Ordner:";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_TRASH_SAVE"] = "Gelöschte E-Mails verschieben in Ordner:";
 $MESS["MAIL_CLIENT_MAILBOX_NOT_FOUND"] = "Mailbox wurde nicht gefunden";
 ?>

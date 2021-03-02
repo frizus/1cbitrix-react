@@ -1,7 +1,7 @@
 <?
 
-use Bitrix\Main\Application;
 use Bitrix\Mail\Helper\MailContact;
+use Bitrix\Main\Application;
 use Bitrix\Main\Text\BinaryString;
 
 IncludeModuleLangFile(__FILE__);
@@ -665,6 +665,13 @@ class CAllMailBox
 		return true;
 	}
 
+	/**
+	 * Clears all database entries associated with the mailbox.
+	 *
+	 * @param string $ID mailbox id.
+	 *
+	 * @return CDBResult|false
+	 */
 	public static function Delete($ID)
 	{
 		global $DB;
@@ -710,6 +717,9 @@ class CAllMailBox
 		$strSql = "DELETE FROM b_mail_message_uid WHERE MAILBOX_ID=".$ID;
 		if(!$DB->Query($strSql, true))
 			return false;
+		
+		// @TODO: make a log optional
+		//AddMessage2Log("The mailbox $ID was deleted");
 
 		$strSql = "DELETE FROM b_mail_blacklist WHERE MAILBOX_ID=".$ID;
 		if(!$DB->Query($strSql, true))
@@ -1006,6 +1016,14 @@ class CAllMailBox
 			while (count($arOldUIDL) > 0)
 			{
 				$ids = "'" . join("','", array_splice($arOldUIDL, 0, 1000)) . "'";
+
+				// @TODO: make a log optional
+				/*$toLog = [
+					'filter'=>'\CAllMailBox::_connect',
+					'removedMessages'=>$ids,
+				];
+				AddMessage2Log($toLog);*/
+
 				$strSql = 'DELETE FROM b_mail_message_uid WHERE MAILBOX_ID = ' . $mailbox_id . ' AND ID IN (' . $ids . ')';
 				$DB->query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
 			}
@@ -1247,7 +1265,7 @@ class CMailMessageDBResult extends CDBResult
 	{
 		if ($item = parent::fetch())
 		{
-			$item['OPTIONS'] = (array) @unserialize($item['OPTIONS']);
+			$item['OPTIONS'] = (array) @unserialize($item['OPTIONS'], ['allowed_classes' => false]);
 			$item['FOR_SPAM_TEST'] = sprintf('%s %s', $item['HEADER'], $item['BODY_HTML'] ?: $item['BODY']);
 		}
 
@@ -1610,7 +1628,7 @@ class CAllMailMessage
 		{
 			$bodyPart = CMailMessage::decodeMessageBody($header, $body, $charset);
 
-			if (!$bodyPart['FILENAME'] && mb_strpos(mb_strtolower($bodyPart['CONTENT-TYPE']), 'text/') === 0)
+			if (!$bodyPart['FILENAME'] && mb_strpos(mb_strtolower($bodyPart['CONTENT-TYPE']), 'text/') === 0 && mb_strtolower($bodyPart['CONTENT-TYPE']) !== 'text/calendar')
 			{
 				if (mb_strtolower($bodyPart['CONTENT-TYPE']) == 'text/html')
 				{
@@ -1730,7 +1748,7 @@ class CAllMailMessage
 			if (!(isset($params['replaces']) && $params['replaces'] > 0))
 			{
 				$DB->query(sprintf(
-					'INSERT INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
+					'INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
 					$message_id
 				));
 
@@ -1891,6 +1909,13 @@ class CAllMailMessage
 
 				\Bitrix\Main\EventManager::getInstance()->removeEventHandler('mail', 'onBeforeUserFieldSave', $eventKey);
 
+				$event = new \Bitrix\Main\Event('mail', 'onMailMessageNew', [
+					'message'     => $arFields,
+					'attachments' => $arMessageParts,
+					'userId'      => isset($mailbox['USER_ID']) ? $mailbox['USER_ID'] : null,
+				]);
+				$event->send();
+
 				addEventToStatFile(
 					'mail',
 					sprintf(
@@ -1907,6 +1932,13 @@ class CAllMailMessage
 		return $message_id;
 	}
 
+	/**
+	 * Add a message to the database in the table b_mail_message.
+	 *
+	 * @param array $arFields
+	 *
+	 * @return int(message id in the table b_mail_message).
+	 */
 	public static function Add($arFields)
 	{
 		global $DB;

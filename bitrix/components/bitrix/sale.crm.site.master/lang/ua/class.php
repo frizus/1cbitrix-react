@@ -40,4 +40,5 @@ $MESS["SALE_CSM_WIZARD_STEP_NOT_FOUND"] = "Файл із кроком #STEP_NAME
 $MESS["SALE_CSM_WIZARD_TEMPLATE_NOT_FOUND"] = "Файл із шаблоном майстра не знайдено";
 $MESS["SALE_CSM_MODULE_BLOG_NAME"] = "Блоги";
 $MESS["SALE_CSM_MODULE_REST_NAME"] = "REST API";
+$MESS["SALE_CSM_MODULE_FORUM_NAME"] = "Форум";
 ?>

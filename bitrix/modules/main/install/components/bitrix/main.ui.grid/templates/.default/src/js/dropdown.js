@@ -76,6 +76,7 @@
 
 			function prepareItems(items)
 			{
+				var isHtmlEntity = self.dropdown.dataset['htmlEntity'] === 'true';
 				return items.map(function(item) {
 					attrs = {};
 					attrs['data-'+self.dataValue] = item.VALUE;
@@ -87,12 +88,13 @@
 								className: self.dropdownItemClass
 							},
 							attrs: attrs,
-							text: item.NAME
+							html: isHtmlEntity ? item.NAME: null,
+							text: isHtmlEntity ? null: item.NAME
 						})
 					]});
 
 					return {
-						text: subItem.innerHTML,
+						html: subItem.innerHTML,
 						className: currentValue === item.VALUE ? self.selectedClass : self.notSelectedClass,
 						delimiter: item.DELIMITER,
 						items: 'ITEMS' in item ? prepareItems(item.ITEMS) : null

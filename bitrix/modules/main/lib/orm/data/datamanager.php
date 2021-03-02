@@ -145,7 +145,7 @@ abstract class DataManager
 	final public static function getObjectClassName()
 	{
 		$class = static::getObjectClass();
-		return mb_substr($class, mb_strrpos($class, '\\') + 1);
+		return substr($class, strrpos($class, '\\') + 1);
 	}
 
 	protected static function getObjectClassByDataClass($dataClass)
@@ -153,8 +153,8 @@ abstract class DataManager
 		$objectClass = static::getEntityClass()::normalizeName($dataClass);
 
 		// make class name more unique
-		$namespace = mb_substr($objectClass, 0, mb_strrpos($objectClass, '\\') + 1);
-		$className = mb_substr($objectClass, mb_strrpos($objectClass, '\\') + 1);
+		$namespace = substr($objectClass, 0, strrpos($objectClass, '\\') + 1);
+		$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
 
 		$className = static::getEntityClass()::getDefaultObjectClassName($className);
 
@@ -184,7 +184,7 @@ abstract class DataManager
 	final public static function getCollectionClassName()
 	{
 		$class = static::getCollectionClass();
-		return mb_substr($class, mb_strrpos($class, '\\') + 1);
+		return substr($class, strrpos($class, '\\') + 1);
 	}
 
 	protected static function getCollectionClassByDataClass($dataClass)
@@ -192,8 +192,8 @@ abstract class DataManager
 		$objectClass = static::getEntityClass()::normalizeName($dataClass);
 
 		// make class name more unique
-		$namespace = mb_substr($objectClass, 0, mb_strrpos($objectClass, '\\') + 1);
-		$className = mb_substr($objectClass, mb_strrpos($objectClass, '\\') + 1);
+		$namespace = substr($objectClass, 0, strrpos($objectClass, '\\') + 1);
+		$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
 
 		$className = static::getEntityClass()::getDefaultCollectionClassName($className);
 
@@ -925,6 +925,7 @@ abstract class DataManager
 
 			// build standard primary
 			$primary = null;
+			$isGuessedPrimary = false;
 
 			if (!empty($id))
 			{
@@ -937,6 +938,7 @@ abstract class DataManager
 				{
 					// for those who did not set 'autocomplete' flag but wants to get id from result
 					$primary = array('ID' => $id);
+					$isGuessedPrimary = true;
 				}
 			}
 			else
@@ -949,9 +951,12 @@ abstract class DataManager
 			$result->setData($fields + $ufdata);
 			$result->setObject($object);
 
-			foreach ($primary as $primaryName => $primaryValue)
+			if (!$isGuessedPrimary)
 			{
-				$object->sysSetActual($primaryName, $primaryValue);
+				foreach ($primary as $primaryName => $primaryValue)
+				{
+					$object->sysSetActual($primaryName, $primaryValue);
+				}
 			}
 
 			// save uf data
@@ -990,7 +995,7 @@ abstract class DataManager
 		$rows = array_values($rows);
 		$forceSeparateQueries = false;
 
-		if (!$ignoreEvents && count($rows) > 1 && mb_strlen(static::getEntity()->getAutoIncrement()))
+		if (!$ignoreEvents && count($rows) > 1 && strlen(static::getEntity()->getAutoIncrement()))
 		{
 			$forceSeparateQueries = true;
 
@@ -1863,7 +1868,7 @@ abstract class DataManager
 		{
 			$options = unserialize($optionString);
 		}
-		$options[mb_strtoupper($field)] = $mode;
+		$options[strtoupper($field)] = $mode;
 		Main\Config\Option::set("main", "~crypto_".$table, serialize($options));
 	}
 
@@ -1886,7 +1891,7 @@ abstract class DataManager
 		$optionString = Main\Config\Option::get("main", "~crypto_".$table);
 		if($optionString <> '')
 		{
-			$field = mb_strtoupper($field);
+			$field = strtoupper($field);
 			$options = unserialize($optionString);
 			if(isset($options[$field]) && $options[$field] === true)
 			{

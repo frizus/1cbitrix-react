@@ -27,9 +27,6 @@ class Landing extends \CModule
 
 	public $docRoot = '';
 	public $eventsData = [
-		'bitrix24' => [
-			'onDomainChange' => ['\Bitrix\Landing\Update\Block\NodeAttributes', 'updateFormDomain']
-		],
 		'intranet' => [
 			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu']
 		],
@@ -56,14 +53,14 @@ class Landing extends \CModule
 			'onRestApplicationConfigurationImport' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onEventImportController'],
 			'onRestApplicationConfigurationFinish' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onFinish']
 		],
+		'seo' => [
+			'onExtensionInstall' => ['\Bitrix\Landing\Hook\Page\PixelFb', 'changeBusinessPixel'],
+		],
 		'socialnetwork' => [
 			'onFillSocNetFeaturesList' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetFeaturesList'],
 			'onFillSocNetMenu' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetMenu'],
 			'onSocNetGroupDelete' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onSocNetGroupDelete']
 		],
-		'socialservices' => [
-			'\Bitrix\Socialservices\ApTable::OnAfterAdd' => ['\Bitrix\Landing\Update\Block\NodeAttributes', 'updateFormDomainByConnector']
-		]
 	];
 	public $installDirs = array(
 		'admin' => 'admin',

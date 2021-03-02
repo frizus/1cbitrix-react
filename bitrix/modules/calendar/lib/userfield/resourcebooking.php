@@ -81,12 +81,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	function getDBColumnType()
 	{
-		global $DB;
-		switch(strtolower($DB->type))
-		{
-			case "mysql":
-				return "text";
-		}
+		return "text";
 	}
 
 	function checkFields($userField, $value)
@@ -176,7 +171,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 					for($i = 0; $i < $l; $i++)
 					{
 						$str = $entry['TYPE'].'|'.$entry['RESOURCE_ID'];
-						if($str === substr($values[$i], 0, strlen($str)))
+						if($str === mb_substr($values[$i], 0, mb_strlen($str)))
 						{
 							$entryExist = true;
 							break;
@@ -260,7 +255,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 					}
 					else
 					{
-						$timezoneName = \CCalendar::GetGoodTimezoneForOffset(intVal(date("Z")));
+						$timezoneName = \CCalendar::GetGoodTimezoneForOffset(intval(date("Z")));
 					}
 
 					if($timezoneName)
@@ -463,7 +458,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			}
 			else
 			{
-				\CCalendar::deleteEvent(intVal($entryId), false);
+				\CCalendar::deleteEvent(intval($entryId), false);
 			}
 
 			foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "onAfterResourceBookingAdd") as $event)
@@ -535,7 +530,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	public static function releaseResource($entry)
 	{
-		\CCalendar::deleteEvent(intVal($entry['EVENT_ID']), true, array('checkPermissions' => false));
+		\CCalendar::deleteEvent(intval($entry['EVENT_ID']), true, array('checkPermissions' => false));
 		Internals\ResourceTable::delete($entry['ID']);
 	}
 
@@ -610,7 +605,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 	public static function parseValue($value)
 	{
 		$res = false;
-		if(strpos($value, '|') >= 0)
+		if(mb_strpos($value, '|') >= 0)
 		{
 			list($type, $id, $from, $duration, $serviceName) = explode('|', $value);
 			if ($type == 'user' || $type == 'resource' && intval($id) > 0 )
@@ -1225,6 +1220,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		{
 			$deltaOffset = 0;
 		}
+		$resultData['timezoneOffset'] = 0;
 
 		// Fetch fetch UF properties
 		if ($params['fieldName'])
@@ -1245,7 +1241,9 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		if (isset($data['users']))
 		{
-			$userIdList = explode('|', $data['users']['value']);
+			$userIdList = is_array($data['users']['value'])
+				? $data['users']['value']
+				: explode('|', $data['users']['value']);
 			array_walk($userIdList, 'intval');
 
 			$resultData['usersAccessibility'] = [];
@@ -1278,10 +1276,18 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 						if ($entry['DT_SKIP_TIME'] !== "Y")
 						{
-							$fromTs -= $entry['~USER_OFFSET_FROM'];
-							$toTs -= $entry['~USER_OFFSET_TO'];
-							$fromTs += $deltaOffset;
-							$toTs += $deltaOffset;
+							if ($resultData['fieldSettings']['USE_USER_TIMEZONE'] === 'N')
+							{
+								$fromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM']) - $resultData['timezoneOffset'];
+								$toTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO']) - $resultData['timezoneOffset'];
+							}
+							else
+							{
+								$fromTs -= $entry['~USER_OFFSET_FROM'];
+								$toTs -= $entry['~USER_OFFSET_TO'];
+								$fromTs += $deltaOffset;
+								$toTs += $deltaOffset;
+							}
 						}
 
 						$resultData['usersAccessibility'][$userId][] = array(
@@ -1315,7 +1321,10 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		{
 			$resultData['resourcesAccessibility'] = [];
 
-			$resourceIdList = explode('|', $data['resources']['value']);
+			$resourceIdList = is_array($data['resources']['value'])
+				? $data['resources']['value']
+				: explode('|', $data['resources']['value']);
+
 			array_walk($resourceIdList, 'intval');
 
 			$resEntries = \CCalendarEvent::getList(
@@ -1339,10 +1348,18 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 				if ($row['DT_SKIP_TIME'] !== "Y" && $resultData['fieldSettings']['USE_USER_TIMEZONE'] !== 'N')
 				{
-					$fromTs -= $row['~USER_OFFSET_FROM'];
-					$toTs -= $row['~USER_OFFSET_TO'];
-					$fromTs += $deltaOffset;
-					$toTs += $deltaOffset;
+					if ($resultData['fieldSettings']['USE_USER_TIMEZONE'] === 'N')
+					{
+						$fromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM']) - $resultData['timezoneOffset'];
+						$toTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO']) - $resultData['timezoneOffset'];
+					}
+					else
+					{
+						$fromTs -= $row['~USER_OFFSET_FROM'];
+						$toTs -= $row['~USER_OFFSET_TO'];
+						$fromTs += $deltaOffset;
+						$toTs += $deltaOffset;
+					}
 				}
 
 				$resultData['resourcesAccessibility'][$row['SECT_ID']][] = array(
@@ -1356,6 +1373,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		$resultData['workTimeStart'] = floor(floatVal(\COption::GetOptionString('calendar', 'work_time_start', 9)));
 		$resultData['workTimeEnd'] = ceil(floatVal(\COption::GetOptionString('calendar', 'work_time_end', 19)));
+
 		return $resultData;
 	}
 
@@ -1432,8 +1450,8 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$to->add('P1D');
 		$scale = intval($options['scale']) > 0 ? intval($options['scale']) : 60;
 
-		$workTimeStart = intVal(\COption::getOptionString('calendar', 'work_time_start', 9));
-		$workTimeEnd = intVal(\COption::getOptionString('calendar', 'work_time_end', 19));
+		$workTimeStart = intval(\COption::getOptionString('calendar', 'work_time_start', 9));
+		$workTimeEnd = intval(\COption::getOptionString('calendar', 'work_time_end', 19));
 
 		$step = 0;
 		$currentDate = new DateTime($from->toString(), Date::convertFormatToPhp(FORMAT_DATETIME));
@@ -1442,7 +1460,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		while ($currentDate->getTimestamp() < $to->getTimestamp())
 		{
 			$currentDate->setTime($workTimeStart, 0, 0);
-			while (intVal($currentDate->format('H')) < $workTimeEnd)
+			while (intval($currentDate->format('H')) < $workTimeEnd)
 			{
 				if ($currentDate->getTimestamp() > time())
 				{

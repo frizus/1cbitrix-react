@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTION_VARIABLE_TIP"] = "Geben Sie die Variable an, in der die Aktionen: ADD_TO_COMPARE_LIST, ADD2BASKET usw. übergeben werden. Als Standard enthält das Feld <i>action</i>.";
 $MESS["ADD_PROPERTIES_TO_BASKET_TIP"] = "Wählen Sie die Eigenschaften aus, welche Sie zum Warenkorb hinzufügen und bestellen wollen. Die Eigenschaften sind erforderlich, wenn sie die Kundenentscheidung beeinflussen können oder wenn sie im Warenkorb geändert werden können (für Produktvarianten). Außerdem sind Eigenschaften erforderlich, wenn sie zusätzliche wesentliche Informationen anbieten (bspw. Produktfarbe).";
 $MESS["AJAX_MODE_TIP"] = "AJAX-Modus für die Komponente aktivieren.";
@@ -58,6 +58,7 @@ $MESS["CP_BCS_SET_LAST_MODIFIED"] = "Im Header der Antwort den Zeitpunkt der Sei
 $MESS["CP_BCS_SET_META_DESCRIPTION"] = "Beschreibung der Seite definieren";
 $MESS["CP_BCS_SET_META_KEYWORDS"] = "Schlüsselwörter der Seite definieren";
 $MESS["CP_BCS_SHOW_ALL_WO_SECTION"] = "Alle Elemente, wenn der Bereich nicht angegeben wurde anzeigen";
+$MESS["CP_BCS_USE_COMPARE_LIST"] = "Nutzen Sie die aktuelle Seite, wenn Sie Elemente zur Vergleichsliste hinzufügen";
 $MESS["CP_BCS_USE_MAIN_ELEMENT_SECTION"] = "Hauptbereich benutzen, um Element anzuzeigen";
 $MESS["CP_BCS_USE_PRODUCT_QUANTITY"] = "Feld fpr die Produktmenge einschalten";
 $MESS["DETAIL_URL_TIP"] = "Hier wird der Pfad zur Seite mit der detailierten Beschreibung des Informationsblock-Elements angegeben.";
@@ -129,5 +130,5 @@ $MESS["T_IBLOCK_BACKGROUND_IMAGE"] = "Das Bild aus den Eigenschaften als Hinterg
 $MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Seitenbeschreibung aus den Eigenschaften definieren.";
 $MESS["T_IBLOCK_DESC_KEYWORDS"] = "Schlüsselwörter der Seite aus den Eigenschaften definieren.";
 $MESS["T_IBLOCK_DESC_PAGER_CATALOG"] = "Produkte";
+$MESS["USE_COMPARE_LIST"] = "Diese Option ist erforderlich, wenn die Komponente separat mit der Komponente catalog.compare.list auf der selben Seite genutzt wird.";
 $MESS["USE_PRICE_COUNT_TIP"] = "Wenn diese Option aktiviert ist, werden alle existierenden Preisspannen ausgewählt.";
-?>

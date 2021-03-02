@@ -12,9 +12,7 @@
 	}
 	var GRID_TEMPLATE_ROW = 'template_0';
 
-	var VariationGrid =
-	/*#__PURE__*/
-	function () {
+	var VariationGrid = /*#__PURE__*/function () {
 	  function VariationGrid() {
 	    var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, VariationGrid);
@@ -59,6 +57,10 @@
 	  babelHelpers.createClass(VariationGrid, [{
 	    key: "subscribeCustomEvents",
 	    value: function subscribeCustomEvents() {
+	      this.onSubmitEntityEditorAjaxHandler = this.onSubmitEntityEditorAjax.bind(this);
+	      main_core_events.EventEmitter.subscribeOnce('BX.UI.EntityEditorAjax:onSubmit', this.onSubmitEntityEditorAjaxHandler);
+	      this.onGridUpdatedHandler = this.onGridUpdated.bind(this);
+	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
 	      this.onPropertySaveHandler = this.onPropertySave.bind(this);
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onPropertySaveHandler);
 	      this.onAllRowsSelectHandler = this.enableEdit.bind(this);
@@ -123,6 +125,11 @@
 	          menu.close();
 	        }
 	      });
+	    }
+	  }, {
+	    key: "onSubmitEntityEditorAjax",
+	    value: function onSubmitEntityEditorAjax(event) {
+	      main_core_events.EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
 	    }
 	  }, {
 	    key: "onPrepareDropDownItems",
@@ -355,10 +362,13 @@
 	  }, {
 	    key: "modifyCustomSkuProperties",
 	    value: function modifyCustomSkuProperties(node) {
-	      var id = node.getAttribute('data-id');
+	      var postfix = '_' + node.getAttribute('data-id');
 	      node.querySelectorAll('input[type="radio"]').forEach(function (input) {
-	        input.id += id;
-	        input.setAttribute('name', input.getAttribute('name') + id);
+	        input.id += postfix;
+	        input.setAttribute('name', input.getAttribute('name') + postfix);
+	      });
+	      node.querySelectorAll('label[data-role]').forEach(function (label) {
+	        label.setAttribute('for', label.getAttribute('for') + postfix);
 	      });
 	    }
 	  }, {
@@ -388,7 +398,9 @@
 	      grid.getRows().reset();
 
 	      if (main_core.Type.isDomNode(newNode)) {
-	        newNode.setAttribute('data-id', main_core.Text.getRandom());
+	        var newRowDataId = main_core.Text.getRandom();
+	        this.gridEditData[newRowDataId] = babelHelpers.objectSpread({}, this.gridEditData['template_0']);
+	        newNode.setAttribute('data-id', newRowDataId);
 	        this.markNodeAsNew(newNode);
 	        this.modifyCustomSkuProperties(newNode);
 	        this.addSkuListCreationItem(newNode);
@@ -530,6 +542,21 @@
 	    key: "reloadGrid",
 	    value: function reloadGrid() {
 	      this.getGrid().reload();
+	    }
+	  }, {
+	    key: "onGridUpdated",
+	    value: function onGridUpdated(event) {
+	      var _this6 = this;
+
+	      this.getGrid().getSettingsWindow().getItems().forEach(function (column) {
+	        if (_this6.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
+	          column.state.selected = true;
+	          column.checkbox.checked = true;
+	        } else {
+	          column.state.selected = false;
+	          column.checkbox.checked = false;
+	        }
+	      });
 	    }
 	  }, {
 	    key: "onPropertySave",

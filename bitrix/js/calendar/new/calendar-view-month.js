@@ -596,10 +596,10 @@
 				entryClassName += ' calendar-event-line-border';
 			}
 
-			if (entry.isExternal())
-			{
-				entryClassName += ' calendar-event-line-intranet';
-			}
+			// if (entry.hasEmailAttendees())
+			// {
+			// 	entryClassName += ' calendar-event-line-intranet';
+			// }
 
 			if (entry.isExpired())
 			{
@@ -882,7 +882,8 @@
 			section = this.calendar.sectionController.getCurrentSection(),
 			color = section.color;
 
-		if (BX.hasClass(holder, 'shifted'))
+		var compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);
+		if (compactForm && compactForm.isShown())
 		{
 			return;
 		}
@@ -903,20 +904,17 @@
 		innerNode = innerContainer.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-inner'}}));
 		innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-time'}, style: {color: '#fff'}, text: this.calendar.util.formatTime(entryTime.from.getHours(), entryTime.from.getMinutes())}));
 		innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-text'}, style: {color: '#fff'}, text: entryName}));
-
 		partWrap.style.backgroundColor = color;
 		partWrap.style.borderColor = color;
-
 		holder.appendChild(partWrap);
 
-		var pos = BX.pos(partWrap);
-		var entryClone = BX.adjust(document.body.appendChild(partWrap.cloneNode(true)), {
+		var entryClone = BX.adjust(this.gridMonthContainer.appendChild(partWrap.cloneNode(true)), {
 			props: {className: 'calendar-event-line-clone'},
 			style: {
-				width: (pos.width - 6) + 'px',
-				height: pos.height + 'px',
-				top : pos.top + 'px',
-				left : (pos.left + 1)+ 'px'
+				width: (partWrap.offsetWidth - 3) + 'px',
+				height: partWrap.offsetHeight + 'px',
+				top : (holder.offsetTop + holder.parentNode.offsetTop) + 'px',
+				left : (partWrap.offsetLeft)+ 'px'
 			}
 		});
 
@@ -930,7 +928,7 @@
 		setTimeout(BX.delegate(function(){
 
 			// Show simple add entry popup
-			this.showSimplePopup({
+			this.showCompactEditForm({
 				entryTime: entryTime,
 				entryName: entryName,
 				nameNode: entryClone.querySelector('.calendar-event-line-text'),
@@ -941,44 +939,55 @@
 				{
 					BX.cleanNode(entryClone, true);
 					BX.cleanNode(partWrap, true);
-					BX.removeClass(holder, 'shifted');
-					holder.style.height = '1px';
-				},
-				changeDateCallback: BX.delegate(function(date)
+					var shiftedHolder = this.gridWrap.querySelector('.calendar-grid-month-events-holder.shifted');
+					if (shiftedHolder)
+					{
+						BX.removeClass(shiftedHolder, 'shifted');
+						shiftedHolder.style.height = '1px';
+					}
+				}.bind(this)
+			});
+
+			BX.Event.EventEmitter.unsubscribeAll('BX.Calendar.CompactEventForm:onChange');
+			BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:onChange', function(event)
+			{
+				if (event instanceof BX.Event.BaseEvent && entryClone && entryClone.parentNode)
 				{
-					var dayCode = this.util.getDayCode(date);
+					var data = event.getData();
+					var dateTime = data.form.dateTimeControl.getValue();
+					var dayCode = this.util.getDayCode(dateTime.from);
+
 					if (dayCode && this.dayIndex[dayCode] !== undefined && this.days[this.dayIndex[dayCode]])
 					{
 						var dayFrom = this.days[this.dayIndex[dayCode]];
 						partWrap.style.left = 'calc((100% / ' + this.dayCount + ') * (' + (dayFrom.dayOffset + 1) + ' - 1) + 2px)';
 
-						this.entryHolders[dayFrom.holderIndex].appendChild(partWrap);
-						var pos = BX.pos(partWrap);
+						var shiftedHolder = this.gridWrap.querySelector('.calendar-grid-month-events-holder.shifted');
+						if (shiftedHolder)
+						{
+							BX.removeClass(shiftedHolder, 'shifted');
+							shiftedHolder.style.height = '1px';
+						}
+						var holder = this.entryHolders[dayFrom.holderIndex];
+						holder.appendChild(partWrap);
 						BX.adjust(entryClone, {
 							style: {
-								width: (pos.width + 1) + 'px',
-								height: pos.height + 'px',
-								top : pos.top + 'px',
-								left : pos.left + 'px'
+								width: (partWrap.offsetWidth - 3) + 'px',
+								height: partWrap.offsetHeight + 'px',
+								top : (holder.offsetTop + holder.parentNode.offsetTop) + 'px',
+								left : (partWrap.offsetLeft) + 'px'
 							}
 						});
+						BX.addClass(holder, 'shifted');
+						holder.style.height = (this.slotsCount - 1) * this.slotHeight + 'px';
 					}
-				}, this),
-				saveCallback: function()
-				{
 
-				},
-				changeSectionCallback: function(section)
-				{
-					var color = section.color;
-					if (entryClone)
-					{
-						entryClone.style.background = color;
-						entryClone.style.borderColor = color;
-					}
-				},
-				fullFormCallback: BX.delegate(this.showEditSlider, this)
-			});
+					var color = data.form.colorSelector.getValue();
+					entryClone.style.background = color;
+					entryClone.style.borderColor = color;
+				}
+			}.bind(this));
+
 		}, this), 200);
 	};
 

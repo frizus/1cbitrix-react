@@ -45,6 +45,8 @@ $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
 $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 
+?><div class="feed-item-wrap" data-livefeed-id="<?=(int)$arParams['LOG_ID']?>"><?
+
 ?><script>
 	BX.message({
 		BLOG_POST_LINK_COPIED: '<?=GetMessageJS("BLOG_POST_LINK_COPIED")?>',
@@ -87,7 +89,6 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 	});
 </script><?
 
-?><div class="feed-item-wrap"><?
 if($arResult["MESSAGE"] <> '')
 {
 	?><div class="feed-add-successfully">
@@ -203,14 +204,33 @@ else
 			$classNameList[] = 'feed-post-block-pinned';
 		}
 
-		if ($USER->isAuthorized())
+		if (
+			!empty($arParams['FOLLOW'])
+			&& $arParams['FOLLOW'] === 'N'
+		)
+		{
+			$classNameList[] = 'feed-post-block-unfollowed';
+		}
+
+		if (
+			(
+				!isset($arParams['IS_CRM'])
+				|| $arParams['IS_CRM'] !== 'Y'
+			)
+			&& !in_array($arParams['TYPE'], [ 'DRAFT', 'MODERATION' ])
+			&& $USER->isAuthorized()
+		)
 		{
 			$pinned = (
 				!empty($arParams['PINNED_PANEL_DATA'])
 				|| (isset($arParams['PINNED']) && $arParams['PINNED'] === 'Y')
 			);
 
-			$classNameList[] = ($pinned ? 'feed-post-block-pin-active' : 'feed-post-block-pin-inactive');
+			$classNameList[] = 'feed-post-block-pin';
+			if ($pinned)
+			{
+				$classNameList[] = 'feed-post-block-pin-active';
+			}
 		}
 
 		if (
@@ -773,7 +793,7 @@ else
 					)
 					&& $arResult["urlToEdit"] <> ''
 						&& (
-							$arResult["PostPerm"] > BLOG_PERMS_MODERATE
+							$arResult["PostPerm"] >= BLOG_PERMS_FULL
 							|| (
 								$arResult["PostPerm"] >= BLOG_PERMS_WRITE
 								&& $arResult["Post"]["AUTHOR_ID"] == $arResult["USER_ID"]
@@ -1030,12 +1050,10 @@ else
 										$avatar = $arGratUser["AVATAR_SRC"];
 									}
 									?><span class="feed-user-name-wrap">
-										<div class="ui-icon ui-icon-common-user feed-user-avatar">
-											<? if ($avatar):?>
-												<i style="background-image: url('<?=$avatar?>');" alt="<?=CUser::FormatName($arParams['NAME_TEMPLATE'], $arGratUser)?>"></i>
-<!--												<img src="--><?//=$avatar?><!--" alt="--><?//=CUser::FormatName($arParams['NAME_TEMPLATE'], $arGratUser)?><!--">-->
-											<? endif ?>
-										</div>
+										<div class="ui-icon ui-icon-common-user feed-user-avatar"><?
+											$style = ($avatar ? "background: url('".\CHTTP::urnEncode($avatar)."'); background-size: cover;" : "");
+											?><i style="<?=$style?>"></i><?
+										?></div>
 										<div class="feed-user-name-wrap-inner"><?
 											?><a class="feed-workday-user-name" href="<?=($arGratUser['URL'] ? $arGratUser['URL'] : 'javascript:void(0);')?>"
 												id="<?=$anchor_id?>"
@@ -1064,17 +1082,15 @@ else
 									$avatar = $arGratUser["AVATAR_SRC"];
 								}
 								?><span class="feed-user-name-wrap">
-									<div class="feed-user-avatar"
-										<? if ($avatar):?>
-											style="background: url('<?=$avatar?>'); background-size: cover;"
-										<? endif ?>>
-									</div><?
+									<div class="ui-icon ui-icon-common-user feed-user-avatar"><?
+										$style = ($avatar ? "background: url('".\CHTTP::urnEncode($avatar)."'); background-size: cover;" : "");
+										?><i style="<?=$style?>"></i><?
+									?></div><?
 									?><a class="feed-workday-user-name"
 										href="<?=($arGratUser['URL'] ? $arGratUser['URL'] : 'javascript:void(0);')?>"
 										id="<?=$anchor_id?>"
 										bx-tooltip-user-id="<?=($arGratUser['URL'] ? $arGratUser['ID'] : "")?>"
 									><?=CUser::FormatName($arParams['NAME_TEMPLATE'], $arGratUser)?></a><?
-									?><!--<span class="feed-workday-user-position"><?=htmlspecialcharsbx($arGratUser['WORK_POSITION'])?></span>--><?
 								?></span><?
 							}
 						?></div><?
@@ -1177,13 +1193,19 @@ else
 
 							?><div class="feed-inform-item feed-inform-comments feed-inform-comments-pinned">
 								<?=Loc::getMessage('BLOG_PINNED_COMMENTS')?>
+								<span class="feed-inform-comments-pinned-all"><?=$allCommentCount?></span>
 								<span class="feed-inform-comments-pinned-old"><?=$allCommentCount-$newCommentsCount?></span><?
 								$classList = [ 'feed-inform-comments-pinned-new' ];
 								if ($newCommentsCount > 0)
 								{
 									$classList[] = 'feed-inform-comments-pinned-new-active';
 								}
-								?><span class="<?=implode(' ', $classList)?>">+<?=$newCommentsCount?></span><?
+								?><span class="<?=implode(' ', $classList)?>"><?
+									?><svg width="6" height="6" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><?
+										?><path opacity="0.840937" d="M3.36051 5.73145V3.76115H5.33081V2.70174H3.36051V0.731445H2.30111V2.70174H0.330811V3.76115H2.30111V5.73145H3.36051Z" fill="white"></path><?
+									?></svg><?
+									?><span class="feed-inform-comments-pinned-new-value"><?=$newCommentsCount?></span><?
+								?></span><?
 							?></div><?
 						}
 
@@ -1358,4 +1380,4 @@ else
 		echo GetMessage("BLOG_BLOG_BLOG_NO_AVAIBLE_MES");
 	}
 }
-?></div>
+?></div><? // feed-item-wrap

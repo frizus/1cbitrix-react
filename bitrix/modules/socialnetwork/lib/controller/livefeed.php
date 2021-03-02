@@ -335,6 +335,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			'LOG_ID' => $logId,
 			'SITE_TEMPLATE_ID' => 'mobile_app',
 			'TARGET' => 'postContent',
+			'PATH_TO_USER' => SITE_DIR.'mobile/users/?user_id=#user_id#'
 		]);
 	}
 
@@ -352,12 +353,17 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 	
 	private function getComponentReturnWhiteList()
 	{
-		return [ 'LAST_TS', 'LAST_ID', 'EMPTY' ];
+		return [ 'LAST_TS', 'LAST_ID', 'EMPTY', 'FORCE_PAGE_REFRESH' ];
 	}
 
 	public function getNextPageAction(array $params = [])
 	{
 		$componentParameters = $this->getUnsignedParameters();
+		if (!is_array($componentParameters))
+		{
+			$componentParameters = [];
+		}
+
 		$requestParameters = [
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && (int)$params['PAGE_NUMBER'] >= 1 ? (int)$params['PAGE_NUMBER'] : 1),
@@ -377,12 +383,18 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 	public function refreshAction(array $params = [])
 	{
 		$componentParameters = $this->getUnsignedParameters();
+		if (!is_array($componentParameters))
+		{
+			$componentParameters = [];
+		}
+
 		$requestParameters = [
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => 1,
 			'RELOAD' => 'Y',
 			'useBXMainFilter' =>  (isset($params['useBXMainFilter']) ? $params['useBXMainFilter'] : 'N'),
-			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24')
+			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24'),
+			'assetsCheckSum' =>  (isset($params['assetsCheckSum']) ? $params['assetsCheckSum'] : '')
 		];
 
 		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());

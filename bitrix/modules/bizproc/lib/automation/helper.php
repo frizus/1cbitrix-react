@@ -226,6 +226,10 @@ class Helper
 					return '{{'.$fieldName. ($mods? ' > '.implode(',', $mods) : '').'}}';
 				}
 			}
+			elseif ($useTilda && $matches['object'] === 'Template')
+			{
+				return '{{~*:'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
+			}
 			elseif ($useTilda && preg_match('/^A[_0-9]+$/', $matches['object']))
 			{
 				return '{{~'.$matches['object'].':'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
@@ -259,6 +263,13 @@ class Helper
 					? mb_substr($matches['mixed'], 1)
 					: mb_substr($matches['mixed'], 1, $len - 1)
 				;
+
+				if (mb_strpos($expression, '*:') === 0)
+				{
+					$expression = ltrim($expression,'*');
+					$expression = 'Template'.$expression;
+				}
+
 				return '{='.trim($expression).'}';
 			}
 
@@ -274,6 +285,17 @@ class Helper
 				{
 					$fieldId = $ids[$key];
 					break;
+				}
+			}
+
+			if (!$fieldId && mb_substr($fieldName, -10) === '_printable')
+			{
+				$fieldName = mb_substr($fieldName, 0,-10);
+				$key = array_search(trim($fieldName), $names);
+				if ($key !== false)
+				{
+					$fieldId = $ids[$key];
+					$pairs[] = 'printable';
 				}
 			}
 

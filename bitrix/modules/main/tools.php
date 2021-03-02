@@ -522,7 +522,7 @@ function MakeTimeStamp($datetime, $format=false)
 		return false;
 
 	$ts = mktime($hour, $min, $sec, $month, $day, $year);
-	if($ts === false || ($ts == -1 && version_compare(phpversion(), '5.1.0') < 0))
+	if($ts === false)
 		return false;
 
 	return $ts;
@@ -1360,39 +1360,57 @@ function FormatDateEx($strDate, $format=false, $new_format=false)
 		);
 
 		$new_format_l = mb_strlen($new_format);
+		$dontChange = false;
+
 		for ($i = 0; $i < $new_format_l; $i++)
 		{
 			$simbol = mb_substr($new_format, $i, 1);
-			switch ($simbol)
+
+			if (!$dontChange && $simbol === "\\")
 			{
-				case "F":
-					$match=GetMessage("MONTH_".date("n", $ux_time)."_S");
-					break;
-				case "f":
-					$match=GetMessage("MONTH_".date("n", $ux_time));
-					break;
-				case "M":
-					$match=GetMessage("MON_".date("n", $ux_time));
-					break;
-				case "l":
-					$match=GetMessage("DAY_OF_WEEK_".date("w", $ux_time));
-					break;
-				case "D":
-					$match=GetMessage("DOW_".date("w", $ux_time));
-					break;
-				case "j":
-					$match = date(mb_substr($new_format, $i, 1), $ux_time);
-					$dayPattern = GetMessage("DOM_PATTERN");
-					if ($dayPattern)
-					{
-						$match = str_replace("#DAY#", $match, $dayPattern);
-					}
-					break;
-				default:
-					$match = date(mb_substr($new_format, $i, 1), $ux_time);
-					break;
+				$dontChange = true;
+				continue;
 			}
+
+			if ($dontChange)
+			{
+				$match = $simbol;
+			}
+			else
+			{
+				switch ($simbol)
+				{
+					case "F":
+						$match=GetMessage("MONTH_".date("n", $ux_time)."_S");
+						break;
+					case "f":
+						$match=GetMessage("MONTH_".date("n", $ux_time));
+						break;
+					case "M":
+						$match=GetMessage("MON_".date("n", $ux_time));
+						break;
+					case "l":
+						$match=GetMessage("DAY_OF_WEEK_".date("w", $ux_time));
+						break;
+					case "D":
+						$match=GetMessage("DOW_".date("w", $ux_time));
+						break;
+					case "j":
+						$match = date(mb_substr($new_format, $i, 1), $ux_time);
+						$dayPattern = GetMessage("DOM_PATTERN");
+						if ($dayPattern)
+						{
+							$match = str_replace("#DAY#", $match, $dayPattern);
+						}
+						break;
+					default:
+						$match = date(mb_substr($new_format, $i, 1), $ux_time);
+						break;
+				}
+			}
+
 			$strResult .= $match;
+			$dontChange = false;
 		}
 	}
 	else
@@ -1718,8 +1736,7 @@ function randString($pass_len=10, $pass_chars=false)
 	{
 		while(mb_strlen($string) < $pass_len)
 		{
-			if(function_exists('shuffle'))
-				shuffle($pass_chars);
+            shuffle($pass_chars);
 			foreach($pass_chars as $chars)
 			{
 				$n = mb_strlen($chars) - 1;
@@ -1812,12 +1829,14 @@ function TrimEx($str,$symbol,$side="both")
 	return $str;
 }
 
+/**
+ * @deprecated Use Main\Text\Encoding::convertEncoding()
+ * @param $s
+ * @return mixed
+ */
 function utf8win1251($s)
 {
-	/** @global CMain $APPLICATION */
-	global $APPLICATION;
-
-	return $APPLICATION->ConvertCharset($s, "UTF-8", "Windows-1251");
+	return Main\Text\Encoding::convertEncoding($s, "UTF-8", "Windows-1251");
 }
 
 function ToUpper($str, $lang = false)
@@ -3652,12 +3671,17 @@ function AddMessage2Log($sText, $sModule = "", $traceDepth = 6, $bShowArgs = fal
 	}
 }
 
-function AddEventToStatFile($module, $action, $tag, $label, $action_type = '')
+function AddEventToStatFile($module, $action, $tag, $label, $action_type = '', $user_id = null)
 {
+	global $USER;
 	static $search = array("\t", "\n", "\r");
 	static $replace = " ";
 	if (defined('ANALYTICS_FILENAME') && is_writable(ANALYTICS_FILENAME))
 	{
+		if ($user_id === null && is_object($USER) && !defined("BX_CHECK_AGENT_START"))
+		{
+			$user_id = $USER->GetID();
+		}
 		$content =
 			date('Y-m-d H:i:s')
 			."\t".str_replace($search, $replace, $_SERVER["HTTP_HOST"])
@@ -3666,6 +3690,7 @@ function AddEventToStatFile($module, $action, $tag, $label, $action_type = '')
 			."\t".str_replace($search, $replace, $tag)
 			."\t".str_replace($search, $replace, $label)
 			."\t".str_replace($search, $replace, $action_type)
+			."\t".intval($user_id)
 			."\n";
 		$fp = @fopen(ANALYTICS_FILENAME, "ab");
 		if ($fp)
@@ -4428,7 +4453,7 @@ function roundDB($value, $len=18, $dec=4)
 
 function bitrix_sessid()
 {
-	$kernelSession = \Bitrix\Main\Application::getInstance()->getKernelSession();
+	$kernelSession = Application::getInstance()->getKernelSession();
 	if (!$kernelSession->has('fixed_session_id'))
 	{
 		bitrix_sessid_set();
@@ -4441,7 +4466,7 @@ function bitrix_sessid_set($val=false)
 {
 	if($val === false)
 		$val = bitrix_sessid_val();
-	\Bitrix\Main\Application::getInstance()->getKernelSession()->set("fixed_session_id", $val);
+	Application::getInstance()->getKernelSession()->set("fixed_session_id", $val);
 }
 
 function bitrix_sessid_val()
@@ -5457,11 +5482,8 @@ class CUtil
 		if(!$bSkipNative)
 		{
 			// php > 5.2.0 + php_json
-			/** @global CMain $APPLICATION */
-			global $APPLICATION;
-
 			$bUtf = defined("BX_UTF");
-			$dataUTF = ($bUtf? $data : $APPLICATION->ConvertCharset($data, LANG_CHARSET, 'UTF-8'));
+			$dataUTF = ($bUtf? $data : Main\Text\Encoding::convertEncoding($data, LANG_CHARSET, 'UTF-8'));
 
 			// json_decode recognize only UTF strings
 			// the name and value must be enclosed in double quotes
@@ -5471,7 +5493,7 @@ class CUtil
 			if($arResult === null)
 				$bSkipNative = true;
 			elseif(!$bUtf)
-				$arResult = $APPLICATION->ConvertCharsetArray($arResult, 'UTF-8', LANG_CHARSET);
+				$arResult = Main\Text\Encoding::convertEncoding($arResult, 'UTF-8', LANG_CHARSET);
 		}
 
 		if ($bSkipNative)
@@ -5682,8 +5704,6 @@ class CUtil
 		{
 			return;
 		}
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
 
 		if(is_array($item))
 		{
@@ -5691,7 +5711,7 @@ class CUtil
 		}
 		else
 		{
-			$item = $APPLICATION->ConvertCharset($item, "UTF-8", LANG_CHARSET);
+			$item = Main\Text\Encoding::convertEncoding($item, "UTF-8", LANG_CHARSET);
 		}
 	}
 
@@ -5902,17 +5922,17 @@ class CUtil
 	}
 
 	/**
-	 * @deprecated Use \Bitrix\Main\Text\BinaryString::getLength()
+	 * @deprecated Use strlen()
 	 * @param $buf
 	 * @return int
 	 */
 	public static function BinStrlen($buf)
 	{
-		return Main\Text\BinaryString::getLength($buf);
+		return strlen($buf);
 	}
 
 	/**
-	 * @deprecated Use \Bitrix\Main\Text\BinaryString::getSubstring()
+	 * @deprecated Use substr()
 	 * @param $buf
 	 * @param $start
 	 * @param array $args
@@ -5920,11 +5940,11 @@ class CUtil
 	 */
 	public static function BinSubstr($buf, $start, ...$args)
 	{
-		return Main\Text\BinaryString::getSubstring($buf, $start, ...$args);
+		return substr($buf, $start, ...$args);
 	}
 
 	/**
-	 * @deprecated Use \Bitrix\Main\Text\BinaryString::getPosition()
+	 * @deprecated Use strpos()
 	 * @param $haystack
 	 * @param $needle
 	 * @param int $offset
@@ -5932,7 +5952,7 @@ class CUtil
 	 */
 	public static function BinStrpos($haystack, $needle, $offset = 0)
 	{
-		return Main\Text\BinaryString::getPosition($haystack, $needle, $offset);
+		return strpos($haystack, $needle, $offset);
 	}
 
 	/**
@@ -6228,7 +6248,7 @@ class CHTTP
 					$strRequest.= "Content-type: application/x-www-form-urlencoded\r\n";
 
 				if(!array_key_exists("Content-Length", $this->additional_headers))
-					$strRequest.= "Content-Length: ".CUtil::BinStrlen($postdata) . "\r\n";
+					$strRequest.= "Content-Length: ".strlen($postdata) . "\r\n";
 			}
 			$strRequest .= "\r\n";
 			fwrite($fp, $strRequest);
@@ -6474,7 +6494,7 @@ class CHTTP
 
 	public static function SetStatus($status)
 	{
-		$bCgi = (mb_stristr(php_sapi_name(), "cgi") !== false);
+		$bCgi = (stristr(php_sapi_name(), "cgi") !== false);
 		if($bCgi && (!defined("BX_HTTP_STATUS") || BX_HTTP_STATUS == false))
 			header("Status: ".$status);
 		else
@@ -6644,9 +6664,6 @@ class CHTTP
 
 	public static function urnEncode($str, $charset = false)
 	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
 		$result = '';
 		$arParts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -6663,7 +6680,7 @@ class CHTTP
 			{
 				$result .= ($i % 2)
 					? $part
-					: rawurlencode($APPLICATION->ConvertCharset($part, LANG_CHARSET, $charset));
+					: rawurlencode(Main\Text\Encoding::convertEncoding($part, LANG_CHARSET, $charset));
 			}
 		}
 		return $result;
@@ -6671,9 +6688,6 @@ class CHTTP
 
 	public static function urnDecode($str, $charset = false)
 	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
 		$result = '';
 		$arParts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -6690,7 +6704,7 @@ class CHTTP
 			{
 				$result .= ($i % 2)
 					? $part
-					: rawurldecode($APPLICATION->ConvertCharset($part, LANG_CHARSET, $charset));
+					: rawurldecode(Main\Text\Encoding::convertEncoding($part, LANG_CHARSET, $charset));
 			}
 		}
 		return $result;
@@ -6927,30 +6941,7 @@ function CheckSerializedData($str, $max_depth = 200)
 		return false;
 	}
 
-	// check max depth in PHP 5.3.0 and earlier
-	if(!version_compare(phpversion(),"5.3.0",">"))
-	{
-		$str1 = preg_replace('/[^{}]+/'.BX_UTF_PCRE_MODIFIER, '', $str);
-		$cnt = 0;
-		for ($i=0, $len = mb_strlen($str1);$i<$len;$i++)
-		{
-			// we've just cleared all possible utf-symbols, so we can use [] syntax
-			if ($str1[$i]=='}')
-				$cnt--;
-			else
-			{
-				$cnt++;
-				if ($cnt > $max_depth)
-					break;
-			}
-		}
-
-		return $cnt <= $max_depth;
-	}
-	else
-	{
-		return true;
-	}
+    return true;
 }
 
 function NormalizePhone($number, $minLength = 10)
@@ -7125,6 +7116,35 @@ class UpdateTools
 
 		return $update_res;
 	}
+
+	public static function clearUpdatesCacheAgent()
+    {
+		try {
+			$v = 'bitrix';
+			require_once($_SERVER["DOCUMENT_ROOT"]."/".$v."/modules/main/classes/general/update_client.php");
+			$data = [];
+			$data['sk'] = 'jbk28JS92a216ff1';
+			$data['update_server_url'] = Main\Config\Option::get("main", "update_site", "");
+			$data['license_key'] = \CUpdateClient::GetLicenseKey();
+			$data['main_module_version'] = defined('SM_VERSION') ? SM_VERSION : '';
+			$data['is_demo'] = ((defined("DEMO") && DEMO === "Y") ? "Y" : "N");
+			$data['local_address'] = $_SERVER['SERVER_ADDR'] ?? null;
+			$data['public_url'] = Main\Engine\UrlManager::getInstance()->getHostUrl();
+			$data['site_name'] = Main\Config\Option::get("main", "site_name", "");
+
+            $client = new Main\Web\HttpClient([
+				"socketTimeout" => 10,
+				"streamTimeout" => 10,
+				"waitResponse" => true,
+            ]);
+
+            $client->post('https://www.'.(0+1).'c-'.$v.'.ru/'.$v.'/updates/bxvc.php', $data);
+		}
+		catch (\TypeError $exception) {}
+		catch (\ErrorException $exception) {}
+
+		return '';
+    }
 }
 
 class CSpacer

@@ -595,7 +595,7 @@ do{ //one iteration loop
 		{
 			if(!is_array($PROP))
 				$PROP = array();
-			CAllFile::ConvertFilesToPost($_FILES["PROP"], $PROP);
+			CFile::ConvertFilesToPost($_FILES["PROP"], $PROP);
 		}
 
 		foreach($arFileProps as $k1)
@@ -1265,14 +1265,14 @@ do{ //one iteration loop
 						{
 							?><script type="text/javascript">
 							var currentWindow = top.window;
-							if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+							if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 							{
 								currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 							}
 							currentWindow.<? echo $strLookup; ?>.AddValue(<? echo $ID;?>);
 							currentWindow.BX.WindowManager.Get().AllowClose(); currentWindow.BX.WindowManager.Get().Close();
 							</script><?
-							die();
+							CMain::FinalActions();
 						}
 						else
 						{
@@ -1300,7 +1300,7 @@ do{ //one iteration loop
 							if($return_url === "reload_absence_calendar")
 							{
 								echo '<script type="text/javascript">top.jsBXAC.__reloadCurrentView();</script>';
-								die();
+								CMain::FinalActions();
 							}
 							else
 							{
@@ -1360,7 +1360,7 @@ do{ //one iteration loop
 							);
 						</script>
 						<?
-						die();
+						CMain::FinalActions();
 					}
 					else
 					{
@@ -1402,7 +1402,7 @@ do{ //one iteration loop
 				{
 					echo '<script type="text/javascript">
 						var currentWindow = top.window;
-						if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+						if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 						{
 							currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 						}
@@ -2103,7 +2103,7 @@ if ($ID > 0 && !$bCopy)
 		}
 	}
 }
-	
+
 $tabControl->BeginCustomField("ID", "ID:");
 if ($ID > 0 && !$bCopy)
 {

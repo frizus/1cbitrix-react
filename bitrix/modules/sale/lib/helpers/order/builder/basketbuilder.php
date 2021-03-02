@@ -154,7 +154,7 @@ abstract class BasketBuilder
 
 	public function removeDeletedItems()
 	{
-		if($this->builder->getSettingsContainer()->getItemValue('deleteBaketItemsIfNotExists'))
+		if($this->builder->getSettingsContainer()->getItemValue('deleteBasketItemsIfNotExists'))
 		{
 			$itemsBasketCodes = [];
 
@@ -319,7 +319,7 @@ abstract class BasketBuilder
 				$availableFields = BasketItemBase::getAvailableFields();
 				$availableFields = array_fill_keys($availableFields, true);
 				$fillFields = array_intersect_key($productData, $availableFields);
-				
+
 				$orderCurrency = $this->getOrder()->getCurrency();
 				if ($fillFields['CURRENCY'] !== $orderCurrency)
 				{

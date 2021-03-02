@@ -150,6 +150,7 @@
 		this.domainName = params.domainName;
 		this.domainPostfix = params.domainPostfix || '';
 		this.idDomainName = params.idDomainName;
+		this.idDomainINA = params.idDomainINA;
 		this.idDomainDnsInfo = params.idDomainDnsInfo;
 		this.idDomainSubmit = params.idDomainSubmit;
 		this.previousDomainName = null;
@@ -273,6 +274,11 @@
 								BX.message('LANDING_TPL_DOMAIN_AVAILABLE')
 							);
 						}
+
+						if (data.result.dns && this.idDomainINA)
+						{
+							this.idDomainINA.textContent = data.result.dns['INA'];
+						}
 					}
 					else
 					{
@@ -314,7 +320,7 @@
 			var cNameRecordRow = this.idDomainDnsInfo.rows[1];
 			var aRecordRow = this.idDomainDnsInfo.rows[2];
 			var domainParts = domainName.split('.');
-			var domainRe = /^(com|net|org|co|kiev|spb)\.[a-z]{2}$/;
+			var domainRe = /^(com|net|org|co|kiev|spb|kharkov)\.[a-z]{2}$/;
 
 			aRecordRow.style.display = 'none';
 			cNameRecordRow.cells[0].textContent = domainName ? domainName : 'landing.mydomain';

@@ -57,14 +57,10 @@ if($arResult['CHECK_HASH'])
 			//additional info
 			if ($arResult["APP"]["ACTIVE"] == "Y" && is_array($arResult["APP"]['APP_STATUS']) && $arResult["APP"]['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
 			{
-				if($arResult["ADMIN"])
-				{
-					$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
-				}
 				?>
 				<div class='ui-alert ui-alert-warning ui-alert-xs' style='margin-top:10px'>
 					<span class="ui-alert-message">
-						<?=GetMessage('PAYMENT_MESSAGE'.$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'], $arResult["APP"]['APP_STATUS']['MESSAGE_REPLACE'])?>
+						<?=\Bitrix\Rest\AppTable::getStatusMessage($arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'], $arResult["APP"]['APP_STATUS']['MESSAGE_REPLACE'])?>
 					</span>
 				</div>
 				<?
@@ -81,15 +77,16 @@ if($arResult['CHECK_HASH'])
 			?>
 
 			<div class="mp-detail-main-controls">
-				<?
+				<?php
 				if($arResult["CAN_INSTALL"])
 				{
-					// buttons for installed apps
-
 					if ($arResult["APP"]["ACTIVE"] == "Y")
 					{
 						?>
 						<span id="mp_installed_block">
+						<?php if ($arResult['REST_ACCESS']):
+							// buttons for installed apps
+							?>
 							<!-- prolong -->
 							<?php if ($arResult["APP"]['BY_SUBSCRIPTION'] === 'Y'):?>
 								<a href="<?=$arResult['SUBSCRIPTION_BUY_URL']?>" target="_blank" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round">
@@ -97,29 +94,35 @@ if($arResult['CHECK_HASH'])
 								</a>
 							<?php
 							elseif ($arResult["APP"]['FREE'] === 'N' && is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"])):?>
-								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
-									onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)">
+								<a
+									<? if (!empty($arResult['APP']['VENDOR_SHOP_LINK'])):?>
+										href="<?=htmlspecialcharsbx($arResult['APP']['VENDOR_SHOP_LINK'])?>"
+										target="_blank"
+									<? else:?>
+										href="javascript:void(0)"
+										onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)"
+									<? endif;?>
+									class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+								>
 									<?=($arResult["APP"]["STATUS"] == "P" && $arResult["APP"]["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
 								</a>
-							<? endif; ?>
-							<? if($arResult["APP"]['TYPE'] == \Bitrix\Rest\AppTable::TYPE_CONFIGURATION):?>
+							<?php endif; ?>
+							<?php if($arResult["APP"]['TYPE'] == \Bitrix\Rest\AppTable::TYPE_CONFIGURATION):?>
 								<span onclick="BX.SidePanel.Instance.open('<?=$arResult['IMPORT_PAGE']?>');" class="ui-btn ui-btn-md ui-btn-round ui-btn-primary"><?=GetMessage("MARKETPLACE_CONFIGURATION_INSTALL_SETTING_BTN")?></span>
-							<? endif?>
-
-							<!-- delete -->
-							<?if($arResult["ADMIN"]):?>
-								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-round"
-								onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($arResult["APP"]["CODE"])?>', '<?=CUtil::JSEscape($arResult['ANALYTIC_FROM'])?>')"><?=GetMessage("MARKETPLACE_APP_DELETE")?></a>
-							<? endif; ?>
-
+							<?php endif?>
 							<!-- update -->
-							<?
-							if ($arResult["APP"]["UPDATES"]):?>
+							<?php if ($arResult["APP"]["UPDATES"]):?>
 								<a id="update_btn" href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
 									onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>)"><?=GetMessage("MARKETPLACE_APP_UPDATE_BUTTON")?></a>
-							<?endif; ?>
+							<?php endif;
+						endif; ?>
+							<!-- delete -->
+							<?php if($arResult["ADMIN"]):?>
+								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-round"
+									onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($arResult["APP"]["CODE"])?>', '<?=CUtil::JSEscape($arResult['ANALYTIC_FROM'])?>')"><?=GetMessage("MARKETPLACE_APP_DELETE")?></a>
+							<?php endif; ?>
 						</span>
-						<?
+						<?php
 					}
 					?>
 
@@ -132,13 +135,29 @@ if($arResult['CHECK_HASH'])
 							if ($arResult['SUBSCRIPTION_AVAILABLE'])
 							{
 								?>
-								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
+								<a
+									href="javascript:void(0)"
+									class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+									<? if ($arResult['REST_ACCESS']):?>
+										onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"
+									<? else:?>
+										onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+									<? endif;?>
+								><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
 								<?
 							}
 							else
 							{
 								?>
-								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.buySubscription(this, <?=CUtil::PhpToJSObject($arParamsApp)?>)">
+								<a
+									href="javascript:void(0)"
+									class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+									<? if ($arResult['REST_ACCESS']):?>
+										onclick="BX.rest.Marketplace.buySubscription(this, <?=CUtil::PhpToJSObject($arParamsApp)?>)"
+									<? else:?>
+										onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+									<? endif;?>
+								>
 									<?=GetMessage("MARKETPLACE_APP_INSTALL")?>
 								</a>
 								<?
@@ -147,14 +166,35 @@ if($arResult['CHECK_HASH'])
 						else if ($arResult["APP"]['FREE'] === 'N' &&  is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"]))
 						{
 							?>
-							<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)">
+							<a
+								class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+								<? if (!empty($arResult['APP']['VENDOR_SHOP_LINK'])):?>
+									href="<?=htmlspecialcharsbx($arResult['APP']['VENDOR_SHOP_LINK'])?>"
+									target="_blank"
+								<? else:?>
+									href="javascript:void(0)"
+									<? if ($arResult['REST_ACCESS']):?>
+										onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)"
+									<? else:?>
+										onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+									<? endif;?>
+								<? endif;?>
+							>
 								<?=($arResult["APP"]["STATUS"] == "P" && $arResult["APP"]["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
 							</a>
 							<?
 							if ($arResult["APP"]["STATUS"] == "P")
 							{
 								?>
-								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
+								<a
+									href="javascript:void(0)"
+									class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+									<? if ($arResult['REST_ACCESS']):?>
+										onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"
+									<? else:?>
+										onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+									<? endif;?>
+								><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
 								<?
 							}
 							else
@@ -162,20 +202,41 @@ if($arResult['CHECK_HASH'])
 								if ($arResult["APP"]["DEMO"] == "D")
 								{
 									?>
-									<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?
-									echo CUtil::PhpToJSObject($arParamsApp) ?>);"><?=GetMessage("MARKETPLACE_APP_DEMO")?>
+									<a
+										href="javascript:void(0)"
+										class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+										<? if ($arResult['REST_ACCESS']):?>
+											onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);"
+										<? else:?>
+											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+										<? endif;?>
+									><?=GetMessage("MARKETPLACE_APP_DEMO")?>
 									</a>
 									<?
 								}
 								elseif ($arResult["APP"]["DEMO"] == "T" && (!isset($arResult["APP"]["IS_TRIALED"]) || $arResult["APP"]["IS_TRIALED"] == "N" || MakeTimeStamp($arResult["APP"]["DATE_FINISH"]) > time()))
 								{
 									?>
-									<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?
-									echo CUtil::PhpToJSObject($arParamsApp) ?>);">
+									<a
+										href="javascript:void(0)"
+										class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+										<? if ($arResult['REST_ACCESS']):?>
+											<? if($arResult["PAID_APP_IN_SUBSCRIBE"] && !$arResult["SUBSCRIPTION_ACTIVE"]):?>
+												onclick="BX.rest.Marketplace.buySubscription(this, <?=CUtil::PhpToJSObject($arParamsApp)?>)"
+											<? else:?>
+												onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp) ?>);"
+											<? endif;?>
+										<? else:?>
+											onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+										<? endif;?>
+									>
 										<?if ($arResult["APP"]["IS_TRIALED"] == "Y"):?>
 											<?=GetMessage("MARKETPLACE_APP_TRIAL")?> (<?=$arResult["APP"]["APP_STATUS"]["MESSAGE_REPLACE"]["#DAYS#"]?>)
 										<?else:?>
-											<?=GetMessage("MARKETPLACE_APP_TRIAL")?> (<?=FormatDate("ddiff", time(), time() + $arResult["APP"]["TRIAL_PERIOD"] * 24 * 60 * 60)?>)
+											<?=GetMessage("MARKETPLACE_APP_TRIAL")?>
+											<? if($arResult["APP"]["TRIAL_PERIOD"] > 0):?>
+												(<?=FormatDate("ddiff", time(), time() + $arResult["APP"]["TRIAL_PERIOD"] * 24 * 60 * 60)?>)
+											<? endif;?>
 										<?endif; ?>
 									</a>
 									<?
@@ -189,7 +250,11 @@ if($arResult['CHECK_HASH'])
 							?>
 							<a
 								href="javascript:void(0)"
-								onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
+								<? if ($arResult['REST_ACCESS']):?>
+									onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
+								<? else:?>
+									onclick="top.BX.UI.InfoHelper.show('<?=$arResult['REST_ACCESS_HELPER_CODE']?>');"
+								<? endif;?>
 								class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
 							>
 								<?=GetMessage("MARKETPLACE_APP_INSTALL")?>
@@ -361,13 +426,13 @@ $arJSParams = array(
 	BX.message({
 		"MARKETPLACE_APP_INSTALL_REQUEST" : "<?=GetMessageJS("MARKETPLACE_APP_INSTALL_REQUEST")?>",
 		"MARKETPLACE_LICENSE_ERROR" : "<?=GetMessageJS("MARKETPLACE_LICENSE_ERROR")?>",
-		"MARKETPLACE_LICENSE_TOS_ERROR" : "<?=GetMessageJS("MARKETPLACE_LICENSE_TOS_ERROR")?>",
+		"MARKETPLACE_LICENSE_TOS_ERROR_2" : "<?=GetMessageJS("MARKETPLACE_LICENSE_TOS_ERROR_2")?>",
 		"REST_MP_INSTALL_REQUEST_CONFIRM" : "<?=GetMessageJS("REST_MP_INSTALL_REQUEST_CONFIRM")?>",
 		"REST_MP_APP_INSTALL_REQUEST" : "<?=GetMessageJS("REST_MP_APP_INSTALL_REQUEST")?>"
 	});
 	BX.Rest.Marketplace.Detail.init(<?=CUtil::PhpToJSObject($arJSParams)?>);
 	BX.viewImageBind('detail_img_block', {resize: 'WH',cycle: true}, {tag:'IMG'});
-	<?if($arResult['START_INSTALL']):?>
+	<? if ($arResult['START_INSTALL'] && $arResult['REST_ACCESS']):?>
 		BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);
-	<?endif;?>
+	<? endif;?>
 </script>

@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_core_events,main_date,main_popup) {
+(function (exports,main_core,main_date,main_popup,main_core_events) {
 	'use strict';
 
 	function _templateObject() {
@@ -11,9 +11,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var ViewControlAbstract =
-	/*#__PURE__*/
-	function () {
+	var ViewControlAbstract = /*#__PURE__*/function () {
 	  function ViewControlAbstract(params) {
 	    babelHelpers.classCallCheck(this, ViewControlAbstract);
 
@@ -176,9 +174,7 @@ this.BX = this.BX || {};
 	  return ViewControlAbstract;
 	}();
 
-	var ViewDropDownSelect =
-	/*#__PURE__*/
-	function () {
+	var ViewDropDownSelect = /*#__PURE__*/function () {
 	  function ViewDropDownSelect(params) {
 	    babelHelpers.classCallCheck(this, ViewDropDownSelect);
 	    this.id = 'viewform-dropdown-select-' + Math.round(Math.random() * 100000);
@@ -439,9 +435,7 @@ this.BX = this.BX || {};
 	  return ViewDropDownSelect;
 	}();
 
-	var UserSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var UserSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(UserSelector, _ViewControlAbstract);
 
 	  function UserSelector(params) {
@@ -578,9 +572,7 @@ this.BX = this.BX || {};
 	  return UserSelector;
 	}(ViewControlAbstract);
 
-	var ResourceSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var ResourceSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(ResourceSelector, _ViewControlAbstract);
 
 	  function ResourceSelector(params) {
@@ -708,9 +700,7 @@ this.BX = this.BX || {};
 	  return ResourceSelector;
 	}(ViewControlAbstract);
 
-	var ServiceSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var ServiceSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(ServiceSelector, _ViewControlAbstract);
 
 	  function ServiceSelector(params) {
@@ -827,9 +817,7 @@ this.BX = this.BX || {};
 	  return ServiceSelector;
 	}(ViewControlAbstract);
 
-	var DurationSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var DurationSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(DurationSelector, _ViewControlAbstract);
 
 	  function DurationSelector(params) {
@@ -1053,9 +1041,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var DateSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var DateSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(DateSelector, _ViewControlAbstract);
 
 	  function DateSelector(params) {
@@ -1270,9 +1256,7 @@ this.BX = this.BX || {};
 	  return DateSelector;
 	}(ViewControlAbstract);
 
-	var PopupDateSelector =
-	/*#__PURE__*/
-	function () {
+	var PopupDateSelector = /*#__PURE__*/function () {
 	  function PopupDateSelector(params) {
 	    babelHelpers.classCallCheck(this, PopupDateSelector);
 	    this.DOM = {
@@ -1413,9 +1397,7 @@ this.BX = this.BX || {};
 
 	babelHelpers.defineProperty(PopupDateSelector, "externalDatePickerIsEnabled", null);
 
-	var LineDateSelector =
-	/*#__PURE__*/
-	function () {
+	var LineDateSelector = /*#__PURE__*/function () {
 	  function LineDateSelector(params) {
 	    babelHelpers.classCallCheck(this, LineDateSelector);
 	    params = params || {};
@@ -1797,9 +1779,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var TimeSelector =
-	/*#__PURE__*/
-	function (_ViewControlAbstract) {
+	var TimeSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(TimeSelector, _ViewControlAbstract);
 
 	  function TimeSelector(params) {
@@ -2478,9 +2458,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var StatusInformer =
-	/*#__PURE__*/
-	function () {
+	var StatusInformer = /*#__PURE__*/function () {
 	  function StatusInformer(params) {
 	    babelHelpers.classCallCheck(this, StatusInformer);
 	    this.DOM = {
@@ -2672,9 +2650,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var LiveFieldController =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var LiveFieldController = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(LiveFieldController, _EventEmitter);
 
 	  function LiveFieldController(params) {
@@ -2689,7 +2665,6 @@ this.BX = this.BX || {};
 	    _this.actionAgent = params.actionAgent || BX.ajax.runAction;
 	    _this.timeFrom = params.timeFrom || 7;
 	    _this.timeTo = params.timeTo || 20;
-	    _this.scale = parseInt(params.field.settings_data.time.scale) || 60;
 	    _this.inputName = params.field.name + '[]';
 	    _this.DATE_FORMAT = BookingUtil$$1.getDateFormat();
 	    _this.DATETIME_FORMAT = BookingUtil$$1.getDateTimeFormat();
@@ -2718,6 +2693,14 @@ this.BX = this.BX || {};
 	    value: function init() {
 	      var _this2 = this;
 
+	      var settingsData = this.getSettingsData();
+
+	      if (!settingsData.users || !settingsData.resources) {
+	        throw new Error('Can\'t init resourcebooking field, because \'settings_data\' parameter is not provided or has incorrect structure');
+	        return;
+	      }
+
+	      this.scale = parseInt(settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60, 10);
 	      this.DOM.outerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject$4()));
 	      this.showMainLoader();
 	      this.requireFormData().then(function () {
@@ -3170,7 +3153,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getSettingsData",
 	    value: function getSettingsData() {
-	      return this.params.field.settings_data;
+	      return this.params.field.settings_data || {};
 	    }
 	  }, {
 	    key: "getUserIndex",
@@ -3285,7 +3268,7 @@ this.BX = this.BX || {};
 	          resList;
 
 	      if (params.autoSelectUser) {
-	        userList = main_core.Type.isArray(settingsData.users.value) ? settingsData.users.value : settingsData.users.value.split('|');
+	        userList = this.getUsersValue();
 
 	        for (i = 0; i < userList.length; i++) {
 	          if (this.checkSlotsForDate(date, slotsAmount, {
@@ -3298,7 +3281,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (params.autoSelectResource) {
-	        resList = main_core.Type.isArray(settingsData.resources.value) ? settingsData.resources.value : settingsData.resources.value.split('|');
+	        resList = this.getResourceValue();
 
 	        for (i = 0; i < resList.length; i++) {
 	          if (this.checkSlotsForDate(date, slotsAmount, {
@@ -3341,7 +3324,7 @@ this.BX = this.BX || {};
 	          settingsData = this.getSettingsData();
 
 	      if (this.resourcesDisplayed()) {
-	        settingsData.resources.value.split('|').forEach(function (id) {
+	        this.getResourceValue().forEach(function (id) {
 	          id = parseInt(id);
 
 	          if (id > 0) {
@@ -3385,12 +3368,12 @@ this.BX = this.BX || {};
 	          settingsData = this.getSettingsData();
 
 	      if (fieldParams.USE_SERVICES === 'Y' && settingsData.services.value) {
-	        var dataValueRaw = main_core.Type.isArray(settingsData.services.value) ? settingsData.services.value : settingsData.services.value.split('|');
+	        var dataValueRaw = this.getServicesValue();
 	        this.serviceControl = new ServiceSelector({
 	          outerWrap: this.DOM.innerWrap,
 	          data: settingsData.services,
 	          serviceList: fieldParams.SERVICE_LIST,
-	          selectedValue: main_core.Type.isArray(dataValueRaw) && dataValueRaw.length > 0 ? dataValueRaw[0] : null,
+	          selectedValue: dataValueRaw.length > 0 ? dataValueRaw[0] : null,
 	          changeValueCallback: function () {
 	            this.emit('BX.Calendar.Resourcebooking.LiveFieldController:serviceChanged');
 	            this.refreshControlsState();
@@ -3701,7 +3684,7 @@ this.BX = this.BX || {};
 	          }, this);
 
 	          if (this.isUserSelectorInAutoMode()) {
-	            var userList = main_core.Type.isArray(settingsData.users.value) ? settingsData.users.value : settingsData.users.value.split('|');
+	            var userList = this.getUsersValue();
 
 	            for (i = timeSlots.length; i--; i >= 0) {
 	              time = timeSlots[i].time;
@@ -3725,7 +3708,7 @@ this.BX = this.BX || {};
 	          }
 
 	          if (this.isResourceSelectorInAutoMode()) {
-	            var resList = main_core.Type.isArray(settingsData.resources.value) ? settingsData.resources.value : settingsData.resources.value.split('|');
+	            var resList = this.getResourceValue();
 
 	            for (i = timeSlots.length; i--; i >= 0) {
 	              time = timeSlots[i].time;
@@ -3952,9 +3935,9 @@ this.BX = this.BX || {};
 	          slotsAmount;
 
 	      if (fieldParams.USE_SERVICES === 'Y' && settingsData.services.value) {
-	        var services = settingsData.services.value.split('|');
+	        var services = this.getServicesValue();
 
-	        if (main_core.Type.isArray(fieldParams.SERVICE_LIST) && main_core.Type.isArray(services) && services.length > 0) {
+	        if (main_core.Type.isArray(fieldParams.SERVICE_LIST) && services.length > 0) {
 	          for (i = 0; i < fieldParams.SERVICE_LIST.length; i++) {
 	            if (BookingUtil$$1.translit(fieldParams.SERVICE_LIST[i].name) === services[0]) {
 	              duration = parseInt(fieldParams.SERVICE_LIST[i].duration);
@@ -4014,9 +3997,9 @@ this.BX = this.BX || {};
 	    value: function getTimeSlots() {
 	      if (!this.slots) {
 	        this.slots = [];
-	        var slot,
-	            finishTime,
-	            time = this.timeFrom * 60;
+	        var slot;
+	        var finishTime;
+	        var time = this.timeFrom * 60;
 
 	        while (time < this.timeTo * 60) {
 	          finishTime = time + this.scale;
@@ -4034,7 +4017,7 @@ this.BX = this.BX || {};
 	    key: "usersDisplayed",
 	    value: function usersDisplayed() {
 	      if (this.useUsers === undefined) {
-	        this.useUsers = !!(this.getFieldParams()['USE_USERS'] === 'Y' && this.getSettingsData().users.value);
+	        this.useUsers = this.getFieldParams()['USE_USERS'] === 'Y';
 	      }
 
 	      return this.useUsers;
@@ -4044,7 +4027,7 @@ this.BX = this.BX || {};
 	    value: function resourcesDisplayed() {
 	      if (this.useResources === undefined) {
 	        var fieldParams = this.getFieldParams();
-	        this.useResources = !!(fieldParams.USE_RESOURCES === 'Y' && fieldParams.SELECTED_RESOURCES && this.getSettingsData().resources.value);
+	        this.useResources = !!(fieldParams.USE_RESOURCES === 'Y' && fieldParams.SELECTED_RESOURCES);
 	      }
 
 	      return this.useResources;
@@ -4091,13 +4074,53 @@ this.BX = this.BX || {};
 
 	      return this.todayDateKey === dateKey;
 	    }
+	  }, {
+	    key: "getResourceValue",
+	    value: function getResourceValue() {
+	      var settingsData = this.getSettingsData();
+	      var value = [];
+
+	      if (main_core.Type.isArray(settingsData.resources.value)) {
+	        value = settingsData.resources.value;
+	      } else if (main_core.Type.isString(settingsData.resources.value)) {
+	        value = settingsData.resources.value.split('|');
+	      }
+
+	      return value;
+	    }
+	  }, {
+	    key: "getUsersValue",
+	    value: function getUsersValue() {
+	      var settingsData = this.getSettingsData();
+	      var value = [];
+
+	      if (main_core.Type.isArray(settingsData.users.value)) {
+	        value = settingsData.users.value;
+	      } else if (main_core.Type.isString(settingsData.users.value)) {
+	        value = settingsData.users.value.split('|');
+	      }
+
+	      return value;
+	    }
+	  }, {
+	    key: "getServicesValue",
+	    value: function getServicesValue() {
+	      var settingsData = this.getSettingsData();
+	      var value = [];
+
+	      if (main_core.Type.isArray(settingsData.services.value)) {
+	        value = settingsData.services.value;
+	      } else if (main_core.Type.isString(settingsData.services.value)) {
+	        value = settingsData.services.value.split('|');
+	      }
+
+	      return value;
+	    }
 	  }]);
 	  return LiveFieldController;
 	}(main_core_events.EventEmitter);
 
-	var Translit =
-	/*#__PURE__*/
-	function () {
+	var Translit = /*#__PURE__*/function () {
 	  function Translit() {
 	    babelHelpers.classCallCheck(this, Translit);
 	  }
@@ -4194,9 +4217,7 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var BookingUtil$$1 =
-	/*#__PURE__*/
-	function () {
+	var BookingUtil$$1 = /*#__PURE__*/function () {
 	  function BookingUtil$$1() {
 	    babelHelpers.classCallCheck(this, BookingUtil$$1);
 	  }
@@ -4473,9 +4494,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(BookingUtil$$1, "DATE_FORMAT", null);
 	babelHelpers.defineProperty(BookingUtil$$1, "DATETIME_FORMAT", null);
 
-	var FieldViewControllerAbstract =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var FieldViewControllerAbstract = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(FieldViewControllerAbstract, _Event$EventEmitter);
 
 	  function FieldViewControllerAbstract(params) {
@@ -4674,9 +4693,7 @@ this.BX = this.BX || {};
 	  return FieldViewControllerAbstract;
 	}(main_core.Event.EventEmitter);
 
-	var FieldViewControllerEdit =
-	/*#__PURE__*/
-	function (_FieldViewControllerA) {
+	var FieldViewControllerEdit = /*#__PURE__*/function (_FieldViewControllerA) {
 	  babelHelpers.inherits(FieldViewControllerEdit, _FieldViewControllerA);
 
 	  function FieldViewControllerEdit(params) {
@@ -4687,9 +4704,7 @@ this.BX = this.BX || {};
 	  return FieldViewControllerEdit;
 	}(FieldViewControllerAbstract);
 
-	var FieldViewControllerPreview =
-	/*#__PURE__*/
-	function (_FieldViewControllerA) {
+	var FieldViewControllerPreview = /*#__PURE__*/function (_FieldViewControllerA) {
 	  babelHelpers.inherits(FieldViewControllerPreview, _FieldViewControllerA);
 
 	  function FieldViewControllerPreview(params) {
@@ -4707,9 +4722,7 @@ this.BX = this.BX || {};
 	  return FieldViewControllerPreview;
 	}(FieldViewControllerAbstract);
 
-	var SelectInput$$1 =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	var SelectInput$$1 = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(SelectInput$$1, _Event$EventEmitter);
 
 	  function SelectInput$$1(params) {
@@ -4957,9 +4970,7 @@ this.BX = this.BX || {};
 	}(main_core.Event.EventEmitter);
 
 	var CoreDate = window.BX && BX.Main && BX.Main.Date ? BX.Main.Date : null;
-	var Resourcebooking =
-	/*#__PURE__*/
-	function () {
+	var Resourcebooking = /*#__PURE__*/function () {
 	  function Resourcebooking() {
 	    babelHelpers.classCallCheck(this, Resourcebooking);
 	  }
@@ -4968,11 +4979,11 @@ this.BX = this.BX || {};
 	    key: "getLiveField",
 	    value: function getLiveField(params) {
 	      if (!params.wrap || !main_core.Type.isDomNode(params.wrap)) {
-	        throw new Error("The argument \"params.wrap\" must be a DOM node.");
+	        throw new Error('The argument "params.wrap" must be a DOM node');
 	      }
 
 	      if (main_core.Type.isNull(CoreDate)) {
-	        throw new Error("The error occured during Date extention loading");
+	        throw new Error('The error occured during Date extention loading');
 	      }
 
 	      var liveFieldController = new LiveFieldController(params);
@@ -4996,6 +5007,8 @@ this.BX = this.BX || {};
 	exports.Runtime = main_core.Runtime;
 	exports.PopupManager = main_popup.PopupManager;
 	exports.MenuManager = main_popup.MenuManager;
+	exports.BaseEvent = main_core_events.BaseEvent;
+	exports.EventEmitter = main_core_events.EventEmitter;
 	exports.CoreDate = CoreDate;
 	exports.BookingUtil = BookingUtil$$1;
 	exports.FieldViewControllerEdit = FieldViewControllerEdit;
@@ -5003,5 +5016,5 @@ this.BX = this.BX || {};
 	exports.SelectInput = SelectInput$$1;
 	exports.Resourcebooking = Resourcebooking;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Event,BX,BX.Main));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX,BX.Main,BX.Event));
 //# sourceMappingURL=resourcebooking.bundle.js.map

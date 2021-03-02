@@ -294,8 +294,14 @@ HTML
 				}
 				$patt = array();
 				foreach ($res as $pat => $rep)
-					$patt[] = "#".$pat."#";
-				$files .= str_ireplace($patt, array_values($res), $t);
+				{
+					$patt["#".$pat."#"] = htmlspecialcharsbx($rep);
+				}
+				if (array_key_exists("#description#", $patt) && strpos($patt["#description#"], "&amp;quot;") !== false)
+				{
+					$patt["#description#"] = str_replace("&amp;quot;", "&quot;", $patt["#description#"]);
+				}
+				$files .= str_ireplace(array_keys($patt), array_values($patt), $t);
 				$this->files[] = $res;
 			}
 		}
@@ -503,7 +509,6 @@ HTML;
 			if (is_array($file) && ($paths = Uploader::getPaths($file["tmp_name"])) &&
 				($flTmp = \CBXVirtualIo::GetInstance()->GetFile($paths["tmp_name"])) && $flTmp->IsExists())
 			{
-				$ar = \CFile::GetImageSize($paths["tmp_name"]);
 				$name = is_string($file["name"]) && $file["name"] <> '' ? $file["name"] : $flTmp->getName();
 				$result = array(
 					'id' => md5($file["tmp_name"]),
@@ -518,14 +523,16 @@ HTML;
 					'ext' => GetFileExtension($name),
 					'real_url' => $paths["tmp_url"]
 				);
-				if (is_array($ar))
+
+				$info = (new \Bitrix\Main\File\Image($paths["tmp_name"]))->getInfo();
+				if ($info)
 				{
 					$result['entity'] = "image";
 					$result['tmp_url'] = $paths["tmp_url"];
-					if (isset($ar["mime"]))
-						$result['type'] = $ar["mime"];
-					$result['width'] = $ar[0];
-					$result['height'] = $ar[1];
+					if (($mime = $info->getMime()) <> '')
+						$result['type'] = $mime;
+					$result['width'] = $info->getWidth();
+					$result['height'] = $info->getHeight();
 				}
 			}
 		}

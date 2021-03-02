@@ -1,4 +1,5 @@
 <?php
+$MESS["INTERFACE_MAIL_CHECK_ALL"] = "Позначити все / Зняти позначку у всіх";
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Помилка при обробці запиту";
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Завантаження...";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "На вашому тарифі синхронізація пошти недоступна (нові листи не потраплятимуть у Бітрікс24).
@@ -49,6 +50,13 @@ $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Завдання";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Завдання";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "Ще";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_TITLE"] = "Додатково";
+$MESS["MAIL_MESSAGE_ICAL_ACCEPT"] = "Прийняти";
+$MESS["MAIL_MESSAGE_ICAL_INVITATION"] = "Запрошення";
+$MESS["MAIL_MESSAGE_ICAL_MAYBE"] = "Можливо";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT"] = "Запрошення прийнято";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ERROR"] = "Помилка при обробці запиту";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_REJECT"] = "Приглашение відхилено";
+$MESS["MAIL_MESSAGE_ICAL_REJECT"] = "Відмовитися";
 $MESS["MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK"] = "Адресна книга";
 $MESS["MAIL_MESSAGE_LIST_ATTACH_ICON_HINT"] = "Лист із вкладеннями";
 $MESS["MAIL_MESSAGE_LIST_BLACKLIST_LINK"] = "Чорний список";
@@ -135,3 +143,5 @@ $MESS["MAIL_MESSAGE_SENT"] = "відправлено #DATETIME#";
 $MESS["MAIL_MESSAGE_SPAM_CONFIRM"] = "Ви дійсно хочете видалити цей лист і додати відправника в чорний список?";
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Синхронізація";
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "Лист: #SUBJECT#";
+$MESS["MAIL_MODULE_NOT_INSTALLED"] = "Модуль mail не встановлений.";
+$MESS["MAIL_NEW_MESSAGE_TITLE"] = "Новий лист";

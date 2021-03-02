@@ -1061,48 +1061,6 @@
 			'</svg>'});
 		},
 
-		applyHacksForPopupzIndex: function()
-		{
-			var zIndex = 3200;
-			if (BX.PopupMenu && BX.PopupMenu.Data)
-			{
-				for(var id in BX.PopupMenu.Data)
-				{
-					if (BX.PopupMenu.Data.hasOwnProperty(id)
-						&& BX.type.isObject(BX.PopupMenu.Data[id])
-						&& BX.PopupMenu.Data[id].popupWindow
-						&& BX.PopupMenu.Data[id].popupWindow.isShown()
-					)
-					{
-						BX.PopupMenu.Data[id].popupWindow.params.zIndex = zIndex;
-						BX.PopupMenu.Data[id].popupWindow.popupContainer.style.zIndex = zIndex;
-					}
-				}
-			}
-		},
-
-		applyHacksHandlersForPopupzIndex: function()
-		{
-			var
-				_this = this,
-				zIndex = 3200;
-
-			BX.addCustomEvent('onPopupShow', function(popupWindow){
-				if (_this.calendar.viewSlider && _this.calendar.viewSlider.isOpened()
-					|| _this.calendar.editSlider && _this.calendar.editSlider.isOpened())
-				{
-					if (popupWindow.params.zIndex && popupWindow.params.zIndex < zIndex
-						||
-						popupWindow.popupContainer.style.zIndex && zIndex < zIndex
-					)
-					{
-						popupWindow.params.zIndex = zIndex;
-						popupWindow.popupContainer.style.zIndex = zIndex;
-					}
-				}
-			});
-		},
-
 		isFilterEnabled: function()
 		{
 			return this.userIsOwner() && this.config.counters;

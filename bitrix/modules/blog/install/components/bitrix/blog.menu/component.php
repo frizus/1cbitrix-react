@@ -77,7 +77,7 @@ if(!($USER->IsAuthorized()))
 }
 else
 {
-	$arResult["urlToLogout"] = $APPLICATION->GetCurPageParam("logout=yes", array("login", "logout", "register", "forgot_password", "change_password", "backurl"));
+	$arResult["urlToLogout"] = $APPLICATION->GetCurPageParam("logout=yes&".bitrix_sessid_get(), array("login", "logout", "register", "forgot_password", "change_password", "backurl", "sessid"));
 }
 
 $user_id = $USER->GetID();

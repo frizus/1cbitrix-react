@@ -3,6 +3,26 @@ namespace Frizus\Reactjs;
 
 use Bitrix\Main\Data\Cache as BitrixCache;
 
+/**
+ * Класс для упрощения работы с кешем
+ * Как работать:
+ * $cache = new \Frizus\Reactjs\Cache($cacheTime, $cacheId);
+ * if (!$cache->get()) {
+ * 	$cache->vars = ...;
+ * 	$cache->set((array)<теги управлемого кеша>);
+ * 	// теги управляемого кеша:
+ * 	// iblock_id_<IBLOCK_ID> - кеш очищается при изменении любого элемента указанного инфоблока
+ * 	// список из остальных тегов не нашел, так что
+ *  // другие теги можно искать поисковиком в папке bitrix по словам:
+ * 	// $CACHE_MANAGER->RegisterTag, $CACHE_MANAGER->ClearByTag,
+ * 	// $GLOBALS['CACHE_MANAGER']->RegisterTag, $GLOBALS['CACHE_MANAGER']->ClearByTag,
+ * 	// $GLOBALS["CACHE_MANAGER"]->RegisterTag, $GLOBALS["CACHE_MANAGER"]->ClearByTag
+ * }
+ * [$cache->vars использование]
+ *
+ * Class Cache
+ * @package Frizus\Reactjs
+ */
 class Cache
 {
 	private $obj;

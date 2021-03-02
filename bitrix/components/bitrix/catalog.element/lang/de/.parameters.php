@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTION_VARIABLE_TIP"] = "Geben Sie die Variable an, in der die Aktionen: ADD_TO_COMPARE_LIST, ADD2BASKET usw. übergeben werden. Als Standard enthält das Feld <i>action</i>.";
 $MESS["ADD_ELEMENT_CHAIN_TIP"] = "Bei der aktivierten Option wird der Elementname zur Breadcrumb-Navigation hinzugefügt.";
 $MESS["ADD_PROPERTIES_TO_BASKET_TIP"] = "Wählen Sie die Eigenschaften aus, welche Sie zum Warenkorb hinzufügen und bestellen wollen. Die Eigenschaften sind erforderlich, wenn sie die Kundenentscheidung beeinflussen können oder wenn sie im Warenkorb geändert werden können (für Produktvarianten). Außerdem sind Eigenschaften erforderlich, wenn sie zusätzliche wesentliche Informationen anbieten (bspw. Produktfarbe).";
@@ -91,6 +91,7 @@ $MESS["IBLOCK_SECTION_ID"] = "Bereichs ID";
 $MESS["IBLOCK_SECTION_ID_VARIABLE"] = "Variable, in der die Gruppen ID übergeben wird";
 $MESS["IBLOCK_SECTION_URL"] = "URL - Bereichs-Inhalte";
 $MESS["IBLOCK_SHOW_PRICE_COUNT"] = "Preis für die Menge anzeigen";
+$MESS["IBLOCK_SHOW_SKU_DESCRIPTION"] = "Beschreibungen für alle Produktvarianten anzeigen.";
 $MESS["IBLOCK_SORT_ASC"] = "aufsteigend";
 $MESS["IBLOCK_SORT_DESC"] = "absteigend";
 $MESS["IBLOCK_TYPE"] = "Informationsblocktyp";
@@ -140,4 +141,3 @@ $MESS["T_IBLOCK_DESC_DESCRIPTION"] = "Seitenbeschreibung aus den Eigenschaften d
 $MESS["T_IBLOCK_DESC_KEYWORDS"] = "Schlüsselwörter der Seite aus den Eigenschaften definieren.";
 $MESS["USE_MAIN_ELEMENT_SECTION_TIP"] = "Ist diese Option aktiviert, wird der Hauptbereich in der Breadcrumb-Navigation genutzt.";
 $MESS["USE_PRICE_COUNT_TIP"] = "Wenn diese Option aktiviert ist, werden alle existierenden Preisspannen ausgewählt.";
-?>

@@ -19,7 +19,7 @@ IncludeModuleLangFile(__FILE__);
 class CSocServZoom extends CSocServAuth
 {
 	public const ID = 'zoom';
-	private const CONTROLLER_URL = 'https://www.bitrix24.ru/controller';
+	private const CONTROLLER_URL = 'https://www.bitrix24.com/controller';
 	private const LOGIN_PREFIX = 'zoom_';
 	public const EMPTY_TYPE = "EMPTY";
 
@@ -92,9 +92,9 @@ class CSocServZoom extends CSocServAuth
 		if (defined('BX24_HOST_NAME') && IsModuleInstalled('bitrix24'))
 		{
 			$redirect_uri = static::CONTROLLER_URL . '/redirect.php';
-			$state = $this->getEntityOAuth()->GetRedirectURI() . '?check_key=' . $_SESSION['UNIQUE_KEY'] . '&state=';
 			$backurl = $APPLICATION->GetCurPageParam('', ['logout', 'auth_service_error', 'auth_service_id', 'backurl']);
-			$state .= urlencode('state=' . urlencode('backurl=' . urlencode($backurl) . (isset($arParams['BACKURL']) ? '&redirect_url=' . urlencode($arParams['BACKURL']) : '')));
+			$state = $this->getEntityOAuth()->GetRedirectURI() .
+				urlencode('?state=' . JWT::urlsafeB64Encode('backurl=' . $backurl . '&check_key=' . $_SESSION['UNIQUE_KEY']));
 		}
 		else
 		{
@@ -564,6 +564,9 @@ class CZoomInterface extends CSocServOAuthTransport
 	private const CREATE_MEETING_ENDPOINT = 'users/me/meetings';
 	private const UPDATE_MEETING_ENDPOINT = 'meetings/';
 
+	private const CACHE_TIME_CONNECT_INFO = "86400"; //One day
+	public const CACHE_DIR_CONNECT_INFO = "/socialservices/zoom/";
+
 	protected $userId = false;
 	protected $responseData = array();
 	protected $idToken;
@@ -911,21 +914,28 @@ class CZoomInterface extends CSocServOAuthTransport
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	public static function isConnected($userId): bool
+	public static function isConnected(int $userId): bool
 	{
-		$user = UserTable::getRow([
-			'filter' => [
-				'=USER_ID' => $userId,
-				'=EXTERNAL_AUTH_ID' => self::SERVICE_ID
-			]
-		]);
-
-		if ($user !== null)
+		$cache = \Bitrix\Main\Data\Cache::createInstance();
+		$cacheId = self::SERVICE_ID .'|'. $userId;
+		$user = null;
+		if ($cache->initCache(self::CACHE_TIME_CONNECT_INFO, $cacheId, self::CACHE_DIR_CONNECT_INFO))
 		{
-			return true;
+			$user = $cache->getVars()['user'];
+		}
+		elseif ($cache->startDataCache())
+		{
+			$user = UserTable::getRow([
+					'filter' => [
+						'=USER_ID' => $userId,
+						'=EXTERNAL_AUTH_ID' => self::SERVICE_ID
+					]
+				]);
+
+			$cache->endDataCache(['user' => $user]);
 		}
 
-		return false;
+		return $user !== null;
 	}
 
 	public function GetAppInfo(): bool

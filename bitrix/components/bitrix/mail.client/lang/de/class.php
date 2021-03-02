@@ -1,4 +1,5 @@
 <?php
+$MESS["INTERFACE_MAIL_CHECK_ALL"] = "Alle auswählen / Alle abwählen";
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Fehler bei Verarbeitung der Anfrage.";
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Wird geladen";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "Die E-Mail-Synchronisierung ist in Ihrem Tarif nicht verfügbar. Neue E-Mails werden im BItrix24 nicht angezeigt. Die mit Aufgaben verbundenen E-Mails bleiben erhalten. Andere E-Mails werden gelöscht.<br>
@@ -48,6 +49,13 @@ $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Aufgabe";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Aufgaben";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "Mehr...";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_TITLE"] = "Mehr";
+$MESS["MAIL_MESSAGE_ICAL_ACCEPT"] = "Akzeptieren";
+$MESS["MAIL_MESSAGE_ICAL_INVITATION"] = "Einladung";
+$MESS["MAIL_MESSAGE_ICAL_MAYBE"] = "Vielleicht";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT"] = "Einladung akzeptiert";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_ERROR"] = "Verarbeitung der Anfrage ist fehlgeschlagen.";
+$MESS["MAIL_MESSAGE_ICAL_NOTIFY_REJECT"] = "Einladung abgelehnt";
+$MESS["MAIL_MESSAGE_ICAL_REJECT"] = "Ablehnen";
 $MESS["MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK"] = "Kontakte";
 $MESS["MAIL_MESSAGE_LIST_ATTACH_ICON_HINT"] = "Enthält Anhänge";
 $MESS["MAIL_MESSAGE_LIST_BLACKLIST_LINK"] = "Schwarze Liste";
@@ -133,3 +141,5 @@ $MESS["MAIL_MESSAGE_SENT"] = "Gesendet: #DATETIME#";
 $MESS["MAIL_MESSAGE_SPAM_CONFIRM"] = "Möchten Sie diese Nachricht wirklich löschen und den Absender in die Schwarzliste eintragen?";
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Synchronisieren";
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "E-Mail: #SUBJECT#";
+$MESS["MAIL_MODULE_NOT_INSTALLED"] = "Das Modul E-Mail ist nicht installiert.";
+$MESS["MAIL_NEW_MESSAGE_TITLE"] = "Neue Nachricht";

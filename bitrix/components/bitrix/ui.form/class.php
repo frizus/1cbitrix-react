@@ -189,7 +189,10 @@ class UIFormComponent extends \CBitrixComponent
 		$config = null;
 		if (!$isForceDefaultConfig)
 		{
-			if($configScope === UI\Form\EntityEditorConfigScope::CUSTOM)
+			if(
+				$configScope === UI\Form\EntityEditorConfigScope::CUSTOM
+				&& array_key_exists($userScopeId, $userScopes)
+			)
 			{
 				$config = Scope::getInstance()->getScopeById($userScopeId);
 				if(!$config)
@@ -217,7 +220,10 @@ class UIFormComponent extends \CBitrixComponent
 			}
 		}
 
-		if($configScope === UI\Form\EntityEditorConfigScope::UNDEFINED)
+		if(
+			(!$config && $configScope === UI\Form\EntityEditorConfigScope::CUSTOM)
+			|| $configScope === UI\Form\EntityEditorConfigScope::UNDEFINED
+		)
 		{
 			$configScope = is_array($configuration->get($this->configID, UI\Form\EntityEditorConfigScope::PERSONAL))
 				? UI\Form\EntityEditorConfigScope::PERSONAL
@@ -350,12 +356,12 @@ class UIFormComponent extends \CBitrixComponent
 
 				$sectionName = $section['name'] ?? '';
 
-				if ($sectionName === 'main')
+				if ($sectionName === self::SECTION_MAIN)
 				{
 					$primaryColumnIndex = $j;
 					$primarySectionIndex = $i;
 				}
-				elseif ($sectionName === 'required')
+				elseif ($sectionName === self::SECTION_REQUIRED)
 				{
 					$serviceColumnIndex = $j;
 					$serviceSectionIndex = $i;
@@ -427,7 +433,6 @@ class UIFormComponent extends \CBitrixComponent
 		}
 
 		$hasEmptyRequiredFields = $fieldsInfo['hasEmptyRequiredFields'];
-		$requiredFields = $fieldsInfo['required'];
 
 		//Add section 'Required Fields'
 		if(!$this->arResult['READ_ONLY'])
@@ -444,19 +449,19 @@ class UIFormComponent extends \CBitrixComponent
 				$schemeElements = array();
 				if($serviceSectionIndex >= 0)
 				{
-					$section = $config[$serviceColumnIndex][$serviceSectionIndex];
+					$section = $config[$serviceColumnIndex]['elements'][$serviceSectionIndex];
 					if(
-						isset($scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'])
-						&& is_array($scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'])
+						isset($scheme[$serviceColumnIndex]['elements'][$serviceSectionIndex]['elements'])
+						&& is_array($scheme[$serviceColumnIndex]['elements'][$serviceSectionIndex]['elements'])
 					)
 					{
-						$schemeElements = $scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'];
+						$schemeElements = $scheme[$serviceColumnIndex]['elements'][$serviceSectionIndex]['elements'];
 					}
 				}
 				else
 				{
 					$section = [
-						'name' => 'required',
+						'name' => self::SECTION_REQUIRED,
 						'title' => Main\Localization\Loc::getMessage('UI_FORM_REQUIRED_FIELD_SECTION'),
 						'type' => self::SECTION_TYPE,
 						'elements' => []
@@ -466,14 +471,14 @@ class UIFormComponent extends \CBitrixComponent
 					$serviceSectionIndex = $primarySectionIndex + 1;
 
 					array_splice(
-						$config[$serviceColumnIndex],
+						$config[$serviceColumnIndex]['elements'],
 						$serviceSectionIndex,
 						0,
 						array($section)
 					);
 
 					array_splice(
-						$scheme[$serviceColumnIndex],
+						$scheme[$serviceColumnIndex]['elements'],
 						$serviceSectionIndex,
 						0,
 						array(array_merge($section, array('elements' => array())))
@@ -486,7 +491,7 @@ class UIFormComponent extends \CBitrixComponent
 					$schemeElements[] = $fieldInfo;
 				}
 
-				$scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'] = $schemeElements;
+				$scheme[$serviceColumnIndex]['elements'][$serviceSectionIndex]['elements'] = $schemeElements;
 			}
 		}
 
@@ -510,7 +515,10 @@ class UIFormComponent extends \CBitrixComponent
 		$this->arResult['USER_SCOPES'] = $userScopes;
 		$this->arResult['USER_SCOPE_ID'] = $userScopeId;
 
-		$config = $config ?? [];
+		if(!is_array($config))
+		{
+			$config = [];
+		}
 
 		[$config, $defaultConfig] = $this->processParamsConfig($config, $this->arResult['FORCE_DEFAULT_SECTION_NAME'], $this->arResult['ENTITY_CONFIG']);
 
@@ -532,7 +540,11 @@ class UIFormComponent extends \CBitrixComponent
 	{
 		$languages = [];
 
-		$dbResultLangs = \CLanguage::GetList($by = '', $order = '');
+		$by = '';
+		$order = '';
+		$dbResultLangs = \CLanguage::GetList($by, $order);
+		unset($by, $order);
+
 		while($lang = $dbResultLangs->Fetch())
 		{
 			$languages[] = ['LID' => $lang['LID'], 'NAME' => $lang['NAME']];

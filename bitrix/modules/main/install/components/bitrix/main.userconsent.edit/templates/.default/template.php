@@ -30,11 +30,12 @@ $APPLICATION->IncludeComponent('bitrix:ui.sidepanel.wrappermenu', '', [
 	'VIEW_TARGET' => 'left-panel-consent-edit'
 ]);
 
+$formAction = CHTTP::urlAddParams($APPLICATION->getCurPageParam(), ['save' => 'y']);
 ?>
 
 <div class="main-user-consent-errors">
 	<?php foreach ($arResult['ERRORS'] as $error): ?>
-		<?= ShowError($error); ?>
+		<? ShowError($error); ?>
 	<?php endforeach; ?>
 </div>
 
@@ -51,8 +52,7 @@ $APPLICATION->IncludeComponent('bitrix:ui.sidepanel.wrappermenu', '', [
 	});
 </script>
 
-<form id="<?=$listDomIds['formId']?>" class="main-user-consent-edit-form" method="post" action="<?=
-	$APPLICATION->GetCurPageParam()?>">
+<form id="<?=$listDomIds['formId']?>" class="main-user-consent-edit-form" method="post" action="<?=$formAction?>">
 	<?=bitrix_sessid_post()?>
 <div class="main-user-consent-edit">
 <div class="main-user-consent-edit-menu">
@@ -269,6 +269,7 @@ $APPLICATION->IncludeComponent('bitrix:ui.sidepanel.wrappermenu', '', [
 		<?endif;?>
 </div>
 
+<?php if (!$arResult['ERRORS']): ?>
 <div id="<?=$listDomIds['listContainerId']?>" class="main-user-consent-edit-content" style="display: none;">
 	<?php
 	$APPLICATION->IncludeComponent(
@@ -284,6 +285,7 @@ $APPLICATION->IncludeComponent('bitrix:ui.sidepanel.wrappermenu', '', [
 	);
 	?>
 </div>
+<? endif; ?>
 
 </div>
 

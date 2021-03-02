@@ -4,12 +4,12 @@ namespace Bitrix\Socialnetwork\CommentAux;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Socialnetwork\Livefeed\ForumPost;
-use Bitrix\Socialnetwork\LogTable;
+use Bitrix\Main\Web\Json;
+use Bitrix\Forum\MessageTable;
 
 Loc::loadMessages(__FILE__);
 
-final class CreateTask extends Base
+class CreateTask extends Base
 {
 	const TYPE = 'CREATETASK';
 	const POST_TEXT = 'commentAuxCreateTask';
@@ -53,6 +53,9 @@ final class CreateTask extends Base
 	);
 	private $postTypeListInited = false;
 	private $commentTypeListInited = false;
+
+	protected static $blogPostClass = \CBlogPost::class;
+	protected static $blogCommentClass = \CBlogComment::class;
 
 	public function addPostTypeList($type)
 	{
@@ -143,9 +146,9 @@ final class CreateTask extends Base
 		return array_merge($this->getPostTypeList(), $this->getCommentTypeList());
 	}
 
-	public function getParamsFromFields($fields = array())
+	public function getParamsFromFields($fields = [])
 	{
-		$params = array();
+		$params = [];
 
 		if (!empty($fields['SHARE_DEST']))
 		{
@@ -159,6 +162,69 @@ final class CreateTask extends Base
 					{
 						$params[$key] = $value;
 					}
+				}
+			}
+		}
+		elseif (
+			isset($fields['RATING_TYPE_ID'])
+			&& $fields['RATING_TYPE_ID'] === 'FORUM_POST'
+			&& isset($fields['SOURCE_ID'])
+			&& (int)$fields['SOURCE_ID'] > 0
+			&& Loader::includeModule('forum')
+		)
+		{
+			$messageId = (int)$fields['SOURCE_ID'];
+
+			$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+			$commentData = $forumPostLivefeedProvider->getAuxCommentCachedData($messageId);
+			if (
+				!empty($commentData)
+				&& isset($commentData['SERVICE_TYPE'])
+				&& $commentData['SERVICE_TYPE'] === \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_CREATED
+				&& (
+					!empty($commentData['SERVICE_DATA'])
+					|| !empty($commentData['POST_MESSAGE'])
+				)
+			)
+			{
+				try
+				{
+					$messageParams = Json::decode(!empty($commentData['SERVICE_DATA']) ? $commentData['SERVICE_DATA'] : $commentData['POST_MESSAGE']);
+				}
+				catch(\Bitrix\Main\ArgumentException $e)
+				{
+					$messageParams = [];
+				}
+
+				$params = $messageParams;
+			}
+			else
+			{
+				$res = MessageTable::getList([
+					'filter' => [
+						'=ID' => (int)$fields['SOURCE_ID']
+					],
+					'select' => [ 'SERVICE_DATA', 'POST_MESSAGE' ]
+				]);
+
+				if (
+					($forumMessageFields = $res->fetch())
+					&& (
+						!empty($forumMessageFields['SERVICE_DATA'])
+						|| !empty($forumMessageFields['POST_MESSAGE'])
+					)
+				)
+				{
+					try
+					{
+						$messageParams = Json::decode(!empty($forumMessageFields['SERVICE_DATA']) ? $forumMessageFields['SERVICE_DATA'] : $forumMessageFields['POST_MESSAGE']);
+					}
+					catch(\Bitrix\Main\ArgumentException $e)
+					{
+						$messageParams = [];
+					}
+
+					$params = $messageParams;
 				}
 			}
 		}
@@ -189,26 +255,23 @@ final class CreateTask extends Base
 			return $result;
 		}
 
-		if ($provider = \Bitrix\Socialnetwork\Livefeed\Provider::init(array(
-			'ENTITY_TYPE' => $params['sourcetype'],
-			'ENTITY_ID' => $params['sourceid']
-		)))
+		if ($provider = $this->getLivefeedProvider($params, $options))
 		{
-			$options['suffix'] = $provider->getSuffix();
+			$options['suffix'] = $provider->getSuffix($options['suffix']);
 		}
 
-		if ($task = $this->getTask($params['taskid'], false))
+		if ($userPage === null)
 		{
-			if ($userPage === null)
-			{
-				$userPage = Option::get(
+			$userPage = Option::get(
 					'socialnetwork',
 					'user_page',
 					SITE_DIR.'company/personal/',
 					$siteId
 				).'user/#user_id#/';
-			}
+		}
 
+		if ($task = $this->getTask($params['taskid'], false))
+		{
 			$taskPath = (
 				(!isset($options['cache']) || !$options['cache'])
 				&& (!isset($options['im']) || !$options['im'])
@@ -232,8 +295,8 @@ final class CreateTask extends Base
 			if (
 				$params['sourcetype'] == self::SOURCE_TYPE_BLOG_COMMENT
 				&& Loader::includeModule('blog')
-				&& ($comment = \CBlogComment::getByID($params['sourceid']))
-				&& ($post = \CBlogPost::getByID($comment['POST_ID']))
+				&& ($comment = self::$blogCommentClass::getById($params['sourceid']))
+				&& ($post = self::$blogPostClass::getById($comment['POST_ID']))
 			)
 			{
 				$commentPath = (
@@ -254,10 +317,10 @@ final class CreateTask extends Base
 					&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
 					&& (!isset($options['mail']) || !$options['mail'])
 					&& isset($options['logId'])
-					&& intval($options['logId']) > 0
+					&& (int)$options['logId'] > 0
 				)
 				{
-					$commentProvider->setEntityId(intval($params['sourceid']));
+					$commentProvider->setEntityId((int)$params['sourceid']);
 					$commentProvider->setLogId($options['logId']);
 					$commentProvider->initSourceFields();
 
@@ -271,11 +334,11 @@ final class CreateTask extends Base
 					: ($params['sourcetype'] === self::SOURCE_TYPE_BLOG_COMMENT ? '2' : '')
 			);
 
-			$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_COMMENT_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), array(
+			$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_COMMENT_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), [
 				'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
 				'#A_BEGIN#' => (!empty($commentPath) ? '[URL='.$commentPath.']' : ''),
 				'#A_END#' => (!empty($commentPath) ? '[/URL]' : '')
-			));
+			]);
 		}
 		elseif (in_array($params['sourcetype'], $this->getPostTypeList()))
 		{
@@ -284,10 +347,9 @@ final class CreateTask extends Base
 					? $options['suffix']
 					: ($params['sourcetype'] === self::SOURCE_TYPE_BLOG_POST ? '2' : '')
 			);
-
-			$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_POST_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), array(
+			$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_POST_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), [
 				'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
-			));
+			]);
 		}
 
 		if (!empty($result))
@@ -301,6 +363,15 @@ final class CreateTask extends Base
 		}
 
 		return $result;
+	}
+
+	public function getLivefeedProvider(array $params = [], array $options = [])
+	{
+		return \Bitrix\Socialnetwork\Livefeed\Provider::init([
+			'ENTITY_TYPE' => $params['sourcetype'],
+			'ENTITY_ID' => $params['sourceid'],
+			'LOG_ID' => (isset($options['logId']) && (int)$options['logId'] > 0 ? (int)$options['logId'] : 0)
+		]);
 	}
 
 	public function checkRecalcNeeded($fields, $params)
@@ -321,8 +392,8 @@ final class CreateTask extends Base
 			if (
 				!empty($handlerParams)
 				&& !empty($handlerParams['taskid'])
-				&& intval($handlerParams['taskid']) > 0
-				&& ($task = $this->getTask(intval($handlerParams['taskid']), true))
+				&& (int)$handlerParams['taskid'] > 0
+				&& ($task = $this->getTask((int)$handlerParams['taskid'], true))
 			)
 			{
 				$result = true;
@@ -332,7 +403,7 @@ final class CreateTask extends Base
 		return $result;
 	}
 
-	private function getTask($taskId, $checkPermissions = true)
+	function getTask($taskId, $checkPermissions = true)
 	{
 		static $cache = array(
 			'Y' => array(),
@@ -351,7 +422,7 @@ final class CreateTask extends Base
 		}
 		elseif (Loader::includeModule('tasks'))
 		{
-			$res = \CTasks::getByID(intval($taskId), $checkPermissions);
+			$res = \CTasks::getByID((int)$taskId, $checkPermissions);
 			if ($task = $res->fetch())
 			{
 				$result = $cache[$permissionCacheKey][$taskId] = $task;
@@ -370,14 +441,13 @@ final class CreateTask extends Base
 		$userId = (
 			is_array($ratingVoteParams)
 			&& isset($ratingVoteParams['OWNER_ID'])
-				? intval($ratingVoteParams['OWNER_ID'])
+				? (int)$ratingVoteParams['OWNER_ID']
 				: 0
 		);
 
 		if (
 			$userId > 0
 			&& is_array($fields)
-			&& isset($fields["SHARE_DEST"])
 			&& Loader::includeModule('im')
 		)
 		{
@@ -407,7 +477,7 @@ final class CreateTask extends Base
 					$messageFields = array(
 						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 						"TO_USER_ID" => $userId,
-						"FROM_USER_ID" => intval($ratingVoteParams['USER_ID']),
+						"FROM_USER_ID" => (int)$ratingVoteParams['USER_ID'],
 						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 						"NOTIFY_MODULE" => "main",
 						"NOTIFY_EVENT" => "rating_vote",

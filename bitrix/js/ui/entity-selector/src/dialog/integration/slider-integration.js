@@ -26,6 +26,8 @@ export default class SliderIntegration
 
 	bindEvents()
 	{
+		this.unbindEvents();
+
 		EventEmitter.subscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
 		EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
 		EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.handleSliderClose);
@@ -47,12 +49,14 @@ export default class SliderIntegration
 	{
 		this.sliders.clear();
 		this.unbindEvents();
+		this.getDialog().unfreeze();
 	}
 
 	handleDialogDestroy()
 	{
 		this.sliders.clear();
 		this.unbindEvents();
+		this.getDialog().unfreeze();
 	}
 
 	handleSliderOpen(event: BaseEvent): void

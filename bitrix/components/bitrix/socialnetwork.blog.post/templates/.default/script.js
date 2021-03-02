@@ -69,13 +69,13 @@ function showMenuLinkInput(ind, url)
 
 			BX.adjust(it, {
 				attrs : {"bx-height" : it.offsetHeight},
-				style : { 
-					overflow : "hidden", 
+				style : {
+					overflow : "hidden",
 					display : 'block'
 				},
 				children : [
 					BX.create('BR'),
-					BX.create('DIV', { 
+					BX.create('DIV', {
 						attrs : {id : id},
 						children : [
 							BX.create('SPAN', {attrs : {"className" : "menu-popup-item-left"}}),
@@ -86,7 +86,7 @@ function showMenuLinkInput(ind, url)
 											attrs : {
 												id : id + '-input',
 												type : "text",
-												value : url 
+												value : url
 											},
 											style : {
 												height : pos["height"] + 'px',
@@ -190,50 +190,16 @@ function blogShowImagePopup(src)
 		offsetLeft: 0
 	});
 
-	setTimeout(function(){waitPopupBlogImage.adjustPosition()}, 100);	
+	setTimeout(function(){waitPopupBlogImage.adjustPosition()}, 100);
 	waitPopupBlogImage.show();
 
 }
 
 function __blogPostSetFollow(log_id)
 {
-	var
-		strFollowOld = (BX("log_entry_follow_" + log_id).getAttribute("data-follow") == "Y" ? "Y" : "N"),
-		strFollowNew = (strFollowOld == "Y" ? "N" : "Y"),
-		followNode = BX("log_entry_follow_" + log_id);
-
-	if (followNode)
-	{
-		BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowNew);
-		followNode.setAttribute("data-follow", strFollowNew);
-	}
-
-	BX.ajax.runAction('socialnetwork.api.livefeed.changeFollow', {
-		data: {
-			logId: log_id,
-			value: strFollowNew
-		},
-		analyticsLabel: {
-			b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
-		}
-	}).then(function(response) {
-		if (
-			!response.data.success
-			&& followNode
-		)
-		{
-			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
-			followNode.setAttribute("data-follow", strFollowOld);
-		}
-	}, function(response) {
-		if (followNode)
-		{
-			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
-			followNode.setAttribute("data-follow", strFollowOld);
-		}
+	return BX.Livefeed.FeedInstance.changeFollow({
+		logId: log_id
 	});
-
-	return false;
 }
 
 (function() {
@@ -370,7 +336,8 @@ function __blogPostSetFollow(log_id)
 					var isPinned = (parseInt(postData.logPinnedUserId) > 0);
 					menuItems.push({
 						text: BX.message(isPinned ? 'SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_Y' : 'SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N'),
-						onclick: function(e) {
+						onclick: function (e)
+						{
 							BX.Livefeed.PinnedPanelInstance.changePinned({
 								logId: parseInt(postData.logId),
 								newState: (isPinned ? 'N' : 'Y'),
@@ -392,7 +359,8 @@ function __blogPostSetFollow(log_id)
 					var isFavorites = (parseInt(postData.logFavoritesUserId) > 0);
 					menuItems.push({
 						text: BX.message(isFavorites ? "SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y" : "SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N"),
-						onclick: function(e) {
+						onclick: function (e)
+						{
 							__logChangeFavorites(
 								parseInt(postData.logId),
 								'log_entry_favorites_' + parseInt(postData.logId),
@@ -413,13 +381,14 @@ function __blogPostSetFollow(log_id)
 				});
 
 				menuItems.push({
-					text: '<span id="post-menu-' + postData.logId + '-link-text">' + BX.message('BLOG_LINK') + '</span>' +
+					html: '<span id="post-menu-' + postData.logId + '-link-text">' + BX.message('BLOG_LINK') + '</span>' +
 						'<span id="post-menu-' + postData.logId + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
 						'<span class="post-menu-link-icon" id="post-menu-' + postData.logId + '-link-icon-done" style="display: none;">' +
 
 						'</span>' +
 						'</span>',
-					onclick: function(e) {
+					onclick: function (e)
+					{
 						showMenuLinkInput(
 							parseInt(postData.logId),
 							serverName + postData.urlToPost
@@ -437,7 +406,8 @@ function __blogPostSetFollow(log_id)
 				{
 					menuItems.push({
 						text: BX.message('BLOG_SHARE'),
-						onclick: function() {
+						onclick: function ()
+						{
 							showSharing(
 								postId,
 								parseInt(postData.authorId)
@@ -446,22 +416,25 @@ function __blogPostSetFollow(log_id)
 						}
 					});
 				}
+			}
 
-				if (
-					postData.perms >= 'W' // \Bitrix\Blog\Item\Permissions::FULL
-					|| (
-						postData.perms >= 'P' // \Bitrix\Blog\Item\Permissions::WRITE
-						&& postData.authorId == BX.message('USER_ID')
-					)
+			if (
+				postData.perms >= 'W' // \Bitrix\Blog\Item\Permissions::FULL
+				|| (
+					postData.perms >= 'P' // \Bitrix\Blog\Item\Permissions::WRITE
+					&& postData.authorId == BX.message('USER_ID')
 				)
-				{
-					menuItems.push({
-						text: BX.message('BLOG_BLOG_BLOG_EDIT'),
-						href: urlToEdit,
-						target: '_top'
-					});
-				}
+			)
+			{
+				menuItems.push({
+					text: BX.message('BLOG_BLOG_BLOG_EDIT'),
+					href: urlToEdit,
+					target: '_top'
+				});
+			}
 
+			if(!BX.util.in_array(postType, [ 'DRAFT', 'MODERATION' ]))
+			{
 				if(postData.perms >= 'T') // \Bitrix\Blog\Item\Permissions::MODERATE
 				{
 					menuItems.push({
@@ -470,27 +443,6 @@ function __blogPostSetFollow(log_id)
 							if(confirm(BX.message('BLOG_MES_HIDE_POST_CONFIRM')))
 							{
 								window.location = urlToHide;
-								this.popupWindow.close();
-							}
-						}
-					});
-				}
-
-				if (postData.perms >= 'W') //  // \Bitrix\Blog\Item\Permissions::FULL
-				{
-					menuItems.push({
-						text: BX.message('BLOG_BLOG_BLOG_DELETE'),
-						onclick: function() {
-							if (confirm(BX.message('BLOG_MES_DELETE_POST_CONFIRM')))
-							{
-								if (urlToDelete.length > 0)
-								{
-									window.location = urlToDelete.replace('#del_post_id#', postId);
-								}
-								else
-								{
-									window.deleteBlogPost(postId);
-								}
 								this.popupWindow.close();
 							}
 						}
@@ -517,9 +469,12 @@ function __blogPostSetFollow(log_id)
 					});
 				}
 
-				if (typeof BX.Landing.UI.Note.Menu.getMenuItem !== 'undefined')
+				if (typeof BX.Landing !== 'undefined')
 				{
-					menuItems.push(BX.Landing.UI.Note.Menu.getMenuItem('blog', postId));
+					if (typeof BX.Landing.UI.Note.Menu.getMenuItem !== 'undefined')
+					{
+						menuItems.push(BX.Landing.UI.Note.Menu.getMenuItem('blog', postId));
+					}
 				}
 
 				if (postData.urlToVoteExport.length > 0)
@@ -542,6 +497,27 @@ function __blogPostSetFollow(log_id)
 					text: BX.message('BLOG_POST_MOD_PUB'),
 					href: urlToPub,
 					target: '_top'
+				});
+			}
+
+			if (postData.perms >= 'W') //  // \Bitrix\Blog\Item\Permissions::FULL
+			{
+				menuItems.push({
+					text: BX.message('BLOG_BLOG_BLOG_DELETE'),
+					onclick: function() {
+						if (confirm(BX.message('BLOG_MES_DELETE_POST_CONFIRM')))
+						{
+							if (urlToDelete.length > 0)
+							{
+								window.location = urlToDelete.replace('#del_post_id#', postId);
+							}
+							else
+							{
+								window.deleteBlogPost(postId);
+							}
+							this.popupWindow.close();
+						}
+					}
 				});
 			}
 

@@ -353,6 +353,7 @@
 				method: 'POST',
 				url: actionUrl,
 				data: {},
+				formData: fd,
 				type: 'json',
 				processData : true,
 				start : false,
@@ -369,7 +370,7 @@
 					}
 				}, this),
 				callback_failure: BX.delegate(function(data) {
-					this.showError(comment, BX.message('INCORRECT_SERVER_RESPONSE'));
+					this.showError(comment, BX.message('INCORRECT_SERVER_RESPONSE_2'));
 					BX.onCustomEvent(window, 'OnUCFormResponse', [comment.id[0], comment.id[1], this, data, comment]);
 				}, this)
 			});
@@ -744,36 +745,21 @@
 		BX.MPL.prototype.sendPagenavigation = function() {
 			if (BX(this.node.navigation))
 			{
-				var waiter = BX.findChild(this.node.navigation, { className: 'post-comments-button-waiter'});
+				var waiter = this.node.navigationLoader;
 				if (waiter)
 				{
-					BX.addClass(waiter, "post-comments-button-waiter-active");
+					BX.adjust(this.node.navigationLoader, {style : {"display" : "flex"}});
 				}
 			}
 			BX.MPL.superclass.sendPagenavigation.apply(this, arguments);
 		};
-		BX.MPL.prototype.buildPagenavigation = function() {
-			if (BX(this.node.navigation))
-			{
-				var waiter = BX.findChild(this.node.navigation, { className: 'post-comments-button-waiter'});
-				if (waiter)
-				{
-					BX.removeClass(waiter, "post-comments-button-waiter-active");
-				}
-			}
+		BX.MPL.prototype.buildPagenavigation = function()
+		{
 			if (window["BitrixMobile"] && window["BitrixMobile"]["LazyLoad"])
 				setTimeout(function() { window.BitrixMobile.LazyLoad.showImages(); }, 1000);
 			BX.MPL.superclass.buildPagenavigation.apply(this, arguments);
 		};
 		BX.MPL.prototype.completePagenavigation = function() {
-			if (BX(this.node.navigation))
-			{
-				var waiter = BX.findChild(this.node.navigation, { className: 'post-comments-button-waiter'});
-				if (waiter)
-				{
-					BX.removeClass(waiter, "post-comments-button-waiter-active");
-				}
-			}
 			BX.MPL.superclass.completePagenavigation.apply(this, arguments);
 		};
 		BX.MPL.prototype.showWait = function(id) {
@@ -1010,8 +996,8 @@
 	BXMobileApp.addCustomEvent(window, 'onPull-unicomments', function(data) {
 		var params = data.params;
 		var command = data.command;
-		console.log('onPull-unicomments:', command, params);
-		if (params["AUX"] && !BX.util.in_array(params["AUX"], ["createtask", "fileversion"]) ||
+
+		if (params["AUX"] && !BX.util.in_array(params["AUX"], ["createtask", "fileversion", "TASKINFO"]) ||
 			repo["list"][params["ENTITY_XML_ID"]] <= 0)
 		{
 			return;

@@ -1,5 +1,5 @@
 // @flow
-import {Runtime, Type, Event, Loc, Dom, Tag} from 'main.core';
+import {Runtime, Type, Event, Loc, Dom, Tag, Text} from 'main.core';
 import {Util} from "calendar.util";
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Selector} from './selector.js';
@@ -97,7 +97,7 @@ export class Planner extends EventEmitter
 		}
 
 
-		if (!this.built)
+		if (!this.isBuilt())
 		{
 			this.build();
 			this.bindEventHandlers();
@@ -549,7 +549,9 @@ export class Planner extends EventEmitter
 
 	buildTimeline(clearCache)
 	{
-		if (this.lastTimelineKey !== this.getTimelineShownKey() || clearCache === true)
+		if (this.isBuilt()
+			&& (this.lastTimelineKey !== this.getTimelineShownKey()
+			|| clearCache === true))
 		{
 			if (this.DOM.timelineScaleWrap)
 			{
@@ -673,16 +675,19 @@ export class Planner extends EventEmitter
 
 	rebuild(params = {})
 	{
-		this.buildTimeline(true);
-		this.update(this.entries, this.accessibility);
-		this.adjustHeight();
-		this.resizePlannerWidth(this.width);
-
-		if (params.updateSelector !== false)
+		if (this.isBuilt())
 		{
-			this.selector.update(params.selectorParams);
+			this.buildTimeline(true);
+			this.update(this.entries, this.accessibility);
+			this.adjustHeight();
+			this.resizePlannerWidth(this.width);
+
+			if (params.updateSelector !== false)
+			{
+				this.selector.update(params.selectorParams);
+			}
+			this.clearCacheTime();
 		}
-		this.clearCacheTime();
 	}
 
 	getScaleData()
@@ -1000,10 +1005,11 @@ export class Planner extends EventEmitter
 	displayEntryRow(entry, accessibility = [])
 	{
 		let rowWrap;
-
 		if (entry.type === 'moreLink')
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
+			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
+				props: { className: 'calendar-planner-user' }
+			}));
 
 			if (this.showEntryName)
 			{
@@ -1058,7 +1064,7 @@ export class Planner extends EventEmitter
 			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
 				attrs: {
 					'data-bx-planner-entry' : entry.uid,
-					className: 'calendar-planner-user'
+					className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
 				}
 			}));
 
@@ -1067,19 +1073,7 @@ export class Planner extends EventEmitter
 				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-status-icon ' + this.entryStatusMap[entry.status], title: Loc.getMessage('EC_PL_STATUS_' + entry.status.toUpperCase())}}));
 			}
 
-			if (entry.avatar)
-			{
-				rowWrap.appendChild(BX.create("img", {
-					props: {
-						className: 'calendar-planner-user-image-icon',
-						src: entry.avatar
-					},
-					attrs: {
-						'bx-tooltip-user-id': entry.id,
-						'bx-tooltip-classname': 'calendar-planner-user-tooltip'
-					}
-				}));
-			}
+			rowWrap.appendChild(Planner.getEntryAvatarNode(entry));
 
 			if (this.showEntryName)
 			{
@@ -1197,6 +1191,22 @@ export class Planner extends EventEmitter
 				this.addAccessibilityItem(item, dataRowWrap);
 			}
 		});
+	}
+
+	static getEntryAvatarNode(entry)
+	{
+		let imageNode;
+		const img = entry.avatar;
+
+		if (!img || img === "/bitrix/images/1.gif")
+		{
+			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon ${(entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user')}"><i></i></div>`;
+		}
+		else
+		{
+			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon"><i style="background-image: url('${entry.avatar}')"></i></div>`;
+		}
+		return imageNode;
 	}
 
 	selectEntryRow(entry)
@@ -2356,6 +2366,7 @@ export class Planner extends EventEmitter
 			{
 				timeFrom = parseInt(dateFrom.getHours()) + dateFrom.getMinutes() / 60;
 				timeTo = parseInt(dateTo.getHours()) + dateTo.getMinutes() / 60;
+
 				if (timeFrom <= this.shownScaleTimeFrom)
 				{
 					dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
@@ -2363,7 +2374,7 @@ export class Planner extends EventEmitter
 					dateTo = new Date(ts + duration);
 				}
 
-				if (timeTo >= this.shownScaleTimeTo)
+				if (timeTo > this.shownScaleTimeTo)
 				{
 					dateFrom = new Date(ts + Util.getDayLength() - 1000); // next day
 					dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
@@ -2759,5 +2770,15 @@ export class Planner extends EventEmitter
 		{
 			Dom.remove(this.DOM.loader);
 		}
+	}
+
+	isShown()
+	{
+		return this.shown;
+	}
+
+	isBuilt()
+	{
+		return this.built;
 	}
 }

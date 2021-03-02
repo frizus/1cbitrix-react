@@ -417,6 +417,10 @@ function updatePointPosition_<?echo $MAP_ID?>__n<?=$googleMapLastNumber?>_(obPoi
 	obInput.value = null == obP ? '' : obP[0] + ',' + obP[1];
 	BX('point_<?echo $MAP_ID?>__n<?=$googleMapLastNumber?>_lat').value = obP ? obP[0] : '';
 	BX('point_<?echo $MAP_ID?>__n<?=$googleMapLastNumber?>_lon').value = obP ? obP[1] : '';
+	if (obPoint.pixel)
+	{
+		BX.onCustomEvent(window, 'onAddGoogleMapPoint');
+	}
 }
 
 BX.ready(function() {
@@ -679,6 +683,8 @@ var jsGoogleCESearch_<?echo $MAP_ID;?> = {
 								),
 							),
 						)),
+						'MAP_WIDTH' => $arParams['WIDTH'] ?? null,
+						'MAP_HEIGHT' => $arParams['HEIGHT'] ?? null,
 						'MAP_ID' => 'MAP_GOOGLE_VIEW_'.$arProperty['IBLOCK_ID'].'_'.$arProperty['ID'].'__n'.$googleMapLastNumber.'_',
 						'DEV_MODE' => 'Y',
 						'API_KEY' => $apiKey
@@ -734,6 +740,15 @@ var jsGoogleCESearch_<?echo $MAP_ID;?> = {
 		$paramsHTMLControl = [
 			'VALUE' => $params['FIELD_NAME'] ?? '',
 		];
+
+		if (isset($params['WIDTH']))
+		{
+			$paramsHTMLControl['WIDTH'] = $params['WIDTH'];
+		}
+		if (isset($params['HEIGHT']))
+		{
+			$paramsHTMLControl['HEIGHT'] = $params['HEIGHT'];
+		}
 
 		if ($settings['MULTIPLE'] === 'Y')
 		{
@@ -2967,26 +2982,34 @@ class CIBlockPropertyVideo extends CVideoProperty
 	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
 	{
 		$settings = $params['SETTINGS'] ?? [];
+
+		if ($settings['MULTIPLE'] === 'Y')
+		{
+			if (is_array($params['VALUE']))
+			{
+				$editor = '';
+
+				for($index = 0; $index < $params['SETTINGS']['MULTIPLE_CNT']; $index++)
+				{
+					$value = [
+						'VALUE' => $params['VALUE'][$index] ?? []
+					];
+					$paramsHTMLControl = [
+						'VALUE' => $params['FIELD_NAME'] . '[' . $index . ']' ?? '[' . $index . ']',
+					];
+					$editor .= static::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+				}
+
+				return $editor;
+			}
+		}
+
+		$value = [
+			'VALUE' => $params['VALUE'] ?? []
+		];
 		$paramsHTMLControl = [
 			'VALUE' => $params['FIELD_NAME'] ?? '',
 		];
-		if ($settings['MULTIPLE'] === 'Y')
-		{
-			$value = [];
-			if (is_array($params['VALUE']))
-			{
-				foreach ($params['VALUE'] as $element)
-				{
-					$value[] = ['VALUE' => $element];
-				}
-			}
-		}
-		else
-		{
-			$value = [
-				'VALUE' => $params['VALUE'] ?? ''
-			];
-		}
 
 		return static::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
 	}
@@ -3005,7 +3028,9 @@ class CIBlockPropertyVideo extends CVideoProperty
 			{
 				foreach ($params['VALUE'] as $element)
 				{
-					$value = ['VALUE' => $element];
+					$value = [
+						'VALUE' => empty($element) ? [] : $element
+					];
 					$multipleResult .=  static::GetPublicViewHTML($settings, $value, $paramsHTMLControl) . '<br>';
 				}
 			}
@@ -3014,7 +3039,7 @@ class CIBlockPropertyVideo extends CVideoProperty
 		else
 		{
 			$value = [
-				'VALUE' => $params['VALUE'] ?? ''
+				'VALUE' => empty($params['VALUE']) ? [] : $params['VALUE']
 			];
 		}
 

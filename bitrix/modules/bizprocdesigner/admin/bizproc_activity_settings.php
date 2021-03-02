@@ -69,6 +69,7 @@ $popupWindow->StartContent();
 $arWorkflowTemplate = $_POST['arWorkflowTemplate'];
 $arWorkflowParameters = $_POST['arWorkflowParameters'];
 $arWorkflowVariables = $_POST['arWorkflowVariables'];
+$arWorkflowConstants = $_POST['arWorkflowConstants'];
 
 $arErrors = array();
 
@@ -79,7 +80,8 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 	unset(
 		$currentRequest['arWorkflowTemplate'],
 		$currentRequest['arWorkflowParameters'],
-		$currentRequest['arWorkflowVariables']
+		$currentRequest['arWorkflowVariables'],
+		$currentRequest['arWorkflowConstants']
 	);
 	$currentRequest = \Bitrix\Bizproc\Automation\Helper::unConvertProperties(
 		$currentRequest,
@@ -96,7 +98,8 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 			&$arWorkflowParameters,
 			&$arWorkflowVariables,
 			$currentRequest,
-			&$arErrors
+			&$arErrors,
+			$arWorkflowConstants
 		)
 	);
 
@@ -150,6 +153,7 @@ function PHPToHiddens($ob, $name)
 echo PHPToHiddens($arWorkflowTemplate, 'arWorkflowTemplate');
 echo PHPToHiddens($arWorkflowParameters, 'arWorkflowParameters');
 echo PHPToHiddens($arWorkflowVariables, 'arWorkflowVariables');
+echo PHPToHiddens($arWorkflowConstants, 'arWorkflowConstants');
 
 CBPDocument::AddShowParameterInit(MODULE_ID, "all", $_POST['document_type'], ENTITY);
 ?>
@@ -216,7 +220,7 @@ function HideShowId(id)
 	<td align="right" width="25%"><?echo GetMessage("BP_ACT_SET_ID_ROW")?></td>
 	<td width="75%"><input type="text" name="activity_id" value="<?=htmlspecialcharsbx($activity_id)?>" size="50"></td>
 </tr>
-<tr style="display:none" id="id_activity_comment">
+<tr <?if(empty($editorComment)):?>style="display:none"<?endif?> id="id_activity_comment">
 	<td align="right" width="25%"><?echo GetMessage("BP_ACT_SET_COMMENT_ROW")?></td>
 	<td width="75%"><textarea cols="70" rows="3" name="activity_editor_comment"><?=htmlspecialcharsbx($editorComment)?></textarea></td>
 </tr>
@@ -242,7 +246,8 @@ $z = CBPActivity::CallStaticMethod(
 		($_POST["postback"] == "Y" ? $_POST : null),
 		$popupWindow->GetFormName(),
 		$popupWindow,
-		$currentSiteId
+		$currentSiteId,
+		$arWorkflowConstants
 	)
 );
 

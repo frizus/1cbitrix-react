@@ -9,10 +9,11 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Landing;
 use Bitrix\Landing\Hook\Page\B24button;
 use Bitrix\Socialservices\ApClient;
-use Bitrix\Crm\SiteButton;
+use Bitrix\Crm\UI\Webpack\Button;
 
-/** @noinspection PhpUnused */
-
+/**
+ * Class LandingBlocksOlComponent
+ */
 class LandingBlocksOlComponent extends \CBitrixComponent
 {
 	/**
@@ -28,7 +29,7 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 		$this->arParams['ERRORS'] = [];
 		$this->arParams['EDIT_MODE'] = Landing\Landing::getEditMode() ? 'Y' : 'N';
 
-		if (!$this->checkNoWidgetError())
+		if ($this->checkWidgetId())
 		{
 			$widgetsData = $this->getWidgetsForButton($this->arParams['BUTTON_ID']);
 			$this->arParams['WIDGETS'] = $widgetsData['widgets'];
@@ -37,7 +38,10 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 		$this->includeComponentTemplate();
 	}
 
-	protected function checkNoWidgetError(): bool
+	/**
+	 * @return bool true if OK, false - if some error
+	 */
+	protected function checkWidgetId(): bool
 	{
 		if (!isset($this->arParams['BUTTON_ID']) || !$this->arParams['BUTTON_ID'])
 		{
@@ -45,7 +49,7 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 			{
 				$title = Loc::getMessage('LANDING_CMP_OL_NO_BUTTON');
 				$text = '';
-				if (Landing\Manager::isB24())
+				if (Landing\Manager::isB24() && Loader::includeModule('crm'))
 				{
 					$link = '/crm/button/';
 					$text = Loc::getMessage(
@@ -86,12 +90,11 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 				];
 			}
 
-			return true;
+			return false;
 		}
 
 		if ($this->arParams['BUTTON_ID'] === 'N')
 		{
-			// todo: add slider link
 			$this->arParams['ERRORS'][] = [
 				'title' => Loc::getMessage('LANDING_CMP_OL_BUTTON_NO_CHOOSE'),
 				'text' => Loc::getMessage('LANDING_CMP_OL_BUTTON_NO_CHOOSE_TEXT'),
@@ -101,52 +104,34 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 					'onclick' => 'BX.PreventDefault(); BX.SidePanel.Instance.open(landingParams[\'PAGE_URL_SITE_EDIT\'] + \'#b24widget\');',
 				],
 			];
+
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
-	protected function getWidgetsForButton($buttonId)
+	/**
+	 * Get all channels for widget by ID
+	 * @param $buttonId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	protected function getWidgetsForButton($buttonId): array
 	{
 		$widgets = [];
 
-		if (Landing\Manager::isB24())
+		if (Landing\Manager::isB24() && Loader::includeModule('crm'))
 		{
-			Loader::includeModule('crm');
-			// dbg: open after relize CRM ($button->getWidgets() set to public)
-			// $button = \Bitrix\Crm\UI\Webpack\Button::instance($buttonId);
-			// $button->configure();
-			// foreach ($button->getWidgets() as $widget)
-			// {
-			// 	$widgets['widgets'][] = $widget;
-			// }
-			// dbg end
-
-			// dbg: and del this
-			$button = new SiteButton\Button($buttonId);
-			foreach (SiteButton\Manager::getTypeList() as $typeId => $typeName)
+			$button = Button::instance($buttonId);
+			$button->configure();
+			foreach ($button->getWidgets() as $widget)
 			{
-				if(!$button->hasActiveItem($typeId))
-				{
-					continue;
-				}
-
-				$item = $button->getItemByType($typeId);
-				$config = $item['CONFIG'] ?? [];
-				$typeWidgets = SiteButton\ChannelManager::getWidgets(
-					$typeId,
-					$item['EXTERNAL_ID'],
-					$button->isCopyrightRemoved(),
-					$button->getLanguageId(),
-					$config
-				);
-				foreach ($typeWidgets as $widget)
-				{
-					$widget['type'] = $typeId;
-					$widgets['widgets'][] = $widget;
-				}
+				$widgets['widgets'][] = $widget;
 			}
-			// dbg del this end
 		}
 
 		// site manager

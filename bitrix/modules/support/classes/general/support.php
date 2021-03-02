@@ -441,7 +441,7 @@ class CAllTicket
 			);
 		foreach($arrNUMBER as $key)
 			if (is_set($arFields, $key))
-				$arFields_i[$key] = ($arFields[$key] <> '') ? intval($arFields[$key]) : "null";
+				$arFields_i[$key] = ((string) $arFields[$key] <> '') ? intval($arFields[$key]) : "null";
 
 		// тип текста
 		$arrTYPE = array(

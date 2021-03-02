@@ -1,3 +1,2 @@
-<?
-$MESS["GROUP_MARKETPLACE_TITLE"] = "Застосунки";
-?>
+<?php
+$MESS["GROUP_MARKETPLACE_TITLE_2"] = "Маркет";

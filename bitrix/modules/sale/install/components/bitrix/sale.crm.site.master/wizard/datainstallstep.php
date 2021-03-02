@@ -1,6 +1,11 @@
 <?php
 namespace Bitrix\Sale\CrmSiteMaster\Steps;
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 use Bitrix\Main,
 	Bitrix\Main\Config\Option,
 	Bitrix\Main\Localization\Loc,
@@ -8,14 +13,7 @@ use Bitrix\Main,
 
 Loc::loadMessages(__FILE__);
 
-if (Main\IO\File::isFileExists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet/install/wizards/bitrix/portal/wizard.php"))
-{
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet/install/wizards/bitrix/portal/wizard.php");
-}
-elseif (Main\IO\File::isFileExists($_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/portal/wizard.php"))
-{
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/portal/wizard.php");
-}
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/portal/wizard.php");
 
 /** @noinspection PhpUndefinedClassInspection */
 /**

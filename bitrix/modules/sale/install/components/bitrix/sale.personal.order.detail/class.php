@@ -688,16 +688,9 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				}
 
 				// resampling picture
-				if(intval($item["DETAIL_PICTURE"]))
-				{
-					$pict = $item["DETAIL_PICTURE"];
-				}
-				else
-				{
-					$pict = $item["PREVIEW_PICTURE"];
-				}
+				$pict = $this->getPictureId($item);
 
-				if($pict)
+				if ($pict)
 				{
 					$arImage = CFile::GetFileArray($pict);
 					if ($arImage && ($this->arParams['PICTURE_WIDTH'] || $this->arParams['PICTURE_HEIGHT']))
@@ -718,6 +711,26 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param $item
+	 * @return int
+	 */
+	protected function getPictureId($item): int
+	{
+		$result = 0;
+
+		if ((int)$item['DETAIL_PICTURE'] > 0)
+		{
+			$result = $item['DETAIL_PICTURE'];
+		}
+		elseif ((int)$item['PREVIEW_PICTURE'] > 0)
+		{
+			$result = $item['PREVIEW_PICTURE'];
+		}
+
+		return (int)$result;
 	}
 
 	/**
@@ -1464,7 +1477,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				$payment["PAY_SYSTEM"]['NAME'] = htmlspecialcharsbx($payment["PAY_SYSTEM"]['NAME']);
 				$payment["PAY_SYSTEM"]["SRC_LOGOTIP"] = CFile::GetPath($payment["PAY_SYSTEM"]['LOGOTIP']);
 			}
-			if ($payment["PAID"] != "Y" && $this->dbResult["CANCELED"] != "Y" &&  $this->dbResult["ALLOW_PAY"] != "N")
+			if ($payment["PAID"] != "Y" && $this->dbResult["CANCELED"] != "Y" &&  $this->dbResult["IS_ALLOW_PAY"] != "N")
 			{
 				$payment['BUFFERED_OUTPUT'] = '';
 				$payment['ERROR'] = '';

@@ -337,8 +337,9 @@ class Recent
 				$item['OPTIONS']['DEFAULT_USER_RECORD'] = true;
 			}
 
-			$result[] = $item;
+			$result[$id] = $item;
 		}
+		$result = array_values($result);
 
 		\Bitrix\Main\Type\Collection::sortByColumn(
 			$result,

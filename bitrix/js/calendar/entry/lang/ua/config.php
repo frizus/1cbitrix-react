@@ -1,6 +1,7 @@
-<?
+<?php
 $MESS["CALENDAR_DEFAULT_ENTRY_NAME"] = "Нова подія";
 $MESS["CALENDAR_EVENT"] = "Подія";
+$MESS["CALENDAR_EVENT_DO_ADD"] = "Створити";
 $MESS["CALENDAR_EVENT_DO_CANCEL"] = "Скасувати";
 $MESS["CALENDAR_EVENT_DO_DELETE"] = "Видалити";
 $MESS["CALENDAR_EVENT_DO_EDIT"] = "Редагувати";
@@ -17,4 +18,3 @@ $MESS["EC_BUSY_USERS_EXCLUDE_SINGLE"] = "Створити зустріч без 
 $MESS["EC_BUSY_USERS_PLURAL"] = "Деякі учасники не можуть бути запрошені в обраний вами час (#USER_LIST#)";
 $MESS["EC_BUSY_USERS_SINGLE"] = "#USER_NAME# не може бути запрошений у обраний Вами час";
 $MESS["EC_BUSY_USERS_TITLE"] = "Учасники зайняті";
-?>

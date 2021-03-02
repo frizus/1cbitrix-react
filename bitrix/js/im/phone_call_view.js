@@ -73,6 +73,8 @@
 		callInterceptAllowed: false
 	};
 
+	var blankAvatar = '/bitrix/js/im/images/blank.gif';
+
 	BX.PhoneCallView = function(params)
 	{
 		this.id = 'im-phone-call-view';
@@ -415,6 +417,7 @@
 		var self = this;
 
 		return new BX.PopupWindow(self.getId(), null, {
+			targetContainer: document.body,
 			content: this.elements.main,
 			closeIcon: false,
 			noAllPaddings: true,
@@ -759,7 +762,11 @@
 	BX.PhoneCallView.prototype.createLayoutSimple = function()
 	{
 		var portalCallUserImage = '';
-		if(this.isPortalCall() && this.portalCallData.hrphoto && this.portalCallData.hrphoto[this.portalCallUserId])
+		if(this.isPortalCall()
+			&& this.portalCallData.hrphoto
+			&& this.portalCallData.hrphoto[this.portalCallUserId]
+			&& this.portalCallData.hrphoto[this.portalCallUserId] != blankAvatar
+		)
 		{
 			portalCallUserImage = this.portalCallData.hrphoto[this.portalCallUserId];
 		}
@@ -1067,7 +1074,12 @@
 	BX.PhoneCallView.prototype.renderAvatar = function()
 	{
 		var portalCallUserImage = '';
-		if(this.isPortalCall() && this.elements.avatar && this.portalCallData.hrphoto && this.portalCallData.hrphoto[this.portalCallUserId])
+		if(this.isPortalCall()
+			&& this.elements.avatar
+			&& this.portalCallData.hrphoto
+			&& this.portalCallData.hrphoto[this.portalCallUserId]
+			&& this.portalCallData.hrphoto[this.portalCallUserId] != blankAvatar
+		)
 		{
 			portalCallUserImage = this.portalCallData.hrphoto[this.portalCallUserId];
 
@@ -2523,7 +2535,10 @@
 				this.elements.crmButtons.addCommentLabel.innerText = BX.message('IM_PHONE_CALL_VIEW_SAVE');
 			}
 			if(this.elements.commentEditor)
+			{
+				this.elements.commentEditor.value = this.comment;
 				this.elements.commentEditor.focus();
+			}
 
 			if(this.elements.commentEditorContainer)
 				this.elements.commentEditorContainer.style.removeProperty('display');
@@ -2725,6 +2740,7 @@
 		this.currentEntity = entity;
 		this.crmEntityType = entity.type;
 		this.crmEntityId = entity.id;
+		this.comment = "";
 
 		if(BX.type.isArray(entity.bindings))
 		{
@@ -2753,7 +2769,8 @@
 			this.formManager.unload();
 			this.formManager.load({
 				id: this.webformId,
-				secCode: this.webformSecCode
+				secCode: this.webformSecCode,
+				lang: BX.message("LANGUAGE_ID"),
 			})
 		}
 		if(this._uiState === BX.PhoneCallView.UiState.redial)
@@ -2868,6 +2885,7 @@
 		};
 
 		this.qualityPopup = new BX.PopupWindow('PhoneCallViewQualityGrade', this.elements.qualityMeter, {
+			targetContainer: document.body,
 			darkMode: true,
 			closeByEsc: true,
 			autoHide: true,
@@ -3391,6 +3409,11 @@
 	BX.PhoneCallView.prototype.canBeUnloaded = function()
 	{
 		return this.allowAutoClose && this.isFolded();
+	};
+
+	BX.PhoneCallView.prototype.isCallListMode = function()
+	{
+		return (this.callListId > 0);
 	};
 
 	BX.PhoneCallView.prototype.getState = function()
@@ -4639,6 +4662,7 @@
 	{
 		var self = this;
 		return new BX.PopupWindow('bx-messenger-popup-transfer', this.bindElement, {
+			targetContainer: document.body,
 			zIndex: baseZIndex + 200,
 			lightShadow : true,
 			offsetTop: 5,
@@ -4971,6 +4995,7 @@
 	{
 		var self = this;
 		var popupOptions = {
+			targetContainer: document.body,
 			darkMode: true,
 			closeByEsc: true,
 			autoHide: true,
@@ -4989,6 +5014,10 @@
 				onPopupClose: function()
 				{
 					self.callbacks.onClose();
+					if (self.popup)
+					{
+						self.popup.destroy();
+					}
 				}
 			}
 		};
@@ -5134,12 +5163,16 @@
 		{}
 		else if (e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey) // 0-9
 		{
+			this.elements.input.value = this.elements.input.value + e.key;
+			e.preventDefault();
 			this.callbacks.onButtonClick({
 				key: e.key
 			});
 		}
 		else if (e.keyCode >= 96 && e.keyCode <= 105 && !e.shiftKey) // extra 0-9
 		{
+			this.elements.input.value = this.elements.input.value + e.key;
+			e.preventDefault();
 			this.callbacks.onButtonClick({
 				key: e.key
 			});
@@ -5198,6 +5231,7 @@
 				if(response.ERROR)
 				{
 					self.interceptErrorPopup = new BX.PopupWindow('intercept-call-error', this.elements.interceptButton, {
+						targetContainer: document.body,
 						content: BX.util.htmlspecialchars(response.ERROR),
 						autoHide: true,
 						closeByEsc: true,

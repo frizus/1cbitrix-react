@@ -19,7 +19,7 @@ $MESS['MAIN_MAIL_CONFIRM_CODE_HINT'] = 'На указанный email отпра
 $MESS['MAIN_MAIL_CONFIRM_NAME'] = 'Имя';
 $MESS['MAIN_MAIL_CONFIRM_EMAIL'] = 'Email';
 $MESS['MAIN_MAIL_CONFIRM_PUBLIC'] = 'Доступен всем';
-$MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT'] = 'Добавленный адрес смогут выбрать все менеджеры, работающие в CRM';
+$MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT1'] = 'Добавленный адрес сможет выбрать любой сотрудник';
 $MESS['MAIN_MAIL_CONFIRM_CODE_PLACEHOLDER'] = 'Введите код подтверждения';
 
 $MESS['MAIN_MAIL_CONFIRM_SMTP_SERVER'] = 'Сервер';
@@ -51,3 +51,18 @@ $MESS["MAIN_MAIL_DELETE_SENDER_ERROR"] = "Ошибка удаления отпр
 
 $MESS['MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER'] = 'Отправитель по умолчанию';
 $MESS['MAIN_MAIL_CONFIRM_MENU_UNKNOWN'] = 'Выбрать отправителя';
+
+$MESS['MAIN_MAIL_CONFIRM_UI_GRID_NAME_COLUMN'] = 'Имя';
+$MESS['MAIN_MAIL_CONFIRM_UI_GRID_EMAIL_COLUMN'] = 'Email';
+
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_EMPTY_LIST_WARN_TITTLE'] = "Предупреждение";
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_EMPTY_LIST_WARN'] = "Не удалось найти отправителей";
+
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_NOT_FULL_LIST_WARN_TITTLE'] = "Предупреждение";
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_NOT_FULL_LIST_WARN'] = "Удалось найти не всех отправителей";
+
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_ACCESS_ERROR_TITTLE'] = "Доступ заблокирован";
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_ACCESS_ERROR'] = "Вы не можете удалить этих отправителей";
+
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS'] = "Удаление отправителей прошло успешно";
+$MESS['MAIN_MAIL_CONFIRM_POST_DELETE_SUCCESS_TITLE'] = "Удалено";

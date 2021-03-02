@@ -7,6 +7,7 @@ use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\PropertyValue\PropertyValueFactory;
 use Bitrix\Catalog\v2\Section\HasSectionCollection;
+use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
@@ -160,8 +161,8 @@ class PropertyRepository implements PropertyRepositoryContract
 		$result = [];
 
 		$filter = $params['filter'] ?? [];
-		$propertyValuesIterator = \CIBlockElement::getPropertyValues($filter['IBLOCK_ID'], $filter, true);
 
+		$propertyValuesIterator = \CIBlockElement::getPropertyValues($filter['IBLOCK_ID'], $filter, true);
 		while ($propertyValues = $propertyValuesIterator->fetch())
 		{
 			$descriptions = $propertyValues['DESCRIPTION'] ?? [];
@@ -239,6 +240,8 @@ class PropertyRepository implements PropertyRepositoryContract
 			]);
 		}
 
+		$propertySettings = $this->loadEnumSettings($propertySettings);
+
 		foreach ($propertySettings as $settings)
 		{
 			$settings = $this->prepareSettings($settings);
@@ -291,20 +294,13 @@ class PropertyRepository implements PropertyRepositoryContract
 	{
 		foreach ($fields as &$field)
 		{
-			if ($settings['PROPERTY_TYPE'] === 'S' && $settings['USER_TYPE'] === 'HTML')
+			if (!empty($settings['USER_TYPE']))
 			{
-				if (!empty($field['VALUE']) && !is_array($field['VALUE']) && CheckSerializedData($fields['VALUE']))
+				$userType = \CIBlockProperty::GetUserType($settings['USER_TYPE']);
+
+				if (array_key_exists('ConvertFromDB', $userType))
 				{
-					$field['VALUE'] = unserialize($field['VALUE'], [
-						'allowed_classes' => false,
-					]);
-				}
-				else
-				{
-					$field['VALUE'] = [
-						'TEXT' => '',
-						'TYPE' => 'HTML',
-					];
+					$field = call_user_func($userType['ConvertFromDB'], $settings, $field);
 				}
 			}
 		}
@@ -330,5 +326,42 @@ class PropertyRepository implements PropertyRepositoryContract
 		$entity->initFields($fields);
 
 		return $entity;
+	}
+
+	private function loadEnumSettings(array $settings): array
+	{
+		$enumIds = [];
+
+		foreach ($settings as $setting)
+		{
+			if ($setting['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
+			{
+				$enumIds[] = $setting['ID'];
+			}
+		}
+
+		$enumSettings = PropertyEnumerationTable::getList([
+			'select' => ['ID', 'PROPERTY_ID'],
+			'filter' => [
+				'PROPERTY_ID' => $enumIds,
+				'=DEF' => 'Y',
+			],
+		])
+			->fetchAll()
+		;
+		$enumSettings = array_column($enumSettings, 'ID', 'PROPERTY_ID');
+
+		if (!empty($enumSettings))
+		{
+			foreach ($settings as &$setting)
+			{
+				if (isset($enumSettings[$setting['ID']]))
+				{
+					$setting['DEFAULT_VALUE'] = $enumSettings[$setting['ID']];
+				}
+			}
+		}
+
+		return $settings;
 	}
 }

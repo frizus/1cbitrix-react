@@ -72,7 +72,10 @@ Class mail extends CModule
 			$eventManager->registerEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
 			$eventManager->registerEventHandler('main', 'OnUISelectorFillLastDestination', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorFillLastDestination');
 
+			$eventManager->registerEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
 			$eventManager->registerEventHandlerCompatible('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
+
+			$eventManager->registerEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
 
 			RegisterModule("mail");
 
@@ -441,11 +444,15 @@ Class mail extends CModule
 		$eventManager->unRegisterEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
 		$eventManager->unRegisterEventHandler('main', 'OnUISelectorFillLastDestination', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorFillLastDestination');
 
+		$eventManager->unRegisterEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
+
 		$eventManager->unRegisterEventHandler('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
+
+		$eventManager->unRegisterEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");
-
+		
 		UnRegisterModule("mail");
 
 		if($this->errors !== false)

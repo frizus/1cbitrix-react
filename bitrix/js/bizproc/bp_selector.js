@@ -59,9 +59,9 @@
 		return [];
 	};
 
-	BX.Bizproc.Selector.getActivitiesItems = function ()
+	BX.Bizproc.Selector.getActivitiesItems = function (nocache)
 	{
-		if (this.activitiesItemsCache === null)
+		if (this.activitiesItemsCache === null || nocache)
 		{
 			this.activitiesItemsCache = this.getTemplateActivitiesItems([rootActivity.Serialize()], arAllActivities);
 		}
@@ -88,9 +88,40 @@
 					result.push({
 						text: activityData['RETURN'][key].NAME,
 						description: template[i].Properties.Title || activityData.NAME,
-						value: '{='+template[i].Name+':'+key+'}'
+						value: '{='+template[i].Name+':'+key+'}',
+						propertyObject: template[i].Name,
+						propertyField: key,
+						property: {
+							Name: activityData['RETURN'][key].NAME,
+							Type: activityData['RETURN'][key].TYPE
+						}
 					});
 				}
+			}
+			else if (activityData && BX.type.isArray(activityData['ADDITIONAL_RESULT']))
+			{
+				var props = template[i]['Properties'];
+				activityData['ADDITIONAL_RESULT'].forEach(function(addProperty)
+				{
+					if (props[addProperty])
+					{
+						for (var fieldId in props[addProperty])
+						{
+							if (props[addProperty].hasOwnProperty(fieldId))
+							{
+								var field = props[addProperty][fieldId];
+								result.push({
+									text: field['Name'],
+									description: template[i].Properties.Title || activityData.NAME,
+									value: '{='+template[i].Name+':'+fieldId+'}',
+									propertyObject: template[i].Name,
+									propertyField: fieldId,
+									property: field
+								});
+							}
+						}
+					}
+				}, this);
 			}
 
 			if (template[i].Children && template[i].Children.length > 0)

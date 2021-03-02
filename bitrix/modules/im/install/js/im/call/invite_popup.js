@@ -16,6 +16,7 @@
 		this.idleUsers = config.idleUsers || [];
 		this.recentUsers = [];
 		this.bindElement = config.bindElement;
+		this.viewElement = config.viewElement || document.body;
 
 		this.allowNewUsers = config.allowNewUsers;
 
@@ -75,6 +76,7 @@
 			{
 				this.popup.close();
 			}
+			clearTimeout(this.searchTimeout);
 		},
 
 		createPopup: function()
@@ -82,6 +84,7 @@
 			var self = this;
 
 			this.popup = new BX.PopupWindow('bx-call-popup-invite', this.bindElement, {
+				targetContainer: this.viewElement,
 				zIndex: this.zIndex,
 				lightShadow : true,
 				darkMode: BXIM.settings.enableDarkTheme,
@@ -118,8 +121,17 @@
 						}})
 				],
 				events: {
-					onPopupClose : function() { this.destroy() },
-					onPopupDestroy : function() { self.popup = null; self.elements.contactList = null; self.callbacks.onDestroy(); }
+					onPopupClose : function()
+					{
+						this.destroy()
+					},
+					onPopupDestroy : function()
+					{
+						self.popup = null;
+						self.elements.contactList = null;
+						clearTimeout(self.searchTimeout);
+						self.callbacks.onDestroy();
+					}
 				}
 			});
 			BX.addClass(this.popup.popupContainer, "bx-messenger-mark");
@@ -216,7 +228,7 @@
 
 					self.searchResult = self.searchResult.concat(result);
 					self.searchTotalCount = self.searchResult.length;
-					
+
 					resolve(result);
 				});
 			})
@@ -289,7 +301,10 @@
 		{
 			BX.cleanNode(this.elements.contactList);
 
-			this.elements.contactList.appendChild(this.renderContactList());
+			if (this.elements.contactList)
+			{
+				this.elements.contactList.appendChild(this.renderContactList());
+			}
 		},
 
 		showLoader: function()

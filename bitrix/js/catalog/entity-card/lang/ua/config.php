@@ -7,4 +7,6 @@ $MESS["CATALOG_ENTITY_CARD_FILE_CLOSE_NOTIFICATION"] = "Натисніть кн�
 $MESS["CATALOG_ENTITY_CARD_LIST_LEGEND"] = "Ідеально використовувати для задання: розмірів, виробників, матеріалів або інших текстових і числових значень";
 $MESS["CATALOG_ENTITY_CARD_LIST_TITLE"] = "Список";
 $MESS["CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER"] = "Новий елемент";
+$MESS["CATALOG_ENTITY_CARD_SETTING_DISABLED"] = "Налаштування \"#NAME#\" відключене";
+$MESS["CATALOG_ENTITY_CARD_SETTING_ENABLED"] = "Налаштування \"#NAME#\" включене";
 $MESS["CATALOG_ENTITY_CARD_UNSAVED_DATA_MESSAGE"] = "При створенні нової властивості варіації незбережені дані будуть втрачені.";

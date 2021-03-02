@@ -1,5 +1,6 @@
-<?
+<?php
 $MESS["BLOG_C_HIDE"] = "Згорнути коментарі";
+$MESS["BLOG_C_LOADING"] = "Завантаження";
 $MESS["BLOG_C_REPLY"] = "Відповісти";
 $MESS["BLOG_C_VIEW"] = "Дивитися коментарі";
 $MESS["BPC_MES_COPYLINK"] = "Скопіювати посилання";
@@ -13,5 +14,7 @@ $MESS["BPC_MES_VOTE1"] = "Мені подобається";
 $MESS["BPC_MES_VOTE2"] = "Не подобається";
 $MESS["B_B_PC_COM_ERROR"] = "Помилка:";
 $MESS["INCORRECT_SERVER_RESPONSE"] = "Некоректна відповідь від сервера.";
+$MESS["INCORRECT_SERVER_RESPONSE_2"] = "Сталася помилка, спробуйте пізніше.";
+$MESS["MPL_HIDE_COLLAPSED_COMMENTS"] = "Приховати пінги";
 $MESS["MPL_MOBILE_PUBLISHING"] = "Публікується&hellip;";
-?>
+$MESS["MPL_SHOW_COLLAPSED_COMMENTS"] = "Показати пінги";

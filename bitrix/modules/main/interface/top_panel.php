@@ -139,7 +139,7 @@ if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") =
 )
 {
 	$defaultSite = $crmSite = [];
-	$siteList = \Bitrix\Main\SiteTable::getList([
+	$crmSiteIterator = \Bitrix\Main\SiteTable::getList([
 		"select" => ["DEF", "SERVER_NAME"],
 		"filter" => [
 			"LOGIC" => "OR",
@@ -150,18 +150,19 @@ if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") =
 				"=DEF" => "Y"
 			]
 		]
-	])->fetchAll();
-	foreach($siteList as $site)
+	]);
+	while ($crmSiteRow = $crmSiteIterator->fetch())
 	{
-		if ($site["DEF"] === "Y")
+		if ($crmSiteRow["DEF"] === "Y")
 		{
-			$defaultSite = $site;
+			$defaultSite = $crmSiteRow;
 		}
 		else
 		{
-			$crmSite = $site;
+			$crmSite = $crmSiteRow;
 		}
 	}
+	unset($crmSiteRow, $crmSiteList);
 
 	$crmServerName = '';
 	if ($crmSite && !empty($crmSite["SERVER_NAME"]))
@@ -356,7 +357,7 @@ if ($USER->IsAuthorized()):
 <?
 	}
 
-?><a hidefocus="true" href="<?=htmlspecialcharsbx((defined('BX_ADMIN_SECTION_404') && BX_ADMIN_SECTION_404 == 'Y' ? '/bitrix/admin/' : $APPLICATION->GetCurPage())).'?logout=yes'.htmlspecialcharsbx(($s=DeleteParam(array("logout"))) == ""? "":"&".$s)?>" class="adm-header-exit" id="bx-panel-logout" title="<?=GetMessage('admin_panel_logout_title')?>"><?=GetMessage("admin_panel_logout")?></a><?
+?><a hidefocus="true" href="<?=htmlspecialcharsbx((defined('BX_ADMIN_SECTION_404') && BX_ADMIN_SECTION_404 == 'Y' ? '/bitrix/admin/' : $APPLICATION->GetCurPage()).'?'.CUser::getLogoutParams())?>" class="adm-header-exit" id="bx-panel-logout" title="<?=GetMessage('admin_panel_logout_title')?>"><?=GetMessage("admin_panel_logout")?></a><?
 
 	$Execs = $hkInstance->GetCodeByClassName("bx-panel-logout",GetMessage('admin_panel_logout'));
 	echo $hkInstance->PrintJSExecs($Execs);

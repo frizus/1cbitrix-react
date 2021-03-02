@@ -439,7 +439,8 @@ class Processor
 		{
 			$this->setFilterKey('ENTITY_TYPE', $params['ENTITY_TYPE']);
 		}
-		elseif ($params['TAG'] <> '')
+
+		if ($params['TAG'] <> '')
 		{
 			$this->setFilterKey('=TAG', $params['TAG']);
 			$turnFollowModeOff = true;
@@ -698,7 +699,7 @@ class Processor
 				$request->get('useBXMainFilter') === 'Y'
 				|| $params['useBXMainFilter'] === 'Y'
 			)
-			&& intval($params['LOG_ID']) <= 0
+			&& (int)$params['LOG_ID'] <= 0
 		)
 		{
 			$filtered = false;
@@ -885,6 +886,17 @@ class Processor
 		{
 			$filterOption = new \Bitrix\Main\UI\Filter\Options($result['FILTER_ID']);
 			$filterOption->reset();
+		}
+
+		if (
+			(
+				$params['TAG'] !== ''
+				|| $params['FIND'] !== ''
+			)
+			&& $this->getRequest()->get('apply_filter') === 'Y'
+		)
+		{
+			$this->getComponent()->arParams['useBXMainFilter'] = 'Y';
 		}
 	}
 
@@ -1213,16 +1225,22 @@ class Processor
 			);
 			while(
 				($activityFields = $res->fetch())
-				&& (intval($activityFields['ASSOCIATED_ENTITY_ID']) > 0)
+				&& ((int)$activityFields['ASSOCIATED_ENTITY_ID'] > 0)
 			)
 			{
-				$taskItem = new \CTaskItem(intval($activityFields['ASSOCIATED_ENTITY_ID']), $result['currentUserId']);
-				if (!$taskItem->checkCanRead())
+				try
 				{
-					$activity2LogList = $this->getComponent()->getActivity2LogListValue();
-					unset($activity2LogList[$activityFields['ID']]);
-					$this->getComponent()->setActivity2LogListValue($activity2LogList);
-					unset($activity2LogList);
+					$taskItem = new \CTaskItem((int)$activityFields['ASSOCIATED_ENTITY_ID'], $result['currentUserId']);
+					if (!$taskItem->checkCanRead())
+					{
+						$activity2LogList = $this->getComponent()->getActivity2LogListValue();
+						unset($activity2LogList[$activityFields['ID']]);
+						$this->getComponent()->setActivity2LogListValue($activity2LogList);
+						unset($activity2LogList);
+					}
+				}
+				catch (\CTaskAssertException $e)
+				{
 				}
 			}
 		}
@@ -1489,5 +1507,29 @@ class Processor
 		}
 	}
 
+	public function warmUpStaticCache($result)
+	{
+		$logEventsData = [];
+
+		if (is_array($result['Events']))
+		{
+			foreach($result['Events'] as $eventFields)
+			{
+				$logEventsData[(int)$eventFields['ID']] = $eventFields['EVENT_ID'];
+			}
+		}
+		if (is_array($result['pinnedEvents']))
+		{
+			foreach($result['pinnedEvents'] as $eventFields)
+			{
+				$logEventsData[(int)$eventFields['ID']] = $eventFields['EVENT_ID'];
+			}
+		}
+
+		$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+		$forumPostLivefeedProvider->warmUpAuxCommentsStaticCache([
+			'logEventsData' => $logEventsData
+		]);
+	}
 }
 ?>

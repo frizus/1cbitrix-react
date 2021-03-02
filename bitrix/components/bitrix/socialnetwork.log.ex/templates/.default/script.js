@@ -196,9 +196,9 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 
 	if (BX.message('sonetLbUseFavorites') != 'N')
 	{
-		itemFavorites = { 
+		itemFavorites = {
 			text : (bFavorites ? BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : BX.message('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N')),
-			className : "menu-popup-no-icon", 
+			className : "menu-popup-no-icon",
 			onclick : function(e) {
 				__logChangeFavorites(
 					log_id,
@@ -218,7 +218,7 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 		(
 			menuElement.getAttribute("data-log-entry-url").length > 0 ?
 			{
-				text : '<span id="post-menu-' + ind + '-href-text">' + BX.message("sonetLMenuHref") + '</span>',
+				html : '<span id="post-menu-' + ind + '-href-text">' + BX.message("sonetLMenuHref") + '</span>',
 				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-href",
 				href : menuElement.getAttribute("data-log-entry-url")
 			} : null
@@ -226,13 +226,13 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 		(
 			menuElement.getAttribute("data-log-entry-url").length > 0
 			? {
-				text : '<span id="post-menu-' + ind + '-link-text">' + BX.message("sonetLMenuLink") + '</span>' +
+				html : '<span id="post-menu-' + ind + '-link-text">' + BX.message("sonetLMenuLink") + '</span>' +
 					'<span id="post-menu-' + ind + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
 						'<span class="post-menu-link-icon" id="post-menu-' + ind + '-link-icon-done" style="display: none;">' +
 
 						'</span>' +
 					'</span>',
-				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-link", 
+				className : "menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-link",
 				onclick : function() {
 
 					var id = 'post-menu-' + ind + '-link',
@@ -297,13 +297,13 @@ function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, f
 
 							BX.adjust(it, {
 								attrs : {"bx-height" : it.offsetHeight},
-								style : { 
-									overflow : "hidden", 
+								style : {
+									overflow : "hidden",
 									display : 'block'
 								},
 								children : [
 									BX.create('BR'),
-									BX.create('DIV', { 
+									BX.create('DIV', {
 										attrs : {id : id},
 										children : [
 											BX.create('SPAN', {attrs : {"className" : "menu-popup-item-left"}}),
@@ -532,7 +532,7 @@ function __logDelete(log_id, node, ind)
 function __logDeleteSuccess(node)
 {
 	if (
-		typeof node == 'undefined' 
+		typeof node == 'undefined'
 		|| !node
 		|| !BX(node)
 	)
@@ -546,10 +546,10 @@ function __logDeleteSuccess(node)
 		type: 'linear',
 		start: BX(node).offsetHeight,
 		finish: 56,
-		callback: BX.delegate(function(height) { 
+		callback: BX.delegate(function(height) {
 			this.style.height = height + 'px';
 		}, BX(node)),
-		callback_start: BX.delegate(function() { 
+		callback_start: BX.delegate(function() {
 			this.style.overflow = 'hidden';
 			this.style.minHeight = 0;
 		}, BX(node)),
@@ -573,7 +573,7 @@ function __logDeleteSuccess(node)
 								}
 							}),
 							BX.create('span', {
-								html: BX.message('sonetLMenuDeleteSuccess')
+								html: BX.message('SONET_EXT_LIVEFEED_DELETE_SUCCESS')
 							})
 						]
 					})
@@ -586,7 +586,7 @@ function __logDeleteSuccess(node)
 function __logDeleteFailure(node)
 {
 	if (
-		typeof node == 'undefined' 
+		typeof node == 'undefined'
 		|| !node
 		|| !BX(node)
 	)
@@ -900,6 +900,8 @@ BitrixLF.prototype.initOnce = function(params)
 		}
 	}, this));
 
+	BX.addCustomEvent('BX.Forum.Spoiler:toggle', this.processForumSpoilerToggle.bind(this));
+
 	if (
 		typeof params != 'undefined'
 		&& typeof params.crmEntityTypeName != 'undefined'
@@ -1097,14 +1099,13 @@ BitrixLF.prototype.getNextPage = function()
 		BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-visible');
 	}
 
-	var
-		nextUrl = new BX.Uri(this.nextURL),
-		nextUrlParam = nextUrl.getQueryParams(),
-		pageNumber = 1,
-		prevPageLogId = '',
-		ts = 0,
-		noblog = 'N',
-		found = null;
+	var nextUrl = new BX.Uri(this.nextURL);
+	var nextUrlParam = nextUrl.getQueryParams();
+	var pageNumber = 1;
+	var prevPageLogId = '';
+	var ts = 0;
+	var noblog = 'N';
+	var found = null;
 
 	for (var key in nextUrlParam)
 	{
@@ -1132,22 +1133,46 @@ BitrixLF.prototype.getNextPage = function()
 		}
 	}
 
+	var queryParams = {
+		PAGE_NUMBER: pageNumber,
+		LAST_LOG_TIMESTAMP: ts,
+		PREV_PAGE_LOG_ID: prevPageLogId,
+		siteTemplateId: BX.message('sonetLSiteTemplateId'),
+		useBXMainFilter: this.useBXMainFilter,
+		preset_filter_top_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_top_id']) && nextUrlParam['preset_filter_top_id'] !== '0' ? nextUrlParam['preset_filter_top_id'] : ''),
+		preset_filter_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_id']) && nextUrlParam['preset_filter_id'] !== '0' ? nextUrlParam['preset_filter_id'] : '')
+	};
+
+	var queryData = {
+		c: this.componentName,
+		logajax: 'Y', // compatibility with socialnetwork.blog.post.comment
+		noblog: noblog, // compatibility with socialnetwork.blog.post.comment
+		params: queryParams
+	};
+
+	if (typeof nextUrlParam.CREATED_BY_ID !== 'undefined')
+	{
+		queryData.flt_created_by_id = parseInt(nextUrlParam.CREATED_BY_ID);
+	}
+
+	if (typeof nextUrlParam.flt_date_datesel !== 'undefined')
+	{
+		queryData.flt_date_datesel = nextUrlParam.flt_date_datesel;
+	}
+
+	if (typeof nextUrlParam.flt_date_from !== 'undefined')
+	{
+		queryData.flt_date_from = decodeURIComponent(nextUrlParam.flt_date_from);
+	}
+
+	if (typeof nextUrlParam.flt_date_to !== 'undefined')
+	{
+		queryData.flt_date_to = decodeURIComponent(nextUrlParam.flt_date_to);
+	}
+
 	BX.ajax.runAction('socialnetwork.api.livefeed.getNextPage', {
 		signedParameters: this.signedParameters,
-		data: {
-			c: this.componentName,
-			logajax: 'Y', // compatibility with socialnetwork.blog.post.comment
-			noblog: noblog, // compatibility with socialnetwork.blog.post.comment
-			params: {
-				PAGE_NUMBER: pageNumber,
-				LAST_LOG_TIMESTAMP: ts,
-				PREV_PAGE_LOG_ID: prevPageLogId,
-				siteTemplateId: BX.message('sonetLSiteTemplateId'),
-				useBXMainFilter: this.useBXMainFilter,
-				preset_filter_top_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_top_id']) && nextUrlParam['preset_filter_top_id'] !== '0' ? nextUrlParam['preset_filter_top_id'] : ''),
-				preset_filter_id: (BX.type.isNotEmptyString(nextUrlParam['preset_filter_id']) && nextUrlParam['preset_filter_id'] !== '0' ? nextUrlParam['preset_filter_id'] : '')
-			}
-		}
+		data: queryData
 	}).then(function(response) {
 		var responseData = response.data;
 
@@ -1201,6 +1226,7 @@ BitrixLF.prototype.getNextPage = function()
 					this.recalcMoreButton();
 					this.registerViewAreaList();
 					this.recalcMoreButtonCommentsList();
+					BX.Livefeed.PinnedPanelInstance.resetFlags();
 					BX.Livefeed.PinnedPanelInstance.initPosts();
 				}
 			}.bind(this));
@@ -1225,6 +1251,7 @@ BitrixLF.prototype.getNextPage = function()
 					this.registerViewAreaList();
 					this.recalcMoreButtonCommentsList();
 					BX.onCustomEvent(window, 'BX.Livefeed:recalculateComments', [{ rootNode: BX(contentBlockId) }]);
+					BX.Livefeed.PinnedPanelInstance.resetFlags();
 					BX.Livefeed.PinnedPanelInstance.initPosts();
 				}.bind(this);
 				BX.bind(BX('sonet_log_more_container_first'), 'click', f);
@@ -1273,6 +1300,7 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 	);
 
 	params.siteTemplateId = BX.message('sonetLSiteTemplateId');
+	params.assetsCheckSum = BX.message('sonetLAssetsCheckSum');
 
 	var counterWrap = BX("sonet_log_counter_2_wrap", true);
 
@@ -1323,9 +1351,15 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 			filterPromise.fulfill();
 		}
 
-		var
-			emptyBlock = null,
-			emptyLivefeed = (typeof responseData.componentResult.EMPTY != 'undefined' ? responseData.componentResult.EMPTY : 'N');
+		var emptyBlock = null;
+		var emptyLivefeed = (typeof responseData.componentResult.EMPTY != 'undefined' ? responseData.componentResult.EMPTY : 'N');
+		var forcePageRefresh = (BX.type.isNotEmptyString(responseData.componentResult.FORCE_PAGE_REFRESH) ? responseData.componentResult.FORCE_PAGE_REFRESH : 'N');
+
+		if (forcePageRefresh === 'Y')
+		{
+			top.window.location.reload();
+			return;
+		}
 
 		if (
 			emptyLivefeed == 'Y'
@@ -1388,6 +1422,7 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 				this.recalcMoreButton();
 				this.recalcMoreButtonCommentsList();
 				this.registerViewAreaList();
+				BX.Livefeed.PinnedPanelInstance.resetFlags();
 				BX.Livefeed.PinnedPanelInstance.initPanel();
 				BX.Livefeed.PinnedPanelInstance.initPosts();
 			}.bind(this));
@@ -1590,6 +1625,32 @@ BitrixLF.prototype.recalcMoreButton = function()
 	}
 };
 
+BitrixLF.prototype.processForumSpoilerToggle = function(params)
+{
+	if (!BX.type.isDomNode(params.node))
+	{
+		return;
+	}
+
+	var outerBlock = BX.findParent(params.node, { className: 'feed-post-block' }, BX('log_internal_container'));
+	if (!outerBlock)
+	{
+		return;
+	}
+
+	var bodyBlock = BX.findChild(outerBlock, { className: 'feed-post-text-block-inner-inner'}, true);
+	if (!bodyBlock)
+	{
+		return
+	}
+
+	this.recalcMoreButtonPost({
+		bodyBlock: bodyBlock,
+		moreButtonBlock: BX.findChild(outerBlock, { className: 'feed-post-text-more'}, true),
+		informerBlock: BX.findChild(outerBlock, { className: 'feed-post-text-more'}, true)
+	});
+};
+
 BitrixLF.prototype.recalcMoreButtonPost = function(params)
 {
 	var arPos = (typeof params.arPos != 'undefined' ? params.arPos : BX.pos(params.bodyBlock));
@@ -1610,7 +1671,7 @@ BitrixLF.prototype.recalcMoreButtonPost = function(params)
 	}
 };
 
-BitrixLF.prototype.recalcMoreButtonCommentsList = function()
+BitrixLF.prototype.recalcMoreButtonCommentsList = function(params)
 {
 	BX.onCustomEvent(window, 'OnUCMoreButtonListRecalc', []);
 };
@@ -1638,7 +1699,7 @@ BitrixLF.prototype.LazyLoadCheckVisibility = function(image) // to check if expa
 	{
 		var moreBlock = BX.findChild(textBlock, {'tag':'div', 'className': 'feed-post-text-more'}, false);
 		if (
-			moreBlock 
+			moreBlock
 			&& moreBlock.style.display != 'none'
 		)
 		{
@@ -1879,7 +1940,6 @@ BitrixLF.prototype.createTask = function(params)
 		}
 	});
 
-	this.createTaskPopup.params.zIndex = (BX.WindowManager ? BX.WindowManager.GetZIndex() : 0);
 	this.createTaskPopup.show();
 };
 

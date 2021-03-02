@@ -9,9 +9,21 @@
 	position: absolute;
 	left: 0;
 	top: 5px;
-	transform: translate3d(-100%, 14px, 0);
-	max-width: 37px;
+	transform: translate(-100%, 14px);
+	max-width: 42px; /* sync this value (+margin) with minLabelWidth in dialog.js */
 	transition: max-width 300ms ease;
+}
+
+/* Chrome sub-pixel bug */
+.ui-selector-tab-labels--active.ui-selector-tab-labels:before,
+.ui-selector-tab-labels--animate-show.ui-selector-tab-labels:before,
+.ui-selector-tab-labels--animate-hide.ui-selector-tab-labels:before {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: #fff;
+    right: -1px;
 }
 
 .ui-selector-tab-labels--animate-show {
@@ -23,10 +35,11 @@
 }
 
 .ui-selector-tab-label {
-	background-color: #d9dcdf;
+	background-color: #e4ebed;
 	border-radius: 20px 0 0 20px;
+    box-shadow: 0 1px 1px rgba(82, 92, 105, 0.09);
 	height: 39px;
-	margin-bottom: 4px;
+	margin-bottom: 5px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -34,7 +47,7 @@
 }
 
 .ui-selector-tab-label-hover {
-	background-color: #e2e5e8;
+	background-color: #f2f6f7;
 }
 
 .ui-selector-tab-label-active {
@@ -42,7 +55,7 @@
 }
 
 .ui-selector-tab-label-active.ui-selector-tab-label-hover {
-	background-color: #42d0fd;
+	background-color: #4bd4ff;
 }
 
 .ui-selector-tab-label-hidden {
@@ -50,9 +63,9 @@
 }
 
 .ui-selector-tab-icon {
-	width: 20px;
-	min-width: 20px;
-	height: 20px;
+	width: 23px;
+	min-width: 23px;
+	height: 23px;
 	background-image: url(images/tab-icon.svg);
 	background-repeat: no-repeat;
 	background-position: center;
@@ -163,11 +176,18 @@
 
 .ui-selector-tab-default-stub-icon {
 	width: 70px;
-	height: 70px;
+	min-height: 70px;
+	flex: 1;
 	background-image: url(images/default-stub-icon.svg);
 	background-repeat: no-repeat;
 	background-size: contain;
-	margin-bottom: 35px;
+	background-position: 0 76%;
+}
+
+.ui-selector-tab-default-stub-titles {
+	flex: 1;
+	text-align: center;
+	margin-top: 10px;
 }
 
 .ui-selector-tab-default-stub-title {
@@ -185,13 +205,11 @@
 
 .ui-selector-tab-default-stub-arrow {
 	display: block;
-	width: 83px;
-	height: 72px;
-	max-height: 72px;
-	align-self: start;
-	margin-left: 10px;
-	margin-top: 10px;
-	flex: 1;
+	position: absolute;
+	left: 25px;
+	bottom: 10px;
+	width: 62px;
+	height: 69px;
 	background-image: url(images/default-stub-arrow.svg);
 	background-position: bottom;
 	background-repeat: no-repeat;
@@ -283,4 +301,70 @@
 	left: 50%;
 	display: inline-block;
 	transform: translate(-50%, -50%);
+}
+
+.ui-selector-search-footer {
+	align-items: center;
+	display: flex;
+	height: 54px;
+	background-color: #eaf9fe;
+	padding: 0 18px;
+	overflow: hidden;
+	white-space: nowrap;
+	color: rgba(82, 92, 105, 0.5);
+	cursor: pointer;
+	position: relative;
+}
+
+.ui-selector-search-footer:before {
+	position: absolute;
+	left: 18px;
+	top: 15px;
+	width: 24px;
+	height: 24px;
+	background-image: url(images/footer-link-add-icon.svg);
+	content: "";
+}
+
+.ui-selector-search-footer:hover {
+	background-color: #ddf6fe;
+}
+
+.ui-selector-search-footer-box {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	line-height: 16px;
+}
+
+.ui-selector-search-footer-label {
+	margin-left: 31px;
+	margin-right: 5px;
+	color: #525c69;
+	font-size: 14px;
+}
+
+.ui-selector-search-footer-query {
+	color: #525c69;
+	font-size: 14px;
+	font-weight: bold;
+
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.ui-selector-search-footer-loader {
+	position: relative;
+	display: block;
+	width: 45px;
+	height: 48px;
+}
+
+.ui-selector-search-footer-cmd {
+	font-size: 9px;
+	color: rgba(0, 0, 0, 0.3);
 }

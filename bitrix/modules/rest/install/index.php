@@ -14,7 +14,7 @@ class rest extends CModule
 
 	private $errors = false;
 
-	function rest()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -85,7 +85,7 @@ class rest extends CModule
 				'SORT' => 1000,
 				'LANG' => array(
 					LANGUAGE_ID => array(
-						'NAME' => GetMessage('REST_IBLOCK_NAME'),
+						'NAME' => GetMessage('REST_IBLOCK_NAME_2'),
 						'SECTION_NAME' => GetMessage('REST_IBLOCK_SECTION_NAME'),
 						'ELEMENT_NAME' => GetMessage('REST_IBLOCK_ELEMENT_NAME'),
 					)
@@ -114,6 +114,8 @@ class rest extends CModule
 		\CAgent::AddAgent('\Bitrix\Rest\Configuration\Helper::sendStatisticAgent();', "rest", "N",86400);
 		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::sendAgent();', "rest", "N", 3600);
 		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::cleanUpAgent();', "rest", "N", 3600);
+		\CAgent::AddAgent('\Bitrix\Rest\Marketplace\Notification::checkAgent();', "rest", "N", 86400);
+		\CAgent::AddAgent('\Bitrix\Rest\Marketplace\Immune::load();', "rest", "N", 86400);
 
 		return true;
 	}

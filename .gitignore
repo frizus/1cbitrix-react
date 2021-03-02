@@ -3,6 +3,7 @@
 /*.txt
 /*.html
 *.log
+!*.log/
 *.xml
 /*.sql
 Thumbs.db

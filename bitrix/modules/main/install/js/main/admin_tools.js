@@ -602,7 +602,6 @@ function JCAdminList(table_id)
 			div.id = "settings_float_div";
 			div.className = "settings-float-form";
 			div.style.position = 'absolute';
-			div.style.zIndex = 1000;
 			div.innerHTML = result;
 
 			var left = parseInt(document.body.scrollLeft + document.body.clientWidth/2 - div.offsetWidth/2);
@@ -976,7 +975,6 @@ function TabControl(name, unique_name, aTabs)
 			div.id = "settings_float_div";
 			div.className = "settings-float-form";
 			div.style.position = 'absolute';
-			div.style.zIndex = 1000;
 			div.innerHTML = result;
 
 			var left = parseInt(document.body.scrollLeft + document.body.clientWidth/2 - div.offsetWidth/2);
@@ -1403,7 +1401,7 @@ function JCUserOptions()
 
 		var sParam = this.GetParams();
 		if(sParam != '')
-			document.cookie = phpVars.cookiePrefix+"_LAST_SETTINGS=" + sParam + "&sessid="+phpVars.bitrix_sessid+"; expires=Thu, 31 Dec 2020 23:59:59 GMT; path=/;";
+			document.cookie = phpVars.cookiePrefix+"_LAST_SETTINGS=" + sParam + "&sessid="+phpVars.bitrix_sessid+"; expires=Thu, 31 Dec " + ((new Date()).getFullYear() + 1) + " 23:59:59 GMT; path=/;";
 
 		if(!this.bSend)
 		{

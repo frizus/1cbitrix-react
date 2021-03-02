@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAM_EXPORT_DESCR"] = "Data export by";
 $MESS["CAM_EXPORT_DESCR_EDIT"] = "Edits the export profile";
 $MESS["CAM_EXPORT_DESCR_EXPORT"] = "Configures and exports data";
@@ -50,6 +50,7 @@ $MESS["SALE_BUYERS"] = "Customers";
 $MESS["SALE_BUYERS_DESCR"] = "List of customers";
 $MESS["SALE_CASHBOX"] = "Cash registers";
 $MESS["SALE_CASHBOX_CHECK"] = "Daily receipts";
+$MESS["SALE_CASHBOX_CHECK_CORRECTION"] = "Correction";
 $MESS["SALE_CASHBOX_LIST"] = "Cash registers";
 $MESS["SALE_CASHBOX_TITLE"] = "Cash Registers";
 $MESS["SALE_CASHBOX_ZREPORT"] = "Z Reports";
@@ -78,6 +79,8 @@ $MESS["SALE_LOCATION_REINDEX"] = "Re-index search";
 $MESS["SALE_LOCATION_REINDEX_DESCR"] = "Re-index search";
 $MESS["SALE_MASTER_CONVERTER_TEXT"] = "Convert e-Store";
 $MESS["SALE_MASTER_CONVERTER_TITLE"] = "Convert";
+$MESS["SALE_MENU_CRM_SITE_MASTER"] = "Go to Bitrix24";
+$MESS["SALE_MENU_CRM_SITE_MASTER_ITEM"] = "Bitrix24 Installation Wizard";
 $MESS["SALE_MENU_DELIVERY_REQUESTS"] = "Transportation orders";
 $MESS["SALE_MENU_DISCOUNT"] = "Shopping cart rules";
 $MESS["SALE_MENU_DISCOUNT_COUPONS"] = "Coupons";
@@ -103,6 +106,7 @@ $MESS["SALE_MENU_LOCATION_SERVICES_TITLE"] = "External services";
 $MESS["SALE_MENU_LOCATION_TYPES"] = "Location types";
 $MESS["SALE_MENU_LOCATION_TYPES_TITLE"] = "Location types";
 $MESS["SALE_MENU_LOCATION_ZONES"] = "Locations for sites";
+$MESS["SALE_MENU_LOCATION_ZONES_TITLE"] = "Locations for sites";
 $MESS["SALE_MENU_MARKETING_MARKETPLACE_ADD"] = "Install from Marketplace";
 $MESS["SALE_MENU_MARKETPLACE_READY_SHOPS"] = "Install a ready to use shop from Marketplace";
 $MESS["SALE_MENU_SUBSCRIPTION_PRODUCT"] = "Product subscriptions";
@@ -204,4 +208,3 @@ $MESS["sale_menu_taxes"] = "Tax list";
 $MESS["sale_menu_taxes_title"] = "Tax management";
 $MESS["sale_menu_uf_properties"] = "User settings";
 $MESS["sale_menu_uf_properties_title"] = "Configure order user settings";
-?>

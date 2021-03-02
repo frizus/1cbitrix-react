@@ -83,11 +83,6 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 
 		<?foreach ($arResult['SITES'] as $item):
 
-			if ($item['DELETE_FINISH'])//@tmp
-			{
-				continue;
-			}
-
 			// actions / urls
 			$urlEdit = str_replace('#site_edit#', $item['ID'], $arParams['~PAGE_URL_SITE_EDIT']);
 			$urlCreatePage = str_replace(array('#site_show#', '#landing_edit#'), array($item['ID'], 0), $arParams['~PAGE_URL_LANDING_EDIT']);
@@ -253,7 +248,6 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 			$lastPage &&
 			!$arResult['IS_DELETED'] &&
 			$arParams['TYPE'] == 'PAGE' &&
-			Manager::isB24() && ($zone == 'ru' || $zone == 'en') &&
 			(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
 		)
 		{
@@ -344,7 +338,8 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 							condition: condition,
 							stopParameters: [
 								'action',
-								'fields%5Bdelete%5D'
+								'fields%5Bdelete%5D',
+								'nav'
 							],
 							options: {
 								allowChangeHistory: false,

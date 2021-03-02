@@ -219,7 +219,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 				}
 				$fields[] = $field;
 
-				$demoTextFields[$fieldCode] = '<' . str_replace(' ', '_', mb_strtoupper($field['CAPTION'])) . '>';
+				$demoTextFields[$fieldCode] = '<' . str_replace(' ', '_', strtoupper($field['CAPTION'])) . '>';
 			}
 
 			$this->arResult['TYPE_LIST'][] = array(
@@ -306,7 +306,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 				'ACTIVE' => true
 			],
 			'settings' => [
-				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_SETTINGS'),
+				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_SETTINGS_1'),
 				'ATTRIBUTES' => [
 					'onclick' => 'BX.Main.UserConsent.Edit.showSettingsTab();',
 				],

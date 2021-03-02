@@ -2184,7 +2184,12 @@ class ComponentHelper
 			'AUTHOR_ID' => $task['CREATED_BY'],
 			'MESSAGE' => CommentAux\CreateTask::getPostText(),
 			'SHARE_DEST' => 'sourcetype='.$sourceEntityType.'|sourceid='.$sourceEntityId.'|taskid='.$taskId,
-			'AUX' => 'Y'
+			'AUX' => 'Y',
+			'AUX_DATA' => [
+				'sourcetype' => $sourceEntityType,
+				'sourceid' => $sourceEntityId,
+				'taskid' => $taskId
+			]
 		));
 
 		if (!$sonetCommentId)
@@ -3537,7 +3542,7 @@ class ComponentHelper
 
 		if ($allowToAll)
 		{
-			$toAllRightsList = unserialize(Option::get("socialnetwork", "livefeed_toall_rights", 'a:1:{i:0;s:2:"AU";}'));
+			$toAllRightsList = unserialize(Option::get("socialnetwork", "livefeed_toall_rights", 'a:1:{i:0;s:2:"AU";}'), [ 'allowed_classes' => false ]);
 			if (!$toAllRightsList)
 			{
 				$toAllRightsList = array("AU");
@@ -4596,6 +4601,8 @@ class ComponentHelper
 			return $result;
 		}
 
+		$result = array_fill_keys($logIdList, []);
+
 		$topCount = (
 			isset($params['topCount'])
 				? intval($params['topCount'])
@@ -4797,7 +4804,11 @@ class ComponentHelper
 				$data,
 				function($a, $b)
 				{
-					if ($a['WEIGHT'] == $b['WEIGHT'])
+					if (
+						!isset($a['WEIGHT'])
+						|| !isset($b['WEIGHT'])
+						|| $a['WEIGHT'] == $b['WEIGHT']
+					)
 					{
 						return 0;
 					}
@@ -4950,7 +4961,7 @@ class ComponentHelper
 			if (
 				$eventFields["EVENT_ID"] == 'calendar'
 				&& !empty($eventFields["PARAMS"])
-				&& ($calendarEventParams = unserialize(htmlspecialcharsback($eventFields["PARAMS"])))
+				&& ($calendarEventParams = unserialize(htmlspecialcharsback($eventFields["PARAMS"]), [ 'allowed_classes' => false ]))
 				&& !empty($calendarEventParams['COMMENT_XML_ID'])
 			)
 			{

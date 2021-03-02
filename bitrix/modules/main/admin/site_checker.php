@@ -248,7 +248,7 @@ if ($_REQUEST['unique_id'])
 			$oTest->timeout = 30;
 
 		if ($_REQUEST['global_test_vars'] && ($d = base64_decode($_REQUEST['global_test_vars'])))
-			$oTest->arTestVars = unserialize($d);
+			$oTest->arTestVars = unserialize($d, ['allowed_classes' => false]);
 		else
 			$oTest->arTestVars = array();
 
@@ -408,9 +408,7 @@ elseif($_REQUEST['test_start'])
 		$oTest = new CSiteCheckerTest($_REQUEST['step'], (int) $_REQUEST['fast']);
 		if ($_REQUEST['global_test_vars'] && ($d = base64_decode($_REQUEST['global_test_vars'])))
 		{
-			if (!CheckSerializedData($d))
-				die('Error unserialize');
-			$oTest->arTestVars = unserialize($d);
+			$oTest->arTestVars = unserialize($d, ['allowed_classes' => false]);
 		}
 
 		$oTest->Start();
@@ -448,7 +446,7 @@ elseif ($_REQUEST['read_log']) // after prolog to send correct charset
 	$oTest = new CSiteCheckerTest();
 	$str = htmlspecialcharsEx(file_get_contents($_SERVER['DOCUMENT_ROOT'].$oTest->LogFile));
 
-	if (($s = CUtil::BinStrlen($str)) > ini_get('pcre.backtrack_limit'))
+	if (($s = strlen($str)) > ini_get('pcre.backtrack_limit'))
 		@ini_set('pcre.backtrack_limit', $s);
 
 	?><!DOCTYPE HTML><html><body style="color:#666"><h1 style="color:#000"><?=GetMessage("MAIN_SC_SYSTEST_LOG")?></h1><?

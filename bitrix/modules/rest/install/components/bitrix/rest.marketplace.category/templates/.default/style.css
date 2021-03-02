@@ -33,6 +33,12 @@
 	overflow: hidden;
 }
 
+.mp-slider-view .ui-sidepanel-menu-link-text-icon {
+	margin-right: 5px;
+	width: 13px;
+	height: 13px;
+}
+
 .mp-slider-view .ui-sidepanel-menu-link-text-counter {
 	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #525C69;
@@ -422,8 +428,8 @@
 }
 
 #mp-left-menu {
-	margin-right: 23px;
-	background: #e6e9eb;
+	/*margin-right: 23px;*/
+	/*background: #e6e9eb;*/
 }
 
 .mp-head-status-box {
@@ -438,6 +444,7 @@
 .mp-head-status-value {
 	display: inline-block;
 	margin: 0 8px 0 0;
+	white-space: nowrap;
 	font: 30px "OpenSans-Light", "Helvetica Neue", Arial, sans-serif;
 	color: #2FC6F6;
 	letter-spacing: -0.69px;

@@ -343,12 +343,16 @@
 
 			var kkmId = BX('KKM_ID');
 			kkmId = (kkmId) ? kkmId.value : '';
-			
+
+			var handlerSelect = BX("HANDLER");
+			var restCode = handlerSelect.options[handlerSelect.selectedIndex].getAttribute('data-rest-code');
+
 			BX.ajax({
 				data: {
 					'action': 'reload_settings',
 					'kkmId': kkmId,
 					'handler': BX('HANDLER').value || '',
+					'restCode': restCode || '',
 					'sessid': BX.bitrix_sessid()
 				},
 				method: 'POST',
@@ -357,6 +361,14 @@
 				onsuccess: BX.delegate(function(result)
 					{
 						BX.closeWait();
+						if (result && result.hasOwnProperty('SHOW_UA_HINT'))
+						{
+							BX.hint_replace(BX('hint_CASHBOX_UA'), BX.message('SALE_CASHBOX_UA_HINT'));
+						}
+						else if(BX('hint_cashbox_ua_wrapper'))
+						{
+							BX('hint_cashbox_ua_wrapper').innerHTML = '<span id="hint_CASHBOX_UA"></span>';
+						}
 						if (result && result.hasOwnProperty('HTML'))
 							BX('sale-cashbox-settings-container').innerHTML = result.HTML;
 
@@ -368,7 +380,7 @@
 						{
 							BX('sale-cashbox-models-container').innerHTML = '';
 						}
-						
+
 						if (result.hasOwnProperty('OFD'))
 						{
 							BX('OFD').value = result.OFD;

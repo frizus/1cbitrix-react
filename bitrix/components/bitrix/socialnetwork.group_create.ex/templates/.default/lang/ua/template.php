@@ -101,6 +101,7 @@ $MESS["SONET_GCE_T_SCRUM_MASTER"] = "SCRUM майстер";
 $MESS["SONET_GCE_T_SCRUM_OWNER"] = "SCRUM власник";
 $MESS["SONET_GCE_T_SCRUM_PAGE_TITLE"] = "Створити SCRUM проєкт";
 $MESS["SONET_GCE_T_SCRUM_SPRINT_DURATION"] = "Тривалість спринту";
+$MESS["SONET_GCE_T_SCRUM_TASK_RESPONSIBLE"] = "Відповідальний за замовчуванням";
 $MESS["SONET_GCE_T_SPAM_PERMS"] = "Відправляти повідомлення членам групи можуть";
 $MESS["SONET_GCE_T_SUBJECT"] = "Тематика групи";
 $MESS["SONET_GCE_T_SUBJECT_PROJECT"] = "Тематика проєкту";
